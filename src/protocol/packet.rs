@@ -9,7 +9,7 @@ enum Field {
     Byte(i8),
     UByte(u8),
     Short(i16),
-    UShort(i16),
+    UShort(u16),
     Int(i32),
     Long(i64),
     Float(f32),
@@ -17,8 +17,8 @@ enum Field {
     String(String),
     Chat(String),
     VarInt(i32),
-    VarLong(i32),
-    //TODO: Chunk, Entity meta, slot, nbt, byte array, optx, array optx...
+    VarLong(i64),
+    //TODO: Chunk Section, Entity Metadata, Slot, NBT Tag, Byte Array, Optional X, Array of X, X Enum
     Position { x: i32, y: i16, z: i32 },
     Angle(i8),
     UUID(Uuid)
