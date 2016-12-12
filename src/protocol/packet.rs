@@ -26,13 +26,15 @@ enum Field {
 
 pub enum PacketType {
     PlayIn(PlayIn),
-    PlayOut(PlayOut)
+    PlayOut(PlayOut),
+    StatusIn(StatusIn),
+    StatusOut(StatusOut)
 }
 
 /// Server -> Client (Play)
 pub enum PlayIn {
     SpawnObject = 0x00,
-    ExpOrb = 0x01,
+    SpawnExpOrb = 0x01,
     SpawnGlobalEntity = 0x02,
     SpawnMob = 0x03,
     SpawnPainting = 0x04,
@@ -44,7 +46,7 @@ pub enum PlayIn {
     BlockAction = 0x0A,
     BlockChange = 0x0B,
     BossBar = 0x0C,
-    Difficulty = 0x0D,
+    ServerDifficulty = 0x0D,
     TabComplete = 0x0E,
     ChatMessage = 0x0F,
     MultiBlockChange = 0x10,
@@ -69,24 +71,24 @@ pub enum PlayIn {
     JoinGame = 0x23,
     Map = 0x24,
     EntityRelativeMove = 0x25,
-    EntityLookMove = 0x26,
+    EntityLookRelativeMove = 0x26,
     EntityLook = 0x27,
     Entity = 0x28,
     VehicleMove = 0x29,
-    OpenSign = 0x2A,
+    OpenSignEditor = 0x2A,
     PlayerAbilities = 0x2B,
     CombatEvent = 0x2C,
-    PlayerList = 0x2D,
+    PlayerListItem = 0x2D,
     PlayerPositionLook = 0x2E,
     UseBed = 0x2F,
     DestroyEntities = 0x30,
     RemoveEntityEffect = 0x31,
-    ResourcePack = 0x32,
+    ResourcePackSend = 0x32,
     Respawn = 0x33,
     EntityHeadLook = 0x34,
     WorldBorder = 0x35,
     Camera = 0x36,
-    HeldItem = 0x37,
+    HeldItemChange = 0x37,
     DisplayScoreboard = 0x38,
     EntityMetadata = 0x39,
     AttachEntity = 0x3A,
@@ -102,7 +104,7 @@ pub enum PlayIn {
     TimeUpdate = 0x44,
     Title = 0x45,
     SoundEffect = 0x46,
-    PlayerListHeader = 0x47,
+    PlayerListHeaderFooter = 0x47,
     CollectItem = 0x48,
     EntityTeleport = 0x49,
     EntityProperties = 0x4A,
@@ -111,7 +113,48 @@ pub enum PlayIn {
 
 /// Client -> Server (Play)
 pub enum PlayOut {
-    TeleportConfirm = 0x00
+    TeleportConfirm = 0x00,
+    TabComplete = 0x01,
+    ChatMessage = 0x02,
+    ClientStatus = 0x03,
+    ClientSettings = 0x04,
+    ConfirmTransaction = 0x05,
+    EnchantItem = 0x06,
+    ClickWindow = 0x07,
+    CloseWindow = 0x08,
+    PluginMessage = 0x09,
+    UseEntity = 0x0A,
+    KeepAlive = 0x0B,
+    PlayerPosition = 0x0C,
+    PlayerPositionLook = 0x0D,
+    PlayerLook = 0x0E,
+    Player = 0x0F,
+    VehicleMove = 0x10,
+    SteerBoat = 0x11,
+    PlayerAbilities = 0x12,
+    PlayerDigging = 0x13,
+    EntityAction = 0x14,
+    SteerVehicle = 0x15,
+    ResourcePackStatus = 0x16,
+    HeldItemChange = 0x17,
+    CreativeInventoryAction = 0x18,
+    UpdateSign = 0x19,
+    Animation = 0x1A,
+    Spectate = 0x1B,
+    PlayerBlockPlacement = 0x1C,
+    UseItem = 0x1D
+}
+
+/// Server -> Client (Status)
+pub enum StatusIn {
+    Response = 0x00,
+    Pong = 0x01
+}
+
+/// Client -> Server (Status)
+pub enum StatusOut {
+    Request = 0x00,
+    Ping = 0x01
 }
 
 impl Packet {
