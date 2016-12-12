@@ -18,6 +18,7 @@ pub struct Client {
     window: Window,
     font: std::rc::Rc<Font>,
 }
+
 impl Client {
     #[inline]
     pub fn new() -> Client {

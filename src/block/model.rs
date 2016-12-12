@@ -17,6 +17,7 @@ pub struct Model {
     textures: Option<Map<String, String>>,
     elements: Option<Vec<Element>>,
 }
+
 #[derive(Deserialize)]
 struct Displays {
     thirdperson_righthand: Option<Display>,
@@ -28,12 +29,14 @@ struct Displays {
     ground: Option<Display>,
     fixed: Option<Display>,
 }
+
 #[derive(Deserialize)]
 struct Display {
     rotation: Option<Vec<i32>>,
     translation: Option<Vec<i32>>,
     scale: Option<Vec<i32>>,
 }
+
 #[derive(Deserialize)]
 struct Element {
     from: Option<Vec<f32>>,
@@ -42,6 +45,7 @@ struct Element {
     shade: Option<bool>,
     faces: Option<Faces>,
 }
+
 #[derive(Deserialize)]
 struct ElementRotation {
     origin: Option<Vec<i32>>,
@@ -49,6 +53,7 @@ struct ElementRotation {
     angle: Option<i32>,
     rescale: Option<bool>,
 }
+
 #[derive(Deserialize, Clone)]
 struct Faces {
     down: Option<Face>,
@@ -58,6 +63,7 @@ struct Faces {
     west: Option<Face>,
     east: Option<Face>,
 }
+
 #[derive(Deserialize, Clone)]
 struct Face {
     uv: Option<Vec<i32>>,
@@ -92,49 +98,49 @@ impl Model {
                 // Up
                 {
                     let vert = [Point3::new(f[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
-                                Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
-                                Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
-                                Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
+                        Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
+                        Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
+                        Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
                     self.create_face(vert, &face.up, &mut block);
                 }
                 // Down
                 {
                     let vert = [Point3::new(f[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                                Point3::new(t[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                                Point3::new(f[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
-                                Point3::new(t[0] / 16.0, f[1] / 16.0, t[2] / 16.0)];
+                        Point3::new(t[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
+                        Point3::new(f[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
+                        Point3::new(t[0] / 16.0, f[1] / 16.0, t[2] / 16.0)];
                     self.create_face(vert, &face.down, &mut block);
                 }
                 // South
                 {
                     let vert = [Point3::new(t[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
-                                Point3::new(f[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
-                                Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
-                                Point3::new(f[0] / 16.0, t[1] / 16.0, t[2] / 16.0)];
+                        Point3::new(f[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
+                        Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
+                        Point3::new(f[0] / 16.0, t[1] / 16.0, t[2] / 16.0)];
                     self.create_face(vert, &face.south, &mut block);
                 }
                 // North
                 {
                     let vert = [Point3::new(f[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                                Point3::new(t[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                                Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
-                                Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
+                        Point3::new(t[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
+                        Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
+                        Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
                     self.create_face(vert, &face.north, &mut block);
                 }
                 // West
                 {
                     let vert = [Point3::new(f[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
-                                Point3::new(f[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                                Point3::new(f[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
-                                Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
+                        Point3::new(f[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
+                        Point3::new(f[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
+                        Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
                     self.create_face(vert, &face.west, &mut block);
                 }
                 // East
                 {
                     let vert = [Point3::new(t[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                                Point3::new(t[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
-                                Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
-                                Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0)];
+                        Point3::new(t[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
+                        Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
+                        Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0)];
                     self.create_face(vert, &face.east, &mut block);
                 }
             }
@@ -276,9 +282,9 @@ impl Model {
             // Get face UV
             if let Some(ref j) = fcc.uv {
                 let mut uv = vec![Point2::new(j[2] as f32 / 16.0, j[3] as f32 / 16.0),
-                                  Point2::new(j[0] as f32 / 16.0, j[3] as f32 / 16.0),
-                                  Point2::new(j[2] as f32 / 16.0, j[1] as f32 / 16.0),
-                                  Point2::new(j[0] as f32 / 16.0, j[1] as f32 / 16.0)];
+                Point2::new(j[0] as f32 / 16.0, j[3] as f32 / 16.0),
+                Point2::new(j[2] as f32 / 16.0, j[1] as f32 / 16.0),
+                Point2::new(j[0] as f32 / 16.0, j[1] as f32 / 16.0)];
                 match rotation {
                     90 => {
                         uv.swap(0, 1);
@@ -306,6 +312,7 @@ impl Model {
                                    get_texture_name(texture));
     }
 }
+
 fn get_texture_name(path: &str) -> &str {
     let splited = path.split(":").collect::<Vec<&str>>();
     splited.last().unwrap().to_owned()

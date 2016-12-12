@@ -4,6 +4,7 @@ pub struct Packet {
     id: i32,
     data: Vec<Field>
 }
+
 enum Field {
     Boolean(bool),
     Byte(i8),
@@ -19,7 +20,11 @@ enum Field {
     VarInt(i32),
     VarLong(i64),
     //TODO: Chunk Section, Entity Metadata, Slot, NBT Tag, Byte Array, Optional X, Array of X, X Enum
-    Position { x: i32, y: i16, z: i32 },
+    Position {
+        x: i32,
+        y: i16,
+        z: i32
+    },
     Angle(i8),
     UUID(Uuid)
 }

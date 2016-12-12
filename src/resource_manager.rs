@@ -9,6 +9,7 @@ use serde_json;
 pub fn get_resources_path() -> &'static Path {
     Path::new("resources")
 }
+
 /// Returns an asset path
 pub fn get_resource(name: &str) -> PathBuf {
     let splited = name.split(":").collect::<Vec<&str>>();
@@ -20,6 +21,7 @@ pub fn get_resource(name: &str) -> PathBuf {
     }
     resource
 }
+
 /// Read and return the content of an asset
 pub fn get_resource_file(path: &Path) -> String {
     let display = path.display();
@@ -32,10 +34,9 @@ pub fn get_resource_file(path: &Path) -> String {
     let mut asset = String::new();
     match file.read_to_string(&mut asset) {
         Err(why) => panic!("Couldn't read the required asset {}: {}", display,
-                                                   why.description()),
+                           why.description()),
         Ok(_) => return asset,
     }
-    asset
 }
 
 /// Get file name from Minecraft asset hash
@@ -46,6 +47,6 @@ pub fn get_file_hash(name: &str) -> String {
     let path = format!("/objects/{}/hash", name.replace("/", "~1"));
     match data.pointer(&path) {
         Some(hash) => return hash.as_str().unwrap().to_owned(),
-        None        => panic!("Couldn't read the required asset {}", name),
+        None => panic!("Couldn't read the required asset {}", name),
     }
 }

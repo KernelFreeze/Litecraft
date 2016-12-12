@@ -198,7 +198,7 @@ impl FirstPerson {
 
     fn update_projviews(&mut self) {
         let _ = self.proj_view = *self.projection.as_matrix() *
-                                 na::to_homogeneous(&self.view_transform());
+            na::to_homogeneous(&self.view_transform());
 
         let _ = na::inverse(&self.proj_view)
             .map(|inverse_proj| self.inverse_proj_view = inverse_proj);
