@@ -25,10 +25,19 @@ enum Field {
 }
 
 pub enum PacketType {
+    HandshakingOut(HandshakingOut),
     PlayIn(PlayIn),
     PlayOut(PlayOut),
     StatusIn(StatusIn),
-    StatusOut(StatusOut)
+    StatusOut(StatusOut),
+    LoginIn(LoginIn),
+    LoginOut(LoginOut)
+}
+
+/// Client -> Server (Play)
+pub enum HandshakingOut {
+    Handshake = 0x00,
+    LegacyServerListPing = 0xFE
 }
 
 /// Server -> Client (Play)
@@ -155,6 +164,20 @@ pub enum StatusIn {
 pub enum StatusOut {
     Request = 0x00,
     Ping = 0x01
+}
+
+/// Server -> Client (Login)
+pub enum LoginIn {
+    Disconnect = 0x00,
+    EncryptionRequest = 0x01,
+    LoginSuccess = 0x02,
+    SetCompression = 0x03
+}
+
+/// Client -> Server (Login)
+pub enum LoginOut {
+    LoginStart = 0x00,
+    EncryptionResponse = 0x01
 }
 
 impl Packet {
