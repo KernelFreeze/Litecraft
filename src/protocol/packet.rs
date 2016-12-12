@@ -111,7 +111,7 @@ pub enum PlayIn {
 
 /// Client -> Server (Play)
 pub enum PlayOut {
-    PlayOutTeleportConfirm = 0x00
+    TeleportConfirm = 0x00
 }
 
 impl Packet {
