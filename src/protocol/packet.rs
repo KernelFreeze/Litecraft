@@ -1,10 +1,13 @@
 use uuid::Uuid;
+use std::io;
 
 pub struct Packet {
     id: i32,
-    data: Vec<Field>
+    data: Vec<Field>,
+    buf: Vec<u8>
 }
 
+#[derive(Debug, Clone)]
 enum Field {
     Boolean(bool),
     Byte(i8),
@@ -187,10 +190,11 @@ pub enum LoginOut {
 
 impl Packet {
     /// Create a new empty packet
-    pub fn new(id: i32) -> Packet {
+    pub fn new(id: i32, buffer: Vec<u8>) -> Packet {
         Packet {
             id: id,
-            data: vec![]
+            data: vec![],
+            buf: buffer
         }
     }
 
@@ -208,5 +212,24 @@ impl Packet {
     /// Get mutable data field
     pub fn get_data_mut(&mut self) -> &mut [Field] {
         &mut self.data
+    }
+
+    /// Read a VarInt, return the value and add it to the packet fields
+    pub fn read_varint(&mut self) -> Result<i32, &'static str> {
+        const PART: u8 = 0x7F;
+        let mut size = 0;
+        let mut val = 0u32;
+        for b in &self.buf {
+            val |= ((b & PART) << (size * 7)) as u32;
+            size += 1;
+            if size > 5 {
+                return Result::Err("VarInt too big");
+            }
+            if (b & 0x80) == 0 {
+                break
+            }
+        }
+
+        Result::Ok(val as i32)
     }
 }
