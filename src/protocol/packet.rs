@@ -232,4 +232,18 @@ impl Packet {
 
         Result::Ok(val as i32)
     }
+
+    /// Write a VarInt, return an error if there is one
+    pub fn write_varint(&mut self) -> Result<(), Error> {
+        const PART: u32 = 0x7F;
+        let mut val = self.0 as u32;
+        loop {
+            if (val & !PART) == 0 {
+                self.buf.write_u8(val as u8)?;
+                return Result::Ok(());
+            }
+            self.buf.write_u8(((val & PART) | 0x80) as u8)?;
+            val >>= 7;
+        }
+    }
 }
