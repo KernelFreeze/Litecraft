@@ -3,9 +3,6 @@
 
 <img src="http://i.imgur.com/7u4Zyy1.png" width="600">
 
-## Hey!
-We are working on a rewrite from scratch [here](https://github.com/Litecrafty/LitecraftVala)
-
 [Open source](https://en.wikipedia.org/wiki/Free_and_open-source_software), [clean room](https://en.wikipedia.org/wiki/Clean_room_design) implementation of [Minecraft](https://minecraft.net) Client.
 
 # Current features
