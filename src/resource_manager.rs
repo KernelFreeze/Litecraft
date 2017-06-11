@@ -27,14 +27,21 @@ pub fn get_resource_file(path: &Path) -> String {
     let display = path.display();
 
     let mut file = match File::open(&path) {
-        Err(why) => panic!("Couldn't open the required asset {}: {}", display, why.description()),
+        Err(why) => {
+            panic!("Couldn't open the required asset {}: {}",
+                   display,
+                   why.description())
+        }
         Ok(file) => file,
     };
 
     let mut asset = String::new();
     match file.read_to_string(&mut asset) {
-        Err(why) => panic!("Couldn't read the required asset {}: {}", display,
-                           why.description()),
+        Err(why) => {
+            panic!("Couldn't read the required asset {}: {}",
+                   display,
+                   why.description())
+        }
         Ok(_) => return asset,
     }
 }

@@ -1,6 +1,6 @@
 extern crate std;
 
-use na::{Vector3, Point3};
+use na::{Vector3, Point3, Translation3};
 use na;
 
 use glfw::CursorMode;
@@ -36,13 +36,15 @@ impl Client {
 
         let mut model = block::model::Model::new("block/crafting_table").unwrap();
         let mut c = model.get_node();
-        c.append_translation(&Vector3::new(0.0, -2.0, 0.0));
+
+        c.append_translation(&Translation3::from_vector(Vector3::new(2.0, 0.0, 0.0)));
         self.window.scene_mut().add_child(c);
 
         self.window.set_light(Light::StickToCamera);
         self.window.set_background_color(0.529, 0.808, 0.980);
 
         while !self.window.should_close() {
+            /*
             self.window
                 .draw_text(&format!("Litecraft {} for {}",
                                     version::VERSION,
@@ -50,6 +52,7 @@ impl Client {
                            &na::origin(),
                            &self.font,
                            &Point3::new(1.0, 1.0, 1.0));
+            */
             self.window.render_with_camera(&mut self.camera);
         }
     }

@@ -4,7 +4,7 @@ use std::io;
 pub struct Packet {
     id: i32,
     data: Vec<Field>,
-    buf: Vec<u8>
+    buf: Vec<u8>,
 }
 
 #[derive(Debug, Clone)]
@@ -22,14 +22,11 @@ enum Field {
     Chat(String),
     VarInt(i32),
     VarLong(i64),
-    //TODO: Chunk Section, Entity Metadata, Slot, NBT Tag, Byte Array, Optional X, Array of X, X Enum
-    Position {
-        x: i32,
-        y: i16,
-        z: i32
-    },
+    // TODO: Chunk Section, Entity Metadata, Slot,
+    // NBT Tag, Byte Array, Optional X, Array of X, X Enum
+    Position { x: i32, y: i16, z: i32 },
     Angle(i8),
-    UUID(Uuid)
+    UUID(Uuid),
 }
 
 pub enum PacketType {
@@ -39,13 +36,13 @@ pub enum PacketType {
     StatusIn(StatusIn),
     StatusOut(StatusOut),
     LoginIn(LoginIn),
-    LoginOut(LoginOut)
+    LoginOut(LoginOut),
 }
 
 /// Client -> Server (Play)
 pub enum HandshakingOut {
     Handshake = 0x00,
-    LegacyServerListPing = 0xFE
+    LegacyServerListPing = 0xFE,
 }
 
 /// Server -> Client (Play)
@@ -125,7 +122,7 @@ pub enum PlayIn {
     CollectItem = 0x48,
     EntityTeleport = 0x49,
     EntityProperties = 0x4A,
-    EntityEffect = 0x4B
+    EntityEffect = 0x4B,
 }
 
 /// Client -> Server (Play)
@@ -159,19 +156,19 @@ pub enum PlayOut {
     Animation = 0x1A,
     Spectate = 0x1B,
     PlayerBlockPlacement = 0x1C,
-    UseItem = 0x1D
+    UseItem = 0x1D,
 }
 
 /// Server -> Client (Status)
 pub enum StatusIn {
     Response = 0x00,
-    Pong = 0x01
+    Pong = 0x01,
 }
 
 /// Client -> Server (Status)
 pub enum StatusOut {
     Request = 0x00,
-    Ping = 0x01
+    Ping = 0x01,
 }
 
 /// Server -> Client (Login)
@@ -179,13 +176,13 @@ pub enum LoginIn {
     Disconnect = 0x00,
     EncryptionRequest = 0x01,
     LoginSuccess = 0x02,
-    SetCompression = 0x03
+    SetCompression = 0x03,
 }
 
 /// Client -> Server (Login)
 pub enum LoginOut {
     LoginStart = 0x00,
-    EncryptionResponse = 0x01
+    EncryptionResponse = 0x01,
 }
 
 impl Packet {
@@ -194,15 +191,15 @@ impl Packet {
         Packet {
             id: id,
             data: vec![],
-            buf: buffer
+            buf: buffer,
         }
     }
 
     // Decode a byte array into a packet
-    //pub fn decode(data: &[u8]) -> Option<Packet> {}
+    // pub fn decode(data: &[u8]) -> Option<Packet> {}
 
     // Encode the packet into a byte array
-    //pub fn encode(&self) -> &[u8] {}
+    // pub fn encode(&self) -> &[u8] {}
 
     /// Get data field
     pub fn get_data(&self) -> &[Field] {
@@ -226,24 +223,24 @@ impl Packet {
                 return Result::Err("VarInt too big");
             }
             if (b & 0x80) == 0 {
-                break
+                break;
             }
         }
 
         Result::Ok(val as i32)
     }
-
-    /// Write a VarInt, return an error if there is one
-    pub fn write_varint(&mut self) -> Result<(), Error> {
-        const PART: u32 = 0x7F;
-        let mut val = self.0 as u32;
-        loop {
-            if (val & !PART) == 0 {
-                self.buf.write_u8(val as u8)?;
-                return Result::Ok(());
-            }
-            self.buf.write_u8(((val & PART) | 0x80) as u8)?;
-            val >>= 7;
-        }
-    }
+    // Write a VarInt, return an error if there is one
+    // pub fn write_varint(&mut self) -> Result<(), Error> {
+    // const PART: u32 = 0x7F;
+    // let mut val = self.0 as u32;
+    // loop {
+    // if (val & !PART) == 0 {
+    // self.buf.write_u8(val as u8)?;
+    // return Result::Ok(());
+    // }
+    // self.buf.write_u8(((val & PART) | 0x80) as u8)?;
+    // val >>= 7;
+    // }
+    // }
+    //
 }

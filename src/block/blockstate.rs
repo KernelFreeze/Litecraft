@@ -1,8 +1,8 @@
-use serde_json::Map;
+use std::collections::HashMap;
 
 #[derive(Deserialize)]
 pub struct BlockState {
-    variants: Map<String, Variant>,
+    variants: HashMap<String, Variant>,
 }
 
 #[derive(Deserialize)]

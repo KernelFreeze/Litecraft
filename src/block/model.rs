@@ -1,12 +1,12 @@
 use std::vec::Vec;
 use std::result::Result;
+use std::collections::HashMap;
 
 use kiss3d::scene::SceneNode;
 use na::{Point3, Point2, Rotation2, Vector2};
 use na;
 use resource_manager as res;
 use serde_json;
-use serde_json::Map;
 use std::f32;
 
 #[derive(Deserialize)]
@@ -14,7 +14,7 @@ pub struct Model {
     parent: Option<String>,
     ambientocclusion: Option<bool>,
     display: Option<Displays>,
-    textures: Option<Map<String, String>>,
+    textures: Option<HashMap<String, String>>,
     elements: Option<Vec<Element>>,
 }
 
@@ -32,9 +32,9 @@ struct Displays {
 
 #[derive(Deserialize)]
 struct Display {
-    rotation: Option<Vec<i32>>,
-    translation: Option<Vec<i32>>,
-    scale: Option<Vec<i32>>,
+    rotation: Option<Vec<f32>>,
+    translation: Option<Vec<f32>>,
+    scale: Option<Vec<f32>>,
 }
 
 #[derive(Deserialize)]
@@ -98,49 +98,49 @@ impl Model {
                 // Up
                 {
                     let vert = [Point3::new(f[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
-                        Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
-                        Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
-                        Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
+                                Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
+                                Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
+                                Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
                     self.create_face(vert, &face.up, &mut block);
                 }
                 // Down
                 {
                     let vert = [Point3::new(f[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                        Point3::new(t[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                        Point3::new(f[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
-                        Point3::new(t[0] / 16.0, f[1] / 16.0, t[2] / 16.0)];
+                                Point3::new(t[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
+                                Point3::new(f[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
+                                Point3::new(t[0] / 16.0, f[1] / 16.0, t[2] / 16.0)];
                     self.create_face(vert, &face.down, &mut block);
                 }
                 // South
                 {
                     let vert = [Point3::new(t[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
-                        Point3::new(f[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
-                        Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
-                        Point3::new(f[0] / 16.0, t[1] / 16.0, t[2] / 16.0)];
+                                Point3::new(f[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
+                                Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
+                                Point3::new(f[0] / 16.0, t[1] / 16.0, t[2] / 16.0)];
                     self.create_face(vert, &face.south, &mut block);
                 }
                 // North
                 {
                     let vert = [Point3::new(f[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                        Point3::new(t[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                        Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
-                        Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
+                                Point3::new(t[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
+                                Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
+                                Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
                     self.create_face(vert, &face.north, &mut block);
                 }
                 // West
                 {
                     let vert = [Point3::new(f[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
-                        Point3::new(f[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                        Point3::new(f[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
-                        Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
+                                Point3::new(f[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
+                                Point3::new(f[0] / 16.0, t[1] / 16.0, t[2] / 16.0),
+                                Point3::new(f[0] / 16.0, t[1] / 16.0, f[2] / 16.0)];
                     self.create_face(vert, &face.west, &mut block);
                 }
                 // East
                 {
                     let vert = [Point3::new(t[0] / 16.0, f[1] / 16.0, f[2] / 16.0),
-                        Point3::new(t[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
-                        Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
-                        Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0)];
+                                Point3::new(t[0] / 16.0, f[1] / 16.0, t[2] / 16.0),
+                                Point3::new(t[0] / 16.0, t[1] / 16.0, f[2] / 16.0),
+                                Point3::new(t[0] / 16.0, t[1] / 16.0, t[2] / 16.0)];
                     self.create_face(vert, &face.east, &mut block);
                 }
             }
@@ -282,9 +282,9 @@ impl Model {
             // Get face UV
             if let Some(ref j) = fcc.uv {
                 let mut uv = vec![Point2::new(j[2] as f32 / 16.0, j[3] as f32 / 16.0),
-                Point2::new(j[0] as f32 / 16.0, j[3] as f32 / 16.0),
-                Point2::new(j[2] as f32 / 16.0, j[1] as f32 / 16.0),
-                Point2::new(j[0] as f32 / 16.0, j[1] as f32 / 16.0)];
+                                  Point2::new(j[0] as f32 / 16.0, j[3] as f32 / 16.0),
+                                  Point2::new(j[2] as f32 / 16.0, j[1] as f32 / 16.0),
+                                  Point2::new(j[0] as f32 / 16.0, j[1] as f32 / 16.0)];
                 match rotation {
                     90 => {
                         uv.swap(0, 1);

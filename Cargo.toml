@@ -1,20 +1,22 @@
 [package]
-name = "litecraft"
+name = "Litecraft"
 version = "0.1.1"
 authors = ["Miguel Peláez <kernelfreeze@outlook.com>", "Raúl Salas <rauls.martin@alumno.sek.es>"]
 
 [dependencies]
-nalgebra = "0.9.*"
-serde = "*"
-serde_json = "0.8.3"
-serde_derive = "0.8.19"
+# Graphics
+nalgebra = "0.12"
+glfw = "0.12"
+
+#Serde
+serde = "1.0"
+serde_json = "1.0"
+serde_derive = "1.0"
+
 log = "0.3"
 env_logger = "0.3"
-uuid = "0.3.1"
+uuid = "0.3"
+num-traits = "0.1"
 
 [dependencies.kiss3d]
 git = "https://github.com/KernelFreeze/kiss3d"
-
-[dependencies.glfw]
-git = "https://github.com/Evooly/glfw-rs"
-default-features = false

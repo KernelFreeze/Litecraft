@@ -1,17 +1,22 @@
 use std::f32;
 use glfw;
-use glfw::{Key, Action, WindowEvent};
-use na::{Translation, Point3, Vector2, Vector3, Matrix4, Isometry3, PerspectiveMatrix3};
+use glfw::{Key, MouseButton, Action, WindowEvent};
+use num::Zero;
+use na::{Point3, Vector2, Vector3, Matrix4, Isometry3, Perspective3, Translation3};
 use na;
 use kiss3d::camera::Camera;
 
+/// First-person camera mode.
 #[derive(Debug, Clone)]
 pub struct FirstPerson {
     eye: Point3<f32>,
     yaw: f32,
     pitch: f32,
 
+    yaw_step: f32,
+    pitch_step: f32,
     move_step: f32,
+
     up_key: Option<Key>,
     down_key: Option<Key>,
 
@@ -20,9 +25,10 @@ pub struct FirstPerson {
     left_key: Option<Key>,
     right_key: Option<Key>,
 
-    projection: PerspectiveMatrix3<f32>,
+    projection: Perspective3<f32>,
     proj_view: Matrix4<f32>,
     inverse_proj_view: Matrix4<f32>,
+    last_cursor_pos: Vector2<f32>,
 }
 
 impl FirstPerson {
@@ -42,6 +48,8 @@ impl FirstPerson {
             eye: Point3::new(0.0, 0.0, 0.0),
             yaw: 0.0,
             pitch: 0.0,
+            yaw_step: 0.005,
+            pitch_step: 0.005,
             move_step: 0.1,
             up_key: Some(Key::Space),
             down_key: Some(Key::LeftShift),
@@ -49,9 +57,10 @@ impl FirstPerson {
             backward_key: Some(Key::S),
             left_key: Some(Key::A),
             right_key: Some(Key::D),
-            projection: PerspectiveMatrix3::new(800.0 / 600.0, fov, znear, zfar),
+            projection: Perspective3::new(800.0 / 600.0, fov, znear, zfar),
             proj_view: na::zero(),
             inverse_proj_view: na::zero(),
+            last_cursor_pos: na::zero(),
         };
 
         res.look_at(eye, at);
@@ -67,10 +76,39 @@ impl FirstPerson {
         self.move_step = step;
     }
 
+    /// Sets the pitch increment per mouse movement.
+    ///
+    /// The default value is 0.005.
+    #[inline]
+    pub fn set_pitch_step(&mut self, step: f32) {
+        self.pitch_step = step;
+    }
+
+
+    /// Sets the yaw increment per mouse movement.
+    ///
+    /// The default value is 0.005.
+    #[inline]
+    pub fn set_yaw_step(&mut self, step: f32) {
+        self.yaw_step = step;
+    }
+
     /// Gets the translational increment per arrow press.
     #[inline]
     pub fn move_step(&self) -> f32 {
         self.move_step
+    }
+
+    /// Gets the pitch increment per mouse movement.
+    #[inline]
+    pub fn pitch_step(&self) -> f32 {
+        self.pitch_step
+    }
+
+    /// Gets the yaw  increment per mouse movement.
+    #[inline]
+    pub fn yaw_step(&self) -> f32 {
+        self.yaw_step
     }
 
     /// Changes the orientation and position of the camera to look at the specified point.
@@ -94,12 +132,6 @@ impl FirstPerson {
 
         Point3::new(ax, ay, az)
     }
-    pub fn yaw(&mut self) -> f32 {
-        self.yaw
-    }
-    pub fn pitch(&mut self) -> f32 {
-        self.pitch
-    }
 
     fn update_restrictions(&mut self) {
         if self.pitch <= 0.01 {
@@ -120,15 +152,6 @@ impl FirstPerson {
     /// The movement button for down.
     pub fn down_key(&self) -> Option<Key> {
         self.down_key
-    }
-    /// The movement button for forward.
-    pub fn forward_key(&self) -> Option<Key> {
-        self.forward_key
-    }
-
-    /// The movement button for backward.
-    pub fn backward_key(&self) -> Option<Key> {
-        self.backward_key
     }
 
     /// The movement button for left.
@@ -153,18 +176,6 @@ impl FirstPerson {
         self.down_key = new_key;
     }
 
-    /// Set the movement button for up.
-    /// Use None to disable movement in this direction.
-    pub fn rebind_forward_key(&mut self, new_key: Option<Key>) {
-        self.forward_key = new_key;
-    }
-
-    /// Set the movement button for down.
-    /// Use None to disable movement in this direction.
-    pub fn rebind_backward_key(&mut self, new_key: Option<Key>) {
-        self.backward_key = new_key;
-    }
-
     /// Set the movement button for left.
     /// Use None to disable movement in this direction.
     pub fn rebind_left_key(&mut self, new_key: Option<Key>) {
@@ -181,16 +192,14 @@ impl FirstPerson {
     pub fn unbind_movement_keys(&mut self) {
         self.up_key = None;
         self.down_key = None;
-        self.forward_key = None;
-        self.backward_key = None;
         self.left_key = None;
         self.right_key = None;
     }
 
     #[doc(hidden)]
-    pub fn handle_pointer(&mut self, dpos: &Vector2<f32>) {
-        self.yaw = dpos.x / 1_000.0;
-        self.pitch = dpos.y / 1_000.0;
+    pub fn handle_mouse(&mut self, dpos: &Vector2<f32>) {
+        self.yaw = self.yaw + dpos.x * self.yaw_step;
+        self.pitch = self.pitch + dpos.y * self.pitch_step;
 
         self.update_restrictions();
         self.update_projviews();
@@ -198,10 +207,9 @@ impl FirstPerson {
 
     fn update_projviews(&mut self) {
         let _ = self.proj_view = *self.projection.as_matrix() *
-            na::to_homogeneous(&self.view_transform());
-
-        let _ = na::inverse(&self.proj_view)
-            .map(|inverse_proj| self.inverse_proj_view = inverse_proj);
+                                 self.view_transform().to_homogeneous();
+        let _ =
+            self.proj_view.try_inverse().map(|inverse_proj| self.inverse_proj_view = inverse_proj);
     }
 
     /// The direction this camera is looking at.
@@ -218,11 +226,11 @@ impl FirstPerson {
                     right: bool,
                     left: bool)
                     -> Vector3<f32> {
-        let direction = self.eye_dir();
 
+        let t = self.eye_dir();
         let upv = Vector3::new(0.0, 1.0, 0.0);
-        let rightv = na::cross(&direction, &upv);
-        let forwardv = na::cross(&upv, &rightv);
+        let rightv = t.cross(&upv);
+        let forwardv = upv.cross(&rightv);
 
         let mut movement = na::zero::<Vector3<f32>>();
 
@@ -248,11 +256,47 @@ impl FirstPerson {
             movement -= rightv
         }
 
-        if na::is_zero(&movement) {
+        if movement.is_zero() {
             movement
         } else {
             na::normalize(&movement)
         }
+    }
+
+    /// Get camera yaw
+    #[inline]
+    pub fn yaw(&mut self) -> f32 {
+        self.yaw
+    }
+
+    /// Get camera pitch
+    #[inline]
+    pub fn pitch(&mut self) -> f32 {
+        self.pitch
+    }
+
+    /// Translates in-place this camera by `t`.
+    #[inline]
+    pub fn translate_mut(&mut self, t: &Translation3<f32>) {
+        let new_eye = t * self.eye;
+
+        self.set_eye(new_eye);
+    }
+
+    /// Translates this camera by `t`.
+    #[inline]
+    pub fn translate(&self, t: &Translation3<f32>) -> FirstPerson {
+        let mut res = self.clone();
+        res.translate_mut(t);
+        res
+    }
+
+    /// Sets the eye of this camera to `eye`.
+    #[inline]
+    fn set_eye(&mut self, eye: Point3<f32>) {
+        self.eye = eye;
+        self.update_restrictions();
+        self.update_projviews();
     }
 }
 
@@ -270,8 +314,13 @@ impl Camera for FirstPerson {
         match *event {
             WindowEvent::CursorPos(x, y) => {
                 let curr_pos = Vector2::new(x as f32, y as f32);
-                self.handle_pointer(&curr_pos);
+
+                let dpos = curr_pos - self.last_cursor_pos;
+                self.handle_mouse(&dpos);
+
+                self.last_cursor_pos = curr_pos;
             }
+            // WindowEvent::Scroll(_, off) => self.handle_scroll(off as f32),
             WindowEvent::FramebufferSize(w, h) => {
                 self.projection.set_aspect(w as f32 / h as f32);
                 self.update_projviews();
@@ -299,10 +348,11 @@ impl Camera for FirstPerson {
         let backward = check_optional_key_state(window, self.backward_key, Action::Press);
         let right = check_optional_key_state(window, self.right_key, Action::Press);
         let left = check_optional_key_state(window, self.left_key, Action::Press);
+
         let dir = self.move_dir(up, down, forward, backward, right, left);
 
         let move_amount = dir * self.move_step;
-        self.append_translation_mut(&move_amount);
+        self.translate_mut(&Translation3::from_vector(move_amount));
     }
 }
 
@@ -311,56 +361,5 @@ fn check_optional_key_state(window: &glfw::Window, key: Option<Key>, key_state: 
         window.get_key(actual_key) == key_state
     } else {
         false
-    }
-}
-
-impl Translation<Vector3<f32>> for FirstPerson {
-    #[inline]
-    fn translation(&self) -> Vector3<f32> {
-        self.eye.as_vector().clone()
-    }
-
-    #[inline]
-    fn inverse_translation(&self) -> Vector3<f32> {
-        -self.eye.as_vector().clone()
-    }
-
-    #[inline]
-    fn append_translation_mut(&mut self, t: &Vector3<f32>) {
-        let new_t = self.eye + *t;
-
-        self.set_translation(new_t.to_vector());
-    }
-
-    #[inline]
-    fn append_translation(&self, t: &Vector3<f32>) -> FirstPerson {
-        let mut res = self.clone();
-
-        res.append_translation_mut(t);
-
-        res
-    }
-
-    #[inline]
-    fn prepend_translation_mut(&mut self, t: &Vector3<f32>) {
-        let new_t = self.eye - *t;
-
-        self.set_translation(new_t.to_vector());
-    }
-
-    #[inline]
-    fn prepend_translation(&self, t: &Vector3<f32>) -> FirstPerson {
-        let mut res = self.clone();
-
-        res.prepend_translation_mut(t);
-
-        res
-    }
-
-    #[inline]
-    fn set_translation(&mut self, t: Vector3<f32>) {
-        self.eye = na::origin::<Point3<f32>>() + t;
-        self.update_restrictions();
-        self.update_projviews();
     }
 }

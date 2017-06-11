@@ -1,15 +1,18 @@
 #![feature(proc_macro)]
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 extern crate env_logger;
-
-#[macro_use] extern crate serde_derive;
 
 extern crate serde;
 extern crate serde_json;
 
+#[macro_use]
+extern crate serde_derive;
+
 extern crate kiss3d;
 extern crate glfw;
 extern crate nalgebra as na;
+extern crate num_traits as num;
 
 extern crate uuid;
 
