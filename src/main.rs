@@ -16,10 +16,13 @@ extern crate num_traits as num;
 
 extern crate uuid;
 
+extern crate byteorder;
+
 mod version;
 mod camera;
 mod resource_manager;
 mod block;
+mod networking;
 mod protocol;
 mod client;
 

@@ -16,7 +16,7 @@ use version;
 pub struct Client {
     camera: FirstPerson,
     window: Window,
-    font: std::rc::Rc<Font>,
+    //font: std::rc::Rc<Font>,
 }
 
 impl Client {
@@ -25,7 +25,7 @@ impl Client {
         Client {
             camera: FirstPerson::new(Point3::new(1.0, 1.0, 1.0), na::origin()),
             window: Window::new(&format!("Litecraft {}", version::MINECRAFT)),
-            font: Font::new(&res::get_resource("litecraft:font/default.ttf"), 30),
+            //font: Font::new(&res::get_resource("litecraft:font/default.ttf"), 30),
         }
     }
     pub fn run(&mut self) {

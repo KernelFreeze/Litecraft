@@ -3,30 +3,7 @@ use std::io;
 
 pub struct Packet {
     id: i32,
-    data: Vec<Field>,
     buf: Vec<u8>,
-}
-
-#[derive(Debug, Clone)]
-enum Field {
-    Boolean(bool),
-    Byte(i8),
-    UByte(u8),
-    Short(i16),
-    UShort(u16),
-    Int(i32),
-    Long(i64),
-    Float(f32),
-    Double(f64),
-    String(String),
-    Chat(String),
-    VarInt(i32),
-    VarLong(i64),
-    // TODO: Chunk Section, Entity Metadata, Slot,
-    // NBT Tag, Byte Array, Optional X, Array of X, X Enum
-    Position { x: i32, y: i16, z: i32 },
-    Angle(i8),
-    UUID(Uuid),
 }
 
 pub enum PacketType {
@@ -190,7 +167,6 @@ impl Packet {
     pub fn new(id: i32, buffer: Vec<u8>) -> Packet {
         Packet {
             id: id,
-            data: vec![],
             buf: buffer,
         }
     }
@@ -200,47 +176,4 @@ impl Packet {
 
     // Encode the packet into a byte array
     // pub fn encode(&self) -> &[u8] {}
-
-    /// Get data field
-    pub fn get_data(&self) -> &[Field] {
-        &self.data
-    }
-
-    /// Get mutable data field
-    pub fn get_data_mut(&mut self) -> &mut [Field] {
-        &mut self.data
-    }
-
-    /// Read a VarInt, return the value and add it to the packet fields
-    pub fn read_varint(&mut self) -> Result<i32, &'static str> {
-        const PART: u8 = 0x7F;
-        let mut size = 0;
-        let mut val = 0u32;
-        for b in &self.buf {
-            val |= ((b & PART) << (size * 7)) as u32;
-            size += 1;
-            if size > 5 {
-                return Result::Err("VarInt too big");
-            }
-            if (b & 0x80) == 0 {
-                break;
-            }
-        }
-
-        Result::Ok(val as i32)
-    }
-    // Write a VarInt, return an error if there is one
-    // pub fn write_varint(&mut self) -> Result<(), Error> {
-    // const PART: u32 = 0x7F;
-    // let mut val = self.0 as u32;
-    // loop {
-    // if (val & !PART) == 0 {
-    // self.buf.write_u8(val as u8)?;
-    // return Result::Ok(());
-    // }
-    // self.buf.write_u8(((val & PART) | 0x80) as u8)?;
-    // val >>= 7;
-    // }
-    // }
-    //
 }
