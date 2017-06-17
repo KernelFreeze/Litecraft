@@ -44,8 +44,9 @@ fn main() {
           version::MINECRAFT,
           version::PROTOCOL);
 
-    let config = matches.value("username");
-    let session = matches.value("session");
+    let username = matches.value_of("username").unwrap();
+    let session = matches.value_of("session").unwrap();
+    let server = matches.value_of("server");
 
     let mut client = Client::new();
     client.run();
