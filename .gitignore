@@ -1,5 +1,7 @@
 target/
-resources
+resources/indexes
+resources/objects
+resources/assets/minecraft
 *.lock
 *.lib
 *.bat
