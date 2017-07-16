@@ -1,6 +1,6 @@
 [package]
-name = "Litecraft"
-version = "0.1.1"
+name = "litecraft"
+version = "0.1.0"
 authors = ["Miguel Peláez <kernelfreeze@outlook.com>", "Raúl Salas <rauls.martin@alumno.sek.es>"]
 
 [dependencies]
@@ -20,6 +20,12 @@ num-traits = "0.1"
 
 byteorder = "1"
 clap = "~2.19.0"
+
+futures = "0.1"
+tokio-io = "0.1"
+tokio-core = "0.1"
+tokio-proto = "0.1"
+tokio-service = "0.1"
 
 [dependencies.kiss3d]
 git = "https://github.com/KernelFreeze/kiss3d"

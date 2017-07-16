@@ -17,6 +17,10 @@ extern crate num_traits as num;
 extern crate uuid;
 extern crate byteorder;
 
+extern crate futures;
+extern crate tokio_core;
+extern crate tokio_io;
+
 mod version;
 mod camera;
 mod resource_manager;
@@ -32,11 +36,11 @@ fn main() {
 
     let matches = clap_app!(litecraft =>
         (version: version::VERSION)
-        (author: "Miguel Peláez <kernelfreeze@outlook.com>")
+        (author: "Litecraft Team")
         (about: "Open source, clean room implementation of Minecraft Client")
         (@arg username: +required "Sets the user name")
         (@arg session: +required "Sets the user session id")
-        (@arg server: -s ... "Join a server")
+        (@arg server: -s ... "Auto-join a server")
     ).get_matches();
 
     info!("Litecraft {} for Minecraft {}. Using protocol v{}",
