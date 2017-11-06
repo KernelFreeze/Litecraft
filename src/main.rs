@@ -7,6 +7,7 @@ extern crate clap;
 extern crate badlog;
 extern crate allegro;
 
+mod scenes;
 mod client;
 
 fn main() {
