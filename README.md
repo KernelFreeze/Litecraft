@@ -1,29 +1,29 @@
 # Litecraft
-[![Gitter chat](https://badges.gitter.im/Litecrafty/Litecraft.png)](https://gitter.im/Litecrafty/Lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
+[![Discord](https://img.shields.io/discord/371055566480605184.svg)](https://discord.gg/qKjuDxx)
 
 <img src="http://i.imgur.com/7u4Zyy1.png" width="600">
 
 [Open source](https://en.wikipedia.org/wiki/Free_and_open-source_software), [clean room](https://en.wikipedia.org/wiki/Clean_room_design) implementation of [Minecraft](https://minecraft.net) Client.
 
 # Current features
-- Renders block models.
-- Gets assets from JSON data.
+- Better memory management.
 - Compiles!
-- Base code for Minecraft Multiplayer protocol.
 
 # Features that Litecraft will have
-- Better memory management.
 - Better rendering system.
-- Lighting using shaders.
+- Rendering using shaders.
 - All vanilla client features.
-- Launcher with assets downloader.
-- And more soon™
+- Launcher with assets downloader [(WIP!)](https://github.com/Litecrafty/Launcher)
+- Server side plugin (mod) API (Send resources from server to client)
+- More soon™ We have some crazy ideas... ;)
 
 # Compile
 
  - Download Rust Nightly with rustup.
- - Create folder **resources**.
- - Copy **~/.minecraft/assets** content and  **assets folder** from your
-   minecraft jar into **resources**.
+ - Install allegro with your package manager or build it.
  - Build with cargo.
+ - Run with our [Launcher](https://github.com/Litecrafty/Launcher) or manually with
+```bash
+cargo run -- test_token
+```
  - Profit!

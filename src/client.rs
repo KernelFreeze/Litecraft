@@ -1,59 +1,48 @@
-extern crate std;
+extern crate allegro;
+extern crate allegro_font;
 
-use na::{Vector3, Point3, Translation3};
-use na;
+use self::allegro::*;
+use self::allegro_font::*;
 
-use glfw::CursorMode;
-use kiss3d::window::Window;
-use kiss3d::light::Light;
-use kiss3d::text::Font;
+// Versions and stuff...
+pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+pub const MINECRAFT: &'static str = "1.13";
 
-use camera::FirstPerson;
-use resource_manager as res;
-use block;
-use version;
+pub fn run(session: &str) {
+    let core = Core::init().unwrap();
+    let font_addon = FontAddon::init(&core).unwrap();
 
-pub struct Client {
-    camera: FirstPerson,
-    window: Window,
-    //font: std::rc::Rc<Font>,
-}
+    info!("Game Engine Core started!");
 
-impl Client {
-    #[inline]
-    pub fn new() -> Client {
-        Client {
-            camera: FirstPerson::new(Point3::new(1.0, 1.0, 1.0), na::origin()),
-            window: Window::new(&format!("Litecraft {}", version::MINECRAFT)),
-            //font: Font::new(&res::get_resource("litecraft:font/default.ttf"), 30),
+    let display = Display::new(&core, 800, 600).unwrap();
+    let timer = Timer::new(&core, 1.0 / 60.0).unwrap();
+    let font = Font::new_builtin(&font_addon).unwrap();
+
+    let queue = EventQueue::new(&core).unwrap();
+    queue.register_event_source(display.get_event_source());
+    queue.register_event_source(timer.get_event_source());
+
+    let mut redraw = true;
+    timer.start();
+    'exit: loop {
+        if redraw && queue.is_empty() {
+            core.clear_to_color(Color::from_rgb_f(0.0, 0.0, 0.0));
+            core.draw_text(
+                &font,
+                Color::from_rgb_f(1.0, 1.0, 1.0),
+                (display.get_width() / 2) as f32,
+                (display.get_height() / 2) as f32,
+                FontAlign::Centre,
+                "Potato!",
+            );
+            core.flip_display();
+            redraw = false;
         }
-    }
-    pub fn run(&mut self) {
-        // Reset mouse
-        self.window.glfw_window_mut().set_cursor_mode(CursorMode::Disabled);
-        self.window.glfw_window_mut().set_cursor_pos((self.camera.yaw() as f64 * 1_000.0f64),
-                                                     (self.camera.pitch() as f64 * 1_000.0f64));
 
-        let mut model = block::model::Model::new("block/crafting_table").unwrap();
-        let mut c = model.get_node();
-
-        c.append_translation(&Translation3::from_vector(Vector3::new(2.0, 0.0, 0.0)));
-        self.window.scene_mut().add_child(c);
-
-        self.window.set_light(Light::StickToCamera);
-        self.window.set_background_color(0.529, 0.808, 0.980);
-
-        while !self.window.should_close() {
-            /*
-            self.window
-                .draw_text(&format!("Litecraft {} for {}",
-                                    version::VERSION,
-                                    version::MINECRAFT)[..],
-                           &na::origin(),
-                           &self.font,
-                           &Point3::new(1.0, 1.0, 1.0));
-            */
-            self.window.render_with_camera(&mut self.camera);
+        match queue.wait_for_event() {
+            DisplayClose { .. } => break 'exit,
+            TimerTick { .. } => redraw = true,
+            _ => (),
         }
     }
 }
