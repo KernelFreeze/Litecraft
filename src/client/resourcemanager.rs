@@ -1,7 +1,7 @@
 /*
    Copyright 2017 Miguel Peláez <kernelfreeze@greenlab.games>
    Copyright 2017 Raúl Salas <raulsalas.martin@greenlab.games>
-   
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -13,8 +13,26 @@
    limitations under the License.
 */
 
+use allegro::bitmap::Bitmap;
 use client::Client;
 
-pub trait Scene {
-    fn draw(&self, client: &Client);
+struct ResourceManager;
+
+impl ResourceManager {
+    pub fn new(client: &Client) -> ResourceManager {
+        let manager = ResourceManager {};
+
+        // Load Textures
+        manager.load_texture(client, "");
+
+        manager
+    }
+
+    fn load_texture(&self, client: &Client, path: &str) {
+        Bitmap::load(&client.core, path);
+    }
+
+    fn get_resource_path(path: &str) -> String {
+        String::from("") //TODO
+    }
 }
