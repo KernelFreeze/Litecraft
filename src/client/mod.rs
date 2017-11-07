@@ -20,8 +20,11 @@ pub mod resourcemanager;
 
 use self::allegro::*;
 use self::allegro_font::*;
+
 use scenes::scene::Scene;
 use scenes::splash::SplashScreen;
+
+use self::resourcemanager::ResourceManager;
 
 // Versions and stuff...
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
@@ -34,7 +37,8 @@ pub struct Client<'a> {
     pub queue: EventQueue,
     pub font: Font,
     pub scene: &'a (Scene + 'a),
-    pub display: Box<Display>
+    pub display: Box<Display>,
+    pub resource_manager: ResourceManager,
 }
 
 pub fn run(session: &str) {
@@ -51,17 +55,27 @@ pub fn run(session: &str) {
     queue.register_event_source(display.get_event_source());
     queue.register_event_source(timer.get_event_source());
 
-    let scene = &SplashScreen::new() as &Scene;
-
-    let client = Client{core, font_addon, queue, font, scene, display};
+    let mut client = Client {
+        core,
+        font_addon,
+        queue,
+        font,
+        scene: &SplashScreen::new() as &Scene,
+        display,
+        resource_manager: ResourceManager::new(),
+    };
+    ResourceManager::load(&mut client);
 
     let mut redraw = true;
     timer.start();
 
     info!("Starting main loop!");
+
     'exit: loop {
         if redraw && client.queue.is_empty() {
-            main_loop(&client);
+            client.scene.draw(&client);
+            client.core.flip_display();
+
             redraw = false;
         }
 
@@ -71,9 +85,4 @@ pub fn run(session: &str) {
             _ => (),
         }
     }
-}
-
-fn main_loop(client: &Client) {
-    client.scene.draw(client);
-    client.core.flip_display();
 }

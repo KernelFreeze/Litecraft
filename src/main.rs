@@ -19,11 +19,14 @@
 extern crate log;
 #[macro_use]
 extern crate clap;
+extern crate rand;
 extern crate badlog;
 extern crate allegro;
 
 mod scenes;
 mod client;
+
+use rand::Rng;
 
 fn main() {
     badlog::init_from_env("LOG_LEVEL");
@@ -34,10 +37,23 @@ fn main() {
         (about: "Open source, clean room implementation of Minecraft Client")
         (@arg session: +required "Sets the user session ID")
         (@arg server: -s ... "Auto-join a server")
-        (@arg path: -path ... "Litecraft home, must have all resources available")
+        (@arg path: -p ... "Litecraft home, must have all resources available")
     ).get_matches();
 
-    // Litecraft is love, Litecraft is life!
+    // Epic hardcoded quotes!
+    let hello = [
+        // Litecrafty
+        "Litecraft is love, Litecraft is life!",
+        "Now available on bluray",
+        "Very fast!",
+
+        // Nice...
+        "Knowledge is having the right answer. Intelligence is asking the right question",
+        "Wake me up when it's all over",
+        "A person who never made a mistake never tried anything new",
+        "There is nothing permanent except change"
+    ];
+
     println!(
         r"  _    _ _                    __ _   
  | |  (_) |_ ___ __ _ _ __ _ / _| |_ 
@@ -45,7 +61,12 @@ fn main() {
  |____|_|\__\___\__|_| \__,_|_|  \__|
                                      "
     );
-    println!("{} for Minecraft {}", client::VERSION, client::MINECRAFT);
+    println!("{}", rand::thread_rng().choose(&hello).unwrap());
+    println!(
+        "{} for Minecraft Modern {}",
+        client::VERSION,
+        client::MINECRAFT
+    );
     info!("Starting engine...");
 
     client::run(matches.value_of("session").unwrap());

@@ -16,23 +16,35 @@
 use allegro::bitmap::Bitmap;
 use client::Client;
 
-struct ResourceManager;
+pub struct ResourceManager {
+    textures: Vec<Bitmap>,
+}
 
 impl ResourceManager {
-    pub fn new(client: &Client) -> ResourceManager {
-        let manager = ResourceManager {};
-
-        // Load Textures
-        manager.load_texture(client, "");
+    pub fn new() -> ResourceManager {
+        let manager = ResourceManager { textures: Vec::new() };
 
         manager
     }
 
-    fn load_texture(&self, client: &Client, path: &str) {
-        Bitmap::load(&client.core, path);
+    pub fn load(client: &mut Client) {
+        info!("Loading Resource Manager");
+
+        //ResourceManager::load_minecraft_texture(client, "");
     }
 
-    fn get_resource_path(path: &str) -> String {
-        String::from("") //TODO
+    fn load_minecraft_texture(client: &mut Client, name: &str) {
+        ResourceManager::load_texture(client, "minecraft", name);
+    }
+
+    fn load_texture(client: &mut Client, domain: &str, name: &str) {
+        client.resource_manager.textures.push(Bitmap::load(
+            &client.core,
+            ResourceManager::get_asset_path(domain, "texture", name, "png").as_str(),
+        ).unwrap());
+    }
+
+    fn get_asset_path(domain: &str, class: &str, path: &str, extension: &str) -> String {
+        format!("assets/{}/{}/{}.{}", domain, class, path, extension)
     }
 }
