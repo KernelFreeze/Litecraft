@@ -40,8 +40,8 @@ fn main() {
         (author: "Litecraft Team")
         (about: "Open source, clean room implementation of Minecraft Client")
         (@arg session: +required "Sets the user session ID")
-        (@arg server: -s ... "Auto-join a server")
-        (@arg path: -p ... "Litecraft home, must have all resources available")
+        (@arg server: -s +takes_value "Auto-join a server")
+        (@arg path: -p --path +takes_value "Litecraft home, must have all resources available")
     ).get_matches();
 
     // Epic hardcoded quotes!
