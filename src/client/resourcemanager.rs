@@ -15,6 +15,8 @@
 
 use allegro::bitmap::Bitmap;
 use client::Client;
+use std::fs;
+use std::path::PathBuf;
 
 pub struct ResourceManager {
     textures: Vec<Bitmap>,
@@ -30,7 +32,7 @@ impl ResourceManager {
     pub fn load(client: &mut Client) {
         info!("Loading Resource Manager");
 
-        //ResourceManager::load_litecraft_texture(client, "");
+        ResourceManager::load_litecraft_texture(client, "logo");
     }
 
     fn load_minecraft_texture(client: &mut Client, name: &str) {
@@ -42,20 +44,37 @@ impl ResourceManager {
     }
 
     fn load_texture(client: &mut Client, domain: &str, name: &str) {
-        client.resource_manager.textures.push(
-            Bitmap::load(
-                &client.core,
-                ResourceManager::get_asset_path(
-                    domain,
-                    "texture",
-                    name,
-                    "png",
-                ).as_str(),
-            ).unwrap(),
+        info!("Loading texture '{}'", name);
+
+        let bmp = Bitmap::load(
+            &client.core,
+            ResourceManager::get_asset(domain, "textures", name, "png").as_str(),
         );
+
+        match bmp {
+            Ok(texture) => client.resource_manager.textures.push(texture),
+            Err(error) => {
+                error!("I can't load texture '{}'. Error: {:?}", name, error);
+                panic!("Fatal error. See log for details.");
+            }
+        }
     }
 
-    fn get_asset_path(domain: &str, class: &str, path: &str, extension: &str) -> String {
-        format!("assets/{}/{}/{}.{}", domain, class, path, extension)
+    fn get_asset_path(domain: &str, class: &str, path: &str, extension: &str) -> PathBuf {
+        let path = PathBuf::from(format!(
+            "./assets/{}/{}/{}.{}",
+            domain,
+            class,
+            path,
+            extension
+        ));
+        fs::canonicalize(path).unwrap()
+    }
+
+    fn get_asset(domain: &str, class: &str, path: &str, extension: &str) -> String {
+        ResourceManager::get_asset_path(domain, class, path, extension)
+            .into_os_string()
+            .into_string()
+            .unwrap()
     }
 }

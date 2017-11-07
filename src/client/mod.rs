@@ -15,11 +15,13 @@
 
 pub extern crate allegro;
 pub extern crate allegro_font;
+pub extern crate allegro_image;
 
 pub mod resourcemanager;
 
 use self::allegro::*;
 use self::allegro_font::*;
+use self::allegro_image::*;
 
 use scenes::scene::Scene;
 use scenes::splash::SplashScreen;
@@ -43,6 +45,7 @@ pub struct Client<'a> {
 
 pub fn run(session: &str) {
     let core = Core::init().unwrap();
+    ImageAddon::init(&core).unwrap();
     let font_addon = FontAddon::init(&core).unwrap();
 
     info!("Game Engine Core started!");
