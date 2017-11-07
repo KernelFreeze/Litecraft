@@ -22,11 +22,15 @@ extern crate clap;
 extern crate rand;
 extern crate badlog;
 extern crate allegro;
+extern crate os_type;
+extern crate dirs;
 
 mod scenes;
 mod client;
 
 use rand::Rng;
+use dirs::Directories;
+use std::env::set_current_dir;
 
 fn main() {
     badlog::init_from_env("LOG_LEVEL");
@@ -60,7 +64,7 @@ fn main() {
 
         // Random stuff
         "Citrate Caffeine 1 oz\nExtract Vanilla 1 oz\nFlavouring 2.5 oz",
-        "Triskaidekaphobic, 13"
+        "Triskaidekaphobic, 13",
     ];
 
     println!(
@@ -71,12 +75,27 @@ fn main() {
                                      "
     );
     println!("{}\n", rand::thread_rng().choose(&hello).unwrap());
+
+    let os = os_type::current_platform();
     println!(
-        "{} for Minecraft Modern {}",
+        "{} for Minecraft Modern {}, running on {:?} {}",
         client::VERSION,
-        client::MINECRAFT
+        client::MINECRAFT,
+        os.os_type,
+        os.version
     );
     info!("Starting engine...");
+    let path;
+
+    if let Some(i) = matches.value_of("path") {
+        path = String::from(i);
+    } else {
+        let data = Directories::with_prefix("litecraft", "Litecraft").unwrap();
+        path = String::from(data.config_home().to_str().unwrap());
+    };
+
+    info!("Using home {}", path);
+    assert!(set_current_dir(&path).is_ok());
 
     client::run(matches.value_of("session").unwrap());
 }
