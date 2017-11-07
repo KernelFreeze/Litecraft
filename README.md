@@ -22,8 +22,14 @@
  - Download Rust Nightly with rustup.
  - Install allegro with your package manager or build it.
  - Build with cargo.
- - Run with our [Launcher](https://github.com/Litecrafty/Launcher) or manually with
+ - Run with our [Launcher](https://github.com/Litecrafty/Launcher) or manually with any client token:
 ```bash
-cargo run -- test_token
+cargo run -- client_token
 ```
  - Profit!
+
+# Contributing
+[Bug reports](https://github.com/Litecrafty/Litecraft/issues) and [pull requests](https://github.com/Litecrafty/Litecraft/pulls) are welcome on our GitHub. This project is intended to be a safe, welcoming space for collaboration and discussion, and contributors are expected to adhere to the [Contributor Covenant code of conduct](https://github.com/Litecrafty/Litecraft/blob/master/CONTRIBUTING.md), you can read it on your Language [here](https://www.contributor-covenant.org/translations.html).
+
+# License
+[Apache License 2.0](https://github.com/Litecrafty/Litecraft/blob/master/LICENSE)

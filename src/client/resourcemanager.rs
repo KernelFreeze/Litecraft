@@ -30,18 +30,29 @@ impl ResourceManager {
     pub fn load(client: &mut Client) {
         info!("Loading Resource Manager");
 
-        //ResourceManager::load_minecraft_texture(client, "");
+        //ResourceManager::load_litecraft_texture(client, "");
     }
 
     fn load_minecraft_texture(client: &mut Client, name: &str) {
         ResourceManager::load_texture(client, "minecraft", name);
     }
 
+    fn load_litecraft_texture(client: &mut Client, name: &str) {
+        ResourceManager::load_texture(client, "litecraft", name);
+    }
+
     fn load_texture(client: &mut Client, domain: &str, name: &str) {
-        client.resource_manager.textures.push(Bitmap::load(
-            &client.core,
-            ResourceManager::get_asset_path(domain, "texture", name, "png").as_str(),
-        ).unwrap());
+        client.resource_manager.textures.push(
+            Bitmap::load(
+                &client.core,
+                ResourceManager::get_asset_path(
+                    domain,
+                    "texture",
+                    name,
+                    "png",
+                ).as_str(),
+            ).unwrap(),
+        );
     }
 
     fn get_asset_path(domain: &str, class: &str, path: &str, extension: &str) -> String {

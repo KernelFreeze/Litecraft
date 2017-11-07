@@ -46,12 +46,21 @@ fn main() {
         "Litecraft is love, Litecraft is life!",
         "Now available on bluray",
         "Very fast!",
+        "Sky is the Limit (y = 255)",
+        "Open Source!",
+        "Less bugs!",
 
         // Nice...
         "Knowledge is having the right answer. Intelligence is asking the right question",
         "Wake me up when it's all over",
         "A person who never made a mistake never tried anything new",
-        "There is nothing permanent except change"
+        "There is nothing permanent except change",
+        "If you cannot do great things, do small things in a great way",
+        "The journey of a thousand miles begins with one step",
+
+        // Random stuff
+        "Citrate Caffeine 1 oz\nExtract Vanilla 1 oz\nFlavouring 2.5 oz",
+        "Triskaidekaphobic, 13"
     ];
 
     println!(
@@ -61,7 +70,7 @@ fn main() {
  |____|_|\__\___\__|_| \__,_|_|  \__|
                                      "
     );
-    println!("{}", rand::thread_rng().choose(&hello).unwrap());
+    println!("{}\n", rand::thread_rng().choose(&hello).unwrap());
     println!(
         "{} for Minecraft Modern {}",
         client::VERSION,
