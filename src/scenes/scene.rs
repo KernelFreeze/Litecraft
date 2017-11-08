@@ -14,7 +14,8 @@
 */
 
 use client::Client;
+use scenes::gui::Component;
 
-pub trait Scene {
+pub trait Scene : Component {
     fn draw(&self, client: &Client);
 }

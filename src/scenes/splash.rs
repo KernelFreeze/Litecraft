@@ -15,12 +15,15 @@
 
 use client::Client;
 use scenes::scene::Scene;
+use scenes::gui::Component;
 
 use allegro::Color;
-use allegro::core::BitmapDrawingFlags;
-use allegro::Flag;
 
 pub struct SplashScreen;
+
+impl Component for SplashScreen {
+
+}
 
 impl Scene for SplashScreen {
     fn draw(&self, client: &Client) {
@@ -33,12 +36,7 @@ impl Scene for SplashScreen {
             FontAlign::Centre,
             "Potato!",
         );*/
-        client.core.draw_bitmap(
-            client.resource_manager.get_texture("logo"),
-            (client.display.get_width() / 2) as f32,
-            (client.display.get_height() / 2) as f32,
-            BitmapDrawingFlags::zero()
-        );
+        self.draw_centered(client, "logo", 200, 200);
     }
 }
 

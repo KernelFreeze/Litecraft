@@ -37,7 +37,7 @@ impl ResourceManager {
     pub fn load(client: &mut Client) {
         info!("Loading Resource Manager");
 
-        ResourceManager::load_litecraft_texture(client, "logo");
+        ResourceManager::load_litecraft_texture(client, "logo"); 
     }
 
     fn load_minecraft_texture(client: &mut Client, name: &'static str) {
@@ -49,7 +49,7 @@ impl ResourceManager {
     }
 
     fn load_texture(client: &mut Client, domain: &str, name: &'static str) {
-        info!("Loading texture '{}'", name);
+        info!("Loading {} texture '{}'", domain, name);
 
         let bmp = Bitmap::load(
             &client.core,

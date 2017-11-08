@@ -15,3 +15,4 @@
 
 pub mod scene;
 pub mod splash;
+pub mod gui;
