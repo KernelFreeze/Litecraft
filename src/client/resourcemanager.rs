@@ -17,16 +17,21 @@ use allegro::bitmap::Bitmap;
 use client::Client;
 use std::fs;
 use std::path::PathBuf;
+use std::collections::HashMap;
 
 pub struct ResourceManager {
-    textures: Vec<Bitmap>,
+    textures: HashMap<&'static str, Bitmap>,
 }
 
 impl ResourceManager {
     pub fn new() -> ResourceManager {
-        let manager = ResourceManager { textures: Vec::new() };
+        let manager = ResourceManager { textures: HashMap::new() };
 
         manager
+    }
+
+    pub fn get_texture(&self, name: &str) -> &Bitmap {
+        self.textures.get(name).unwrap()
     }
 
     pub fn load(client: &mut Client) {
@@ -35,15 +40,15 @@ impl ResourceManager {
         ResourceManager::load_litecraft_texture(client, "logo");
     }
 
-    fn load_minecraft_texture(client: &mut Client, name: &str) {
+    fn load_minecraft_texture(client: &mut Client, name: &'static str) {
         ResourceManager::load_texture(client, "minecraft", name);
     }
 
-    fn load_litecraft_texture(client: &mut Client, name: &str) {
+    fn load_litecraft_texture(client: &mut Client, name: &'static str) {
         ResourceManager::load_texture(client, "litecraft", name);
     }
 
-    fn load_texture(client: &mut Client, domain: &str, name: &str) {
+    fn load_texture(client: &mut Client, domain: &str, name: &'static str) {
         info!("Loading texture '{}'", name);
 
         let bmp = Bitmap::load(
@@ -52,12 +57,12 @@ impl ResourceManager {
         );
 
         match bmp {
-            Ok(texture) => client.resource_manager.textures.push(texture),
+            Ok(texture) => client.resource_manager.textures.insert(name, texture),
             Err(error) => {
                 error!("I can't load texture '{}'. Error: {:?}", name, error);
                 panic!("Fatal error. See log for details.");
             }
-        }
+        };
     }
 
     fn get_asset_path(domain: &str, class: &str, path: &str, extension: &str) -> PathBuf {
