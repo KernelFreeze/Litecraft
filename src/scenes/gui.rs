@@ -14,9 +14,10 @@
 */
 
 use allegro::core::BitmapDrawingFlags;
-use allegro::Flag;
+use allegro::{Flag, Color};
 use client::Client;
 use allegro::bitmap_like::BitmapLike;
+use client::allegro_font::{FontDrawing, FontAlign};
 
 pub trait Component {
     fn draw_centered(&self, client: &Client, name: &str, w: i32, h: i32) {
@@ -36,6 +37,17 @@ pub trait Component {
             x, y,                                    // target origin
             w, h,                                    // target dimensions
             BitmapDrawingFlags::zero()               // flags
+        );
+    }
+
+    fn draw_text(&self, client: &Client, text: &str, x: i32, y: i32) {
+        client.core.draw_text(
+            &client.font,
+            Color::from_rgb_f(0.5, 0.5, 0.5),
+            x as f32,
+            y as f32,
+            FontAlign::Centre,
+            text,
         );
     }
 }
