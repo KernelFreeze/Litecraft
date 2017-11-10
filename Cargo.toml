@@ -7,6 +7,7 @@ authors = ["KernelFreeze <kernelfreeze@outlook.com>"]
 allegro = "0.0.32"
 allegro_font = "0.0.32"
 allegro_image = "0.0.32"
+allegro_ttf = "0.0.32"
 badlog = "0.3.0"
 log = "*"
 clap = "2.27.1"

@@ -19,6 +19,10 @@ use std::fs;
 use std::path::PathBuf;
 use std::collections::HashMap;
 use std::fmt;
+use client::allegro_font::Font;
+use client::allegro_font::*;
+use client::allegro_ttf::{TtfAddon, TtfFlags};
+use allegro::Flag;
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum TextureType {
@@ -29,22 +33,32 @@ pub enum TextureType {
 impl fmt::Display for TextureType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            // Add texture file names here
             Logo => return write!(f, "logo"),
         }
-        write!(f, "unknown")
     }
 }
 
 pub struct ResourceManager {
     textures: HashMap<TextureType, Bitmap>,
     dynamic_textures: HashMap<&'static str, Bitmap>,
+    font: Option<Font>,
 }
 
 impl ResourceManager {
     pub fn new() -> ResourceManager {
-        let manager = ResourceManager { textures: HashMap::new(), dynamic_textures: HashMap::new() };
+        ResourceManager {
+            textures: HashMap::new(),
+            dynamic_textures: HashMap::new(),
+            font: None,
+        }
+    }
 
-        manager
+    pub fn get_font(&self) -> &Font {
+        match self.font {
+            Some(ref font) => font,
+            None => panic!("I don't have a font!"),
+        }
     }
 
     pub fn get_dynamic_texture(&self, name: &str) -> &Bitmap {
@@ -58,7 +72,22 @@ impl ResourceManager {
     pub fn load(client: &mut Client) {
         info!("Loading Resource Manager");
 
-        ResourceManager::load_litecraft_texture(client, TextureType::Logo); 
+
+        let font_addon = FontAddon::init(&client.core).unwrap();
+        let ttf_addon = TtfAddon::init(&font_addon).unwrap();
+
+        info!("Loading default font");
+        let font = ttf_addon
+            .load_ttf_font(
+                ResourceManager::get_asset("litecraft", "fonts", String::from("minecraft"), "ttf")
+                    .as_str(),
+                16,
+                TtfFlags::zero(),
+            )
+            .unwrap();
+        client.resource_manager.font = Some(font);
+
+        ResourceManager::load_litecraft_texture(client, TextureType::Logo);
     }
 
     fn load_minecraft_texture(client: &mut Client, name: TextureType) {
@@ -74,7 +103,7 @@ impl ResourceManager {
 
         let bmp = Bitmap::load(
             &client.core,
-            ResourceManager::get_asset(domain, "textures", &name.to_string()[..], "png").as_str(),
+            ResourceManager::get_asset(domain, "textures", name.to_string(), "png").as_str(),
         );
 
         match bmp {
@@ -86,7 +115,7 @@ impl ResourceManager {
         };
     }
 
-    fn get_asset_path(domain: &str, class: &str, path: &str, extension: &str) -> PathBuf {
+    fn get_asset_path(domain: &str, class: &str, path: String, extension: &str) -> PathBuf {
         let path = PathBuf::from(format!(
             "./assets/{}/{}/{}.{}",
             domain,
@@ -97,7 +126,7 @@ impl ResourceManager {
         fs::canonicalize(path).unwrap()
     }
 
-    fn get_asset(domain: &str, class: &str, path: &str, extension: &str) -> String {
+    fn get_asset(domain: &str, class: &str, path: String, extension: &str) -> String {
         ResourceManager::get_asset_path(domain, class, path, extension)
             .into_os_string()
             .into_string()

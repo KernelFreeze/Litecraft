@@ -47,7 +47,7 @@ pub trait Component {
 
     fn draw_text(&self, client: &Client, color: Color, text: &str, x: f32, y: f32) {
         client.core.draw_text(
-            &client.font,
+            &client.resource_manager.get_font(),
             color,
             x,
             y,
