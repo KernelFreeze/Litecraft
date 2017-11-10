@@ -28,7 +28,14 @@ impl Component for SplashScreen {
 impl Scene for SplashScreen {
     fn draw(&self, client: &Client) {
         client.core.clear_to_color(Color::from_rgb_f(1.0, 1.0, 1.0));
+
         self.draw_centered(client, "logo", 200, 200);
+
+        let x = (client.display.get_width() / 2) as f32;
+        let y = (client.display.get_height() / 2 + 130) as f32;
+        let color = Color::from_rgb_f(0f32, 0f32, 0f32);
+
+        self.draw_text(client, color, "Starting Litecraft...", x, y);
     }
 }
 

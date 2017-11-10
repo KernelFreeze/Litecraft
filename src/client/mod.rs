@@ -54,6 +54,8 @@ pub fn run(session: &str) {
     let timer = Timer::new(&core, 1.0 / 60.0).unwrap();
     let font = Font::new_builtin(&font_addon).unwrap();
 
+    display.set_window_title("Litecraft");
+
     let queue = EventQueue::new(&core).unwrap();
     queue.register_event_source(display.get_event_source());
     queue.register_event_source(timer.get_event_source());
@@ -67,7 +69,12 @@ pub fn run(session: &str) {
         display,
         resource_manager: ResourceManager::new(),
     };
+
     ResourceManager::load(&mut client);
+
+    // Set our awesome logo ;3
+    let logo = client.resource_manager.get_texture(resourcemanager::TextureType::Logo);
+    client.display.set_icon(logo);
 
     let mut redraw = true;
     timer.start();

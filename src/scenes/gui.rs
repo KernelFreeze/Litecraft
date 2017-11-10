@@ -18,16 +18,21 @@ use allegro::{Flag, Color};
 use client::Client;
 use allegro::bitmap_like::BitmapLike;
 use client::allegro_font::{FontDrawing, FontAlign};
+use client::resourcemanager::TextureType;
 
 pub trait Component {
     fn draw_centered(&self, client: &Client, name: &str, w: i32, h: i32) {
         let x = (client.display.get_width() / 2 - (w / 2)) as f32;
         let y = (client.display.get_height() / 2 - (h / 2)) as f32;
 
+        self.draw_2d(client, name, x, y, w, h);
+    }
+
+    fn draw_2d(&self, client: &Client, name: &str,  x: f32, y: f32, w: i32, h: i32) {
         let w = w as f32;
         let h = h as f32;
 
-        let texture = client.resource_manager.get_texture(name);
+        let texture = client.resource_manager.get_texture(TextureType::Logo);
 
         client.core.draw_scaled_bitmap(
             texture,
@@ -40,12 +45,12 @@ pub trait Component {
         );
     }
 
-    fn draw_text(&self, client: &Client, text: &str, x: i32, y: i32) {
+    fn draw_text(&self, client: &Client, color: Color, text: &str, x: f32, y: f32) {
         client.core.draw_text(
             &client.font,
-            Color::from_rgb_f(0.5, 0.5, 0.5),
-            x as f32,
-            y as f32,
+            color,
+            x,
+            y,
             FontAlign::Centre,
             text,
         );

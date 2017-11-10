@@ -18,42 +18,63 @@ use client::Client;
 use std::fs;
 use std::path::PathBuf;
 use std::collections::HashMap;
+use std::fmt;
+
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub enum TextureType {
+    // Add all known textures here and in fmt::Display
+    Logo,
+}
+
+impl fmt::Display for TextureType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Logo => return write!(f, "logo"),
+        }
+        write!(f, "unknown")
+    }
+}
 
 pub struct ResourceManager {
-    textures: HashMap<&'static str, Bitmap>,
+    textures: HashMap<TextureType, Bitmap>,
+    dynamic_textures: HashMap<&'static str, Bitmap>,
 }
 
 impl ResourceManager {
     pub fn new() -> ResourceManager {
-        let manager = ResourceManager { textures: HashMap::new() };
+        let manager = ResourceManager { textures: HashMap::new(), dynamic_textures: HashMap::new() };
 
         manager
     }
 
-    pub fn get_texture(&self, name: &str) -> &Bitmap {
-        self.textures.get(name).unwrap()
+    pub fn get_dynamic_texture(&self, name: &str) -> &Bitmap {
+        self.dynamic_textures.get(name).unwrap()
+    }
+
+    pub fn get_texture(&self, name: TextureType) -> &Bitmap {
+        self.textures.get(&name).unwrap()
     }
 
     pub fn load(client: &mut Client) {
         info!("Loading Resource Manager");
 
-        ResourceManager::load_litecraft_texture(client, "logo"); 
+        ResourceManager::load_litecraft_texture(client, TextureType::Logo); 
     }
 
-    fn load_minecraft_texture(client: &mut Client, name: &'static str) {
+    fn load_minecraft_texture(client: &mut Client, name: TextureType) {
         ResourceManager::load_texture(client, "minecraft", name);
     }
 
-    fn load_litecraft_texture(client: &mut Client, name: &'static str) {
+    fn load_litecraft_texture(client: &mut Client, name: TextureType) {
         ResourceManager::load_texture(client, "litecraft", name);
     }
 
-    fn load_texture(client: &mut Client, domain: &str, name: &'static str) {
+    fn load_texture(client: &mut Client, domain: &str, name: TextureType) {
         info!("Loading {} texture '{}'", domain, name);
 
         let bmp = Bitmap::load(
             &client.core,
-            ResourceManager::get_asset(domain, "textures", name, "png").as_str(),
+            ResourceManager::get_asset(domain, "textures", &name.to_string()[..], "png").as_str(),
         );
 
         match bmp {
