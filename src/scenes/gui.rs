@@ -37,7 +37,18 @@ pub trait Component {
 
     fn draw_text(&self, client: &Client, color: Color, text: &str, x: f32, y: f32) {
         client.core.draw_text(
-            &client.resource_manager.get_font(),
+            &client.resource_manager.get_minecraft_font(),
+            color,
+            x,
+            y,
+            FontAlign::Centre,
+            text,
+        );
+    }
+
+    fn draw_litecraft_text(&self, client: &Client, color: Color, text: &str, x: f32, y: f32) {
+        client.core.draw_text(
+            &client.resource_manager.get_litecraft_font(),
             color,
             x,
             y,

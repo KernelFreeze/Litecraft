@@ -68,10 +68,6 @@ pub fn run(session: &str) {
 
     ResourceManager::load(&mut client);
 
-    // Set our awesome logo ;3
-    let logo = client.resource_manager.get_texture(&resourcemanager::TextureType::Logo);
-    client.display.set_icon(logo);
-
     let mut redraw = true;
     timer.start();
 

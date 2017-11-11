@@ -42,7 +42,8 @@ impl fmt::Display for TextureType {
 pub struct ResourceManager {
     textures: HashMap<TextureType, Bitmap>,
     dynamic_textures: HashMap<&'static str, Bitmap>,
-    font: Option<Font>,
+    minecraft_font: Option<Font>,
+    litecraft_font: Option<Font>,
 }
 
 impl ResourceManager {
@@ -50,12 +51,20 @@ impl ResourceManager {
         ResourceManager {
             textures: HashMap::new(),
             dynamic_textures: HashMap::new(),
-            font: None,
+            minecraft_font: None,
+            litecraft_font: None,
         }
     }
 
-    pub fn get_font(&self) -> &Font {
-        match self.font {
+    pub fn get_minecraft_font(&self) -> &Font {
+        match self.minecraft_font {
+            Some(ref font) => font,
+            None => panic!("I don't have a font!"),
+        }
+    }
+
+    pub fn get_litecraft_font(&self) -> &Font {
+        match self.litecraft_font {
             Some(ref font) => font,
             None => panic!("I don't have a font!"),
         }
@@ -85,9 +94,23 @@ impl ResourceManager {
                 TtfFlags::zero(),
             )
             .unwrap();
-        client.resource_manager.font = Some(font);
+        client.resource_manager.minecraft_font = Some(font);
+        info!("Loading litecraft font");
+        let font = ttf_addon
+            .load_ttf_font(
+                ResourceManager::get_asset("litecraft", "fonts", String::from("litecraft"), "ttf")
+                    .as_str(),
+                16,
+                TtfFlags::zero(),
+            )
+            .unwrap();
+        client.resource_manager.litecraft_font = Some(font);
 
         ResourceManager::load_litecraft_texture(client, TextureType::Logo);
+
+        // Set our awesome logo ;3
+        let logo = client.resource_manager.get_texture(&TextureType::Logo);
+        client.display.set_icon(logo);
     }
 
     fn load_minecraft_texture(client: &mut Client, name: TextureType) {
