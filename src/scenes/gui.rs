@@ -21,18 +21,8 @@ use client::allegro_font::{FontDrawing, FontAlign};
 use client::resourcemanager::TextureType;
 
 pub trait Component {
-    fn draw_centered(&self, client: &Client, name: &str, w: i32, h: i32) {
-        let x = (client.display.get_width() / 2 - (w / 2)) as f32;
-        let y = (client.display.get_height() / 2 - (h / 2)) as f32;
-
-        self.draw_2d(client, name, x, y, w, h);
-    }
-
-    fn draw_2d(&self, client: &Client, name: &str,  x: f32, y: f32, w: i32, h: i32) {
-        let w = w as f32;
-        let h = h as f32;
-
-        let texture = client.resource_manager.get_texture(TextureType::Logo);
+    fn draw_2d(&self, client: &Client, x: f32, y: f32, w: f32, h: f32, texture: &TextureType) {
+        let texture = client.resource_manager.get_texture(texture);
 
         client.core.draw_scaled_bitmap(
             texture,
@@ -54,5 +44,103 @@ pub trait Component {
             FontAlign::Centre,
             text,
         );
+    }
+}
+
+#[derive(Debug)]
+pub enum ContainerPosition {
+    UpLeft,
+    UpCenter,
+    UpRight,
+    MiddleLeft,
+    MiddleCenter,
+    MiddleRight,
+    BottomLeft,
+    BottonCenter,
+    BottonRight
+}
+
+#[derive(Debug)]
+pub struct Container {
+    position: ContainerPosition,
+    buttons: Vec<Button>
+}
+
+pub trait Element : Component {
+    fn get_position(&self, client: &Client, position: &ContainerPosition, cx: f32, cy: f32, x: f32, y: f32, w: f32, h: f32, scale: u8) -> (f32, f32, f32, f32) {
+        let mut x = x;
+        let mut y = y;
+
+        match *position {
+            ContainerPosition::UpLeft => (),
+            ContainerPosition::UpCenter => {
+                x += (client.display.get_width() / 2 - (w as i32 / 2)) as f32;
+            },
+            ContainerPosition::UpRight => {
+                x += client.display.get_width() as f32 - w;
+            },
+            ContainerPosition::MiddleLeft => {
+                y += (client.display.get_height() / 2 - (h as i32 / 2)) as f32;
+            },
+            ContainerPosition::MiddleCenter => {
+                x += (client.display.get_width() / 2 - (w as i32 / 2)) as f32;
+                y += (client.display.get_height() / 2 - (h as i32 / 2)) as f32;
+            },
+            ContainerPosition::MiddleRight => {
+                x += client.display.get_width() as f32 - w;
+                y += (client.display.get_height() / 2 - (h as i32 / 2)) as f32;
+            },
+            ContainerPosition::BottomLeft => {
+                y += client.display.get_height() as f32 - h;
+            },
+            ContainerPosition::BottonCenter => {
+                x += (client.display.get_width() / 2 - (w as i32 / 2)) as f32;
+                y += client.display.get_height() as f32 - h;
+            },
+            ContainerPosition::BottonRight => {
+                x += client.display.get_width() as f32 - w;
+                y += client.display.get_height() as f32 - h;
+            },
+        };
+        self.get_scale(position, cx + x, cy + y, cx + w, cy + h, scale)
+    }
+
+    fn get_scale(&self, position: &ContainerPosition, x: f32, y: f32, w: f32, h: f32, scale: u8) -> (f32, f32, f32, f32) {
+        let scale = scale as f32 * 100f32;
+
+        match *position {
+            ContainerPosition::UpLeft => (x, y, w + scale, h + scale),
+            ContainerPosition::UpCenter => (x + scale, y, w + scale, h + scale),
+            ContainerPosition::UpRight => (x + scale, y, w, h + scale),
+            ContainerPosition::MiddleLeft => (x, y + scale, w + scale, h + scale),
+            ContainerPosition::MiddleCenter => (x + scale, y + scale, w + scale, h + scale),
+            ContainerPosition::MiddleRight => (x, y + scale, w + scale, h + scale),
+            ContainerPosition::BottomLeft => (x, y + scale, w + scale, h),
+            ContainerPosition::BottonCenter => (x + scale, y + scale, w + scale, h),
+            ContainerPosition::BottonRight => (x + scale, y + scale, w, h),
+        }
+    }
+
+    fn draw(&self, client: &Client, position: &ContainerPosition, cx: f32, cy: f32, x: f32, y: f32, w: f32, h: f32, scale: u8);
+}
+
+#[derive(Debug)]
+pub struct Button {
+    texture: TextureType,   
+}
+
+impl Button {
+    fn new(texture: TextureType) -> Button {
+        Button {texture}
+    }
+}
+
+impl Component for Button {}
+
+impl Element for Button {
+    fn draw(&self, client: &Client, position: &ContainerPosition, cx: f32, cy: f32, x: f32, y: f32, w: f32, h: f32, scale: u8) {
+        let (x, y, w, h) = self.get_position(client, position, cx, cy, x, y, w, h, scale);
+
+        self.draw_2d(client, x, y, w, h, &self.texture);
     }
 }

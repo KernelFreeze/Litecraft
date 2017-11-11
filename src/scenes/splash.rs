@@ -16,26 +16,24 @@
 use client::Client;
 use scenes::scene::Scene;
 use scenes::gui::Component;
+use client::resourcemanager::TextureType;
 
 use allegro::Color;
 
 pub struct SplashScreen;
 
-impl Component for SplashScreen {
-
-}
+impl Component for SplashScreen {}
 
 impl Scene for SplashScreen {
     fn draw(&self, client: &Client) {
-        client.core.clear_to_color(Color::from_rgb_f(1.0, 1.0, 1.0));
-
-        self.draw_centered(client, "logo", 200, 200);
+        client.core.clear_to_color(Color::from_rgb_f(0.8196, 0.8431, 1.0));
 
         let x = (client.display.get_width() / 2) as f32;
-        let y = (client.display.get_height() / 2 + 130) as f32;
+        let y = (client.display.get_height() / 2) as f32;
         let color = Color::from_rgb_f(0f32, 0f32, 0f32);
 
-        self.draw_text(client, color, "Starting Litecraft...", x, y);
+        self.draw_2d(client, x - 200.0, y - 200.0, 200.0, 200.0, &TextureType::Logo);
+        self.draw_text(client, color, "Starting Litecraft...", x, y + 130.0);
     }
 }
 

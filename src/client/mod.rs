@@ -17,11 +17,13 @@ pub extern crate allegro;
 pub extern crate allegro_font;
 pub extern crate allegro_image;
 pub extern crate allegro_ttf;
+pub extern crate allegro_sys;
 
 pub mod resourcemanager;
 
 use self::allegro::*;
 use self::allegro_image::*;
+use self::allegro_sys::base::ALLEGRO_VERSION_STR;
 
 use scenes::scene::Scene;
 use scenes::splash::SplashScreen;
@@ -45,7 +47,7 @@ pub fn run(session: &str) {
     let core = Core::init().unwrap();
     ImageAddon::init(&core).unwrap();
 
-    info!("Game Engine Core started!");
+    info!("Using Allegro v{} as graphics library", ALLEGRO_VERSION_STR);
 
     let display = Box::new(Display::new(&core, 800, 600).unwrap());
     let timer = Timer::new(&core, 1.0 / 60.0).unwrap();
@@ -67,7 +69,7 @@ pub fn run(session: &str) {
     ResourceManager::load(&mut client);
 
     // Set our awesome logo ;3
-    let logo = client.resource_manager.get_texture(resourcemanager::TextureType::Logo);
+    let logo = client.resource_manager.get_texture(&resourcemanager::TextureType::Logo);
     client.display.set_icon(logo);
 
     let mut redraw = true;

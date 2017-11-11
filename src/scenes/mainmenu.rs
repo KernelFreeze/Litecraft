@@ -14,7 +14,20 @@
 */
 
 use client::Client;
+use scenes::scene::Scene;
+use scenes::gui::Component;
 
-pub trait Scene {
-    fn draw(&self, client: &Client);
+use allegro::Color;
+
+impl Scene for MainMenu {
+    fn draw(&self, client: &Client) {
+        client.core.clear_to_color(Color::from_rgb_f(0.8196, 0.8431, 1.0));
+    }
+}
+
+impl SplashScreen {
+    pub fn new() -> Self {
+        info!("Starting splash screen...");
+        SplashScreen {}
+    }
 }

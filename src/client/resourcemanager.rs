@@ -32,9 +32,9 @@ pub enum TextureType {
 
 impl fmt::Display for TextureType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
+        match *self {
             // Add texture file names here
-            Logo => return write!(f, "logo"),
+            TextureType::Logo => return write!(f, "logo"),
         }
     }
 }
@@ -65,7 +65,7 @@ impl ResourceManager {
         self.dynamic_textures.get(name).unwrap()
     }
 
-    pub fn get_texture(&self, name: TextureType) -> &Bitmap {
+    pub fn get_texture(&self, name: &TextureType) -> &Bitmap {
         self.textures.get(&name).unwrap()
     }
 
