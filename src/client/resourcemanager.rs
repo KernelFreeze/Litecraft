@@ -23,6 +23,7 @@ use client::allegro_font::Font;
 use client::allegro_font::*;
 use client::allegro_ttf::{TtfAddon, TtfFlags};
 use allegro::Flag;
+use std::collections::VecDeque;
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum TextureType {
@@ -44,6 +45,7 @@ pub struct ResourceManager {
     dynamic_textures: HashMap<&'static str, Bitmap>,
     minecraft_font: Option<Font>,
     litecraft_font: Option<Font>,
+    load_queue: VecDeque<Box<FnMut()>>
 }
 
 impl ResourceManager {
@@ -53,6 +55,7 @@ impl ResourceManager {
             dynamic_textures: HashMap::new(),
             minecraft_font: None,
             litecraft_font: None,
+            load_queue: VecDeque::new(),
         }
     }
 
@@ -111,6 +114,16 @@ impl ResourceManager {
         // Set our awesome logo ;3
         let logo = client.resource_manager.get_texture(&TextureType::Logo);
         client.display.set_icon(logo);
+    }
+
+    fn load_assets(&mut self) -> bool {
+        match self.load_queue.pop_front() {
+            Some(mut load) => { 
+                load();
+                return true;
+            },
+            None => false,
+        }
     }
 
     fn load_minecraft_texture(client: &mut Client, name: TextureType) {
