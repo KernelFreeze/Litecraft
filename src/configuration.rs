@@ -2,27 +2,59 @@ use config::{ConfigError, Config, File, Environment};
 
 #[derive(Debug, Deserialize)]
 pub struct Video {
-
+    vsync: bool,
+    hiDPI: bool,
+    anisotropy: bool,
+    renderDistance: u8,
+    guiScale: u8,
+    particles: u8,
+    fancy: bool,
+    clouds: bool,
+    itemTooltips: bool,
+    fov: u8,
+    entityShadows: bool,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct MSAA {
-
+    enabled: bool,
+    quality: u8,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Input {
-
+    invertYMouse: bool,
+    sensitivity: u8,
+    touchScreen: bool,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Gameplay {
-
+    difficulty: u8,
+    resourcePacks: Vec<&'a str>,
+    directConnect: &'a str,
+    lang: &'a str,
+    rightHand: bool,
+    attackIndicator: bool,
+    oldCombat: bool,
+    subtitles: bool,
+    autojump: bool,
+    narrator: bool,
+    tutorialStep: u8,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Window {
+    width: u16,
+    height: u16,
+    fullscreen: bool,
+}
 
+#[derive(Debug, Deserialize)]
+pub struct Chat {
+    enabled: bool,
+    links: bool,
+    opacity: u8,
 }
 
 #[derive(Debug, Deserialize)]
@@ -30,6 +62,10 @@ pub struct Settings {
     version: u8,
     video: Video,
     MSAA: MSAA,
+    input: Input,
+    gameplay: Gameplay,
+    window: Window,
+    chat: Chat,
 }
 
 impl Settings {
