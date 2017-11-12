@@ -40,6 +40,7 @@ pub struct Client {
     queue: EventQueue,
     display: Box<Display>,
     resource_manager: ResourceManager,
+    gui_scale: u8
 }
 
 impl Client {
@@ -58,13 +59,17 @@ impl Client {
     pub fn get_resource_manager_mut(&mut self) -> &mut ResourceManager {
         &mut self.resource_manager
     }
+
+    pub fn scale(&self) -> u8 {
+        self.gui_scale
+    }
 }
 
 pub fn run(session: &str) {
     let core = Core::init().unwrap();
     ImageAddon::init(&core).unwrap();
 
-    info!("Using Allegro v{} as graphics library", ALLEGRO_VERSION_STR);
+    info!("Using Allegro v{}", ALLEGRO_VERSION_STR);
 
     let display = Box::new(Display::new(&core, 800, 600).unwrap());
     let timer = Timer::new(&core, 1.0 / 60.0).unwrap();
@@ -80,6 +85,7 @@ pub fn run(session: &str) {
         queue,
         display,
         resource_manager: ResourceManager::new(),
+        gui_scale: 1u8
     };
 
     ResourceManager::load(&mut client);

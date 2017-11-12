@@ -71,14 +71,8 @@ pub enum ContainerPosition {
     BottonRight
 }
 
-#[derive(Debug)]
-pub struct Container {
-    position: ContainerPosition,
-    buttons: Vec<Button>
-}
-
 pub trait Element : Component {
-    fn get_position(&self, client: &Client, position: &ContainerPosition, cx: f32, cy: f32, x: f32, y: f32, w: f32, h: f32, scale: u8) -> (f32, f32, f32, f32) {
+    fn get_position(&self, client: &Client, position: &ContainerPosition, x: f32, y: f32, w: f32, h: f32, scale: u8) -> (f32, f32, f32, f32) {
         let mut x = x;
         let mut y = y;
 
@@ -113,7 +107,7 @@ pub trait Element : Component {
                 y += client.get_display().get_height() as f32 - h;
             },
         };
-        self.get_scale(position, cx + x, cy + y, cx + w, cy + h, scale)
+        self.get_scale(position, x, y, w, h, scale)
     }
 
     fn get_scale(&self, position: &ContainerPosition, x: f32, y: f32, w: f32, h: f32, scale: u8) -> (f32, f32, f32, f32) {
@@ -132,25 +126,39 @@ pub trait Element : Component {
         }
     }
 
-    fn draw(&self, client: &Client, position: &ContainerPosition, cx: f32, cy: f32, x: f32, y: f32, w: f32, h: f32, scale: u8);
+    fn draw(&self, client: &Client);
 }
 
 #[derive(Debug)]
 pub struct Button {
-    texture: TextureType,   
+    texture: TextureType,
+    x: f32,
+    y: f32,
+    width: f32,
+    height: f32,
+    position: ContainerPosition
 }
 
 impl Button {
-    fn new(texture: TextureType) -> Button {
-        Button {texture}
+    fn new(texture: TextureType, x: f32, y: f32, height: f32,
+            width: f32, position: ContainerPosition) -> Button {
+        Button {
+            texture,
+            x,
+            y,
+            width,
+            height,
+            position,
+        }
     }
 }
 
 impl Component for Button {}
 
 impl Element for Button {
-    fn draw(&self, client: &Client, position: &ContainerPosition, cx: f32, cy: f32, x: f32, y: f32, w: f32, h: f32, scale: u8) {
-        let (x, y, w, h) = self.get_position(client, position, cx, cy, x, y, w, h, scale);
+    fn draw(&self, client: &Client) {
+        let (x, y, w, h) = self.get_position(client, &self.position, self.x, self.y,
+                                self.width, self.height, client.scale());
 
         self.draw_2d(client, x, y, w, h, &self.texture);
     }

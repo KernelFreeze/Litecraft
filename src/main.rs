@@ -20,7 +20,7 @@ extern crate log;
 #[macro_use]
 extern crate clap;
 extern crate rand;
-extern crate badlog;
+extern crate colored_logger;
 extern crate allegro;
 extern crate os_type;
 extern crate dirs;
@@ -33,7 +33,7 @@ use dirs::Directories;
 use std::env::set_current_dir;
 
 fn main() {
-    badlog::init_from_env("LOG_LEVEL");
+    colored_logger::init().unwrap();
 
     let matches = clap_app!(litecraft =>
         (version: client::VERSION)
@@ -52,7 +52,8 @@ fn main() {
         "Very fast!",
         "Sky is the Limit (y = 255)",
         "Open Source!",
-        "Less bugs!",
+        "Less bugs! (I hope...)",
+        "Works on Linux!",
 
         // Nice...
         "Knowledge is having the right answer. Intelligence is asking the right question",
@@ -84,9 +85,10 @@ fn main() {
         os.os_type,
         os.version
     );
-    info!("Starting engine...");
-    let path;
+    info!("Starting Soulsand engine...");
 
+    // Set litecraft path
+    let path;
     if let Some(i) = matches.value_of("path") {
         path = String::from(i);
     } else {
