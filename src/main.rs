@@ -19,6 +19,10 @@
 extern crate log;
 #[macro_use]
 extern crate clap;
+#[macro_use]
+extern crate serde_derive;
+
+extern crate config;
 extern crate rand;
 extern crate colored_logger;
 extern crate allegro;
@@ -27,6 +31,7 @@ extern crate dirs;
 
 mod scenes;
 mod client;
+mod configuration;
 
 use rand::Rng;
 use dirs::Directories;

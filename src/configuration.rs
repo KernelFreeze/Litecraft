@@ -1,6 +1,3 @@
-extern crate config;
-
-use std::env;
 use config::{ConfigError, Config, File, Environment};
 
 #[derive(Debug, Deserialize)]
@@ -66,7 +63,7 @@ impl Settings {
 
             // Gameplay
             .set_default("gameplay.difficulty", 2)?
-            .set_default("gameplay.resourcePacks", Vec::new())?
+            .set_default("gameplay.resourcePacks", vec!["default"])?
             .set_default("gameplay.directConnect", "")?
             .set_default("gameplay.lang", "en-us")?
             .set_default("gameplay.rightHand", true)?
@@ -84,13 +81,13 @@ impl Settings {
             
             // Window
             .set_default("window.width", 800)?
-            .set_default("window.height", 600)?;
-            .set_default("window.fullscreen", false)?
+            .set_default("window.height", 600)?
+            .set_default("window.fullscreen", false)?;
 
         // Load default config
         s.merge(File::with_name("litecraft").required(false))?;
 
-        s.merge(config::Environment::with_prefix("APP"))?;
+        s.merge(Environment::with_prefix("APP"))?;
 
         s.try_into()
     }
