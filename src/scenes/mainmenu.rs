@@ -25,7 +25,7 @@ impl Component for MainMenu {}
 
 impl Scene for MainMenu {
     fn draw(&self, client: &mut Client) -> Option<Box<Scene>> {
-        client.get_core().clear_to_color(Color::from_rgb_f(0.8196, 0.8431, 1.0));
+        client.get_core().clear_to_color(Color::from_rgb_f(0.0, 0.0, 0.0));
 
         None
     }

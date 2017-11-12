@@ -27,7 +27,7 @@ impl Component for SplashScreen {}
 
 impl Scene for SplashScreen {
     fn draw(&self, client: &mut Client) -> Option<Box<Scene>> {
-        client.get_core().clear_to_color(Color::from_rgb_f(0.2, 0.41, 0.62));
+        client.get_core().clear_to_color(Color::from_rgb_f(0.0, 0.0, 0.0));
 
         let w = client.get_display().get_width() as f32;
         let h = client.get_display().get_height() as f32;
