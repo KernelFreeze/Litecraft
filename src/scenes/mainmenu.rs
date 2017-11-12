@@ -16,23 +16,28 @@
 use client::Client;
 use scenes::scene::Scene;
 use scenes::gui::Component;
+use scenes::gui::SceneManager;
 
 use allegro::Color;
 
-pub struct MainMenu;
+pub struct MainMenu<'a> {
+    scenemanager: SceneManager<'a>,
+}
 
-impl Component for MainMenu {}
+impl<'a> Component for MainMenu<'a> {}
 
-impl Scene for MainMenu {
+impl<'a> Scene for MainMenu<'a> {
     fn draw(&self, client: &mut Client) -> Option<Box<Scene>> {
-        client.get_core().clear_to_color(Color::from_rgb_f(0.0, 0.0, 0.0));
+        client.get_core().clear_to_color(
+            Color::from_rgb_f(0.0, 0.0, 0.0),
+        );
 
         None
     }
 }
 
-impl MainMenu {
+impl<'a> MainMenu<'a> {
     pub fn new() -> Self {
-        MainMenu {}
+        MainMenu { scenemanager: SceneManager::new() }
     }
 }

@@ -155,3 +155,14 @@ impl Element for Button {
         self.draw_2d(client, x, y, w, h, &self.texture);
     }
 }
+
+#[derive(Debug)]
+pub struct SceneManager<'a> {
+    elements: Vec<&'a Element>
+}
+
+impl<'a> SceneManager<'a> {
+    pub fn new() -> Self {
+        SceneManager{elements: Vec::new()}
+    }
+}
