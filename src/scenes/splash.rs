@@ -29,12 +29,17 @@ impl Scene for SplashScreen {
     fn draw(&self, client: &mut Client) -> Option<Box<Scene>> {
         client.get_core().clear_to_color(Color::from_rgb_f(0.2, 0.41, 0.62));
 
-        let x = (client.get_display().get_width() / 2) as f32;
-        let y = (client.get_display().get_height() / 2) as f32;
+        let w = client.get_display().get_width() as f32;
+        let h = client.get_display().get_height() as f32;
+
+        let x = w / 2.0;
+        let y = h / 2.0;
+
         let color = Color::from_rgb_f(1f32, 1f32, 1f32);
 
+        self.draw_2d(client, 0.0, 0.0, w, h, &TextureType::SplashBackground);
         self.draw_2d(client, x - 100.0, y - 130.0, 200.0, 200.0, &TextureType::Logo);
-        self.draw_litecraft_text(client, color, "Starting Litecraft...", x, y + 100.0);
+        self.draw_litecraft_text(client, color, "Starting Litecraft...", x, y + 90.0);
 
         if !client.get_resource_manager_mut().load_assets() {            
             return Some(Box::new(MainMenu::new()));

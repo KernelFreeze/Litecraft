@@ -29,13 +29,15 @@ use std::collections::VecDeque;
 pub enum TextureType {
     // Add all known textures here and in fmt::Display
     Logo,
+    SplashBackground,
 }
 
 impl fmt::Display for TextureType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             // Add texture file names here
-            TextureType::Logo => return write!(f, "logo"),
+            TextureType::Logo => write!(f, "logo"),
+            TextureType::SplashBackground => write!(f, "background"),
         }
     }
 }
@@ -45,7 +47,7 @@ pub struct ResourceManager {
     dynamic_textures: HashMap<&'static str, Bitmap>,
     minecraft_font: Option<Font>,
     litecraft_font: Option<Font>,
-    load_queue: VecDeque<Box<Fn()>>
+    load_queue: VecDeque<Box<Fn()>>,
 }
 
 impl ResourceManager {
@@ -103,13 +105,14 @@ impl ResourceManager {
             .load_ttf_font(
                 ResourceManager::get_asset("litecraft", "fonts", String::from("litecraft"), "ttf")
                     .as_str(),
-                16,
+                22,
                 TtfFlags::zero(),
             )
             .unwrap();
         client.resource_manager.litecraft_font = Some(font);
 
         ResourceManager::load_litecraft_texture(client, TextureType::Logo);
+        ResourceManager::load_litecraft_texture(client, TextureType::SplashBackground);
 
         // Set our awesome logo ;3
         let logo = client.resource_manager.get_texture(&TextureType::Logo);
@@ -120,10 +123,10 @@ impl ResourceManager {
 
     pub fn load_assets(&mut self) -> bool {
         match self.load_queue.pop_front() {
-            Some(load) => { 
+            Some(load) => {
                 load();
                 true
-            },
+            }
             None => false,
         }
     }
