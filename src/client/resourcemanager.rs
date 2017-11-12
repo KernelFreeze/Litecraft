@@ -45,7 +45,7 @@ pub struct ResourceManager {
     dynamic_textures: HashMap<&'static str, Bitmap>,
     minecraft_font: Option<Font>,
     litecraft_font: Option<Font>,
-    load_queue: VecDeque<Box<FnMut()>>
+    load_queue: VecDeque<Box<Fn()>>
 }
 
 impl ResourceManager {
@@ -114,13 +114,15 @@ impl ResourceManager {
         // Set our awesome logo ;3
         let logo = client.resource_manager.get_texture(&TextureType::Logo);
         client.display.set_icon(logo);
+
+        //self.load_queue.push_back
     }
 
-    fn load_assets(&mut self) -> bool {
+    pub fn load_assets(&mut self) -> bool {
         match self.load_queue.pop_front() {
-            Some(mut load) => { 
+            Some(load) => { 
                 load();
-                return true;
+                true
             },
             None => false,
         }

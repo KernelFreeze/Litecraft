@@ -35,12 +35,29 @@ pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 pub const MINECRAFT: &'static str = "1.13";
 
 // Our data struct
-pub struct Client<'a> {
-    pub core: Core,
-    pub queue: EventQueue,
-    pub scene: &'a (Scene + 'a),
-    pub display: Box<Display>,
-    pub resource_manager: ResourceManager,
+pub struct Client {
+    core: Core,
+    queue: EventQueue,
+    display: Box<Display>,
+    resource_manager: ResourceManager,
+}
+
+impl Client {
+    pub fn get_display(&self) -> &Box<Display> {
+        &self.display
+    }
+
+    pub fn get_core(&self) -> &Core {
+        &self.core
+    }
+
+    pub fn get_resource_manager(&self) -> &ResourceManager {
+        &self.resource_manager
+    }
+
+    pub fn get_resource_manager_mut(&mut self) -> &mut ResourceManager {
+        &mut self.resource_manager
+    }
 }
 
 pub fn run(session: &str) {
@@ -61,7 +78,6 @@ pub fn run(session: &str) {
     let mut client = Client {
         core,
         queue,
-        scene: &SplashScreen::new() as &Scene,
         display,
         resource_manager: ResourceManager::new(),
     };
@@ -73,9 +89,14 @@ pub fn run(session: &str) {
 
     info!("Starting main loop!");
 
+    let mut scene: Box<Scene> = Box::new(SplashScreen::new());
+
     'exit: loop {
         if redraw && client.queue.is_empty() {
-            client.scene.draw(&client);
+            match scene.draw(&mut client) {
+                Some(s) => scene = s,
+                None => (),
+            };
             client.core.flip_display();
 
             redraw = false;

@@ -22,9 +22,9 @@ use client::resourcemanager::TextureType;
 
 pub trait Component {
     fn draw_2d(&self, client: &Client, x: f32, y: f32, w: f32, h: f32, texture: &TextureType) {
-        let texture = client.resource_manager.get_texture(texture);
+        let texture = client.get_resource_manager().get_texture(texture);
 
-        client.core.draw_scaled_bitmap(
+        client.get_core().draw_scaled_bitmap(
             texture,
             0f32, 0f32,                              // source origin
             texture.get_width() as f32,              // source width
@@ -36,8 +36,8 @@ pub trait Component {
     }
 
     fn draw_text(&self, client: &Client, color: Color, text: &str, x: f32, y: f32) {
-        client.core.draw_text(
-            &client.resource_manager.get_minecraft_font(),
+        client.get_core().draw_text(
+            &client.get_resource_manager().get_minecraft_font(),
             color,
             x,
             y,
@@ -47,8 +47,8 @@ pub trait Component {
     }
 
     fn draw_litecraft_text(&self, client: &Client, color: Color, text: &str, x: f32, y: f32) {
-        client.core.draw_text(
-            &client.resource_manager.get_litecraft_font(),
+        client.get_core().draw_text(
+            &client.get_resource_manager().get_litecraft_font(),
             color,
             x,
             y,
@@ -85,32 +85,32 @@ pub trait Element : Component {
         match *position {
             ContainerPosition::UpLeft => (),
             ContainerPosition::UpCenter => {
-                x += (client.display.get_width() / 2 - (w as i32 / 2)) as f32;
+                x += (client.get_display().get_width() / 2 - (w as i32 / 2)) as f32;
             },
             ContainerPosition::UpRight => {
-                x += client.display.get_width() as f32 - w;
+                x += client.get_display().get_width() as f32 - w;
             },
             ContainerPosition::MiddleLeft => {
-                y += (client.display.get_height() / 2 - (h as i32 / 2)) as f32;
+                y += (client.get_display().get_height() / 2 - (h as i32 / 2)) as f32;
             },
             ContainerPosition::MiddleCenter => {
-                x += (client.display.get_width() / 2 - (w as i32 / 2)) as f32;
-                y += (client.display.get_height() / 2 - (h as i32 / 2)) as f32;
+                x += (client.get_display().get_width() / 2 - (w as i32 / 2)) as f32;
+                y += (client.get_display().get_height() / 2 - (h as i32 / 2)) as f32;
             },
             ContainerPosition::MiddleRight => {
-                x += client.display.get_width() as f32 - w;
-                y += (client.display.get_height() / 2 - (h as i32 / 2)) as f32;
+                x += client.get_display().get_width() as f32 - w;
+                y += (client.get_display().get_height() / 2 - (h as i32 / 2)) as f32;
             },
             ContainerPosition::BottomLeft => {
-                y += client.display.get_height() as f32 - h;
+                y += client.get_display().get_height() as f32 - h;
             },
             ContainerPosition::BottonCenter => {
-                x += (client.display.get_width() / 2 - (w as i32 / 2)) as f32;
-                y += client.display.get_height() as f32 - h;
+                x += (client.get_display().get_width() / 2 - (w as i32 / 2)) as f32;
+                y += client.get_display().get_height() as f32 - h;
             },
             ContainerPosition::BottonRight => {
-                x += client.display.get_width() as f32 - w;
-                y += client.display.get_height() as f32 - h;
+                x += client.get_display().get_width() as f32 - w;
+                y += client.get_display().get_height() as f32 - h;
             },
         };
         self.get_scale(position, cx + x, cy + y, cx + w, cy + h, scale)

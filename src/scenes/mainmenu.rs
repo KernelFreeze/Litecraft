@@ -19,15 +19,20 @@ use scenes::gui::Component;
 
 use allegro::Color;
 
+pub struct MainMenu;
+
+impl Component for MainMenu {}
+
 impl Scene for MainMenu {
-    fn draw(&self, client: &Client) {
-        client.core.clear_to_color(Color::from_rgb_f(0.8196, 0.8431, 1.0));
+    fn draw(&self, client: &mut Client) -> Option<Box<Scene>> {
+        client.get_core().clear_to_color(Color::from_rgb_f(0.8196, 0.8431, 1.0));
+
+        None
     }
 }
 
-impl SplashScreen {
+impl MainMenu {
     pub fn new() -> Self {
-        info!("Starting splash screen...");
-        SplashScreen {}
+        MainMenu {}
     }
 }
