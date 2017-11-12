@@ -156,7 +156,6 @@ impl Element for Button {
     }
 }
 
-#[derive(Debug)]
 pub struct SceneManager<'a> {
     elements: Vec<&'a Element>
 }
