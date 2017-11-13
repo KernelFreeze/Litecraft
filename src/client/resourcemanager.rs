@@ -23,47 +23,16 @@ use client::allegro_font::*;
 use client::allegro_ttf::{TtfAddon, TtfFlags};
 use allegro::Flag;
 
-trait Loadable {
-    fn load(&self, client: &mut Client);
-}
-
-struct LitecraftTexture {
-    name: &'static str,
-}
-
-impl Loadable for LitecraftTexture {
-    fn load(&self, client: &mut Client) {
-        ResourceManager::load_litecraft_texture(client, self.name);
-    }
-}
-
-impl LitecraftTexture {
-    fn new(name: &'static str) -> Self {
-        LitecraftTexture { name }
-    }
-}
-
-struct MinecraftTexture {
-    name: &'static str,
-}
-
-impl Loadable for MinecraftTexture {
-    fn load(&self, client: &mut Client) {
-        ResourceManager::load_minecraft_texture(client, self.name);
-    }
-}
-
-impl MinecraftTexture {
-    fn new(name: &'static str) -> Self {
-        MinecraftTexture { name }
-    }
+pub enum ResourseType {
+    LitecraftTexture,
+    MinecraftTexture,
 }
 
 pub struct ResourceManager<'a> {
     textures: HashMap<&'a str, Bitmap>,
     minecraft_font: Option<Font>,
     litecraft_font: Option<Font>,
-    load_queue: Vec<Box<Loadable>>,
+    load_queue: Vec<(&'static str, ResourseType)>,
 }
 
 impl<'a> ResourceManager<'a> {
@@ -73,10 +42,10 @@ impl<'a> ResourceManager<'a> {
             minecraft_font: None,
             litecraft_font: None,
             load_queue: vec![
-                Box::new(LitecraftTexture::new("menu_1")),
-                Box::new(LitecraftTexture::new("menu_2")),
-                Box::new(LitecraftTexture::new("menu_3")),
-                Box::new(LitecraftTexture::new("menu_4")),
+                ("menu_1", ResourseType::LitecraftTexture),
+                ("menu_2", ResourseType::LitecraftTexture),
+                ("menu_3", ResourseType::LitecraftTexture),
+                ("menu_4", ResourseType::LitecraftTexture),
             ],
         }
     }
@@ -138,8 +107,15 @@ impl<'a> ResourceManager<'a> {
 
     pub fn load_assets(client: &mut Client) -> bool {
         match client.resource_manager.load_queue.pop() {
-            Some(loadable) => {
-                loadable.load(client);
+            Some(resource) => {
+                match resource.1 {
+                    ResourseType::LitecraftTexture => {
+                        ResourceManager::load_litecraft_texture(client, resource.0)
+                    },
+                    ResourseType::MinecraftTexture => {
+                        ResourceManager::load_minecraft_texture(client, resource.0)
+                    } 
+                }
                 true
             }
             None => false,
