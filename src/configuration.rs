@@ -29,7 +29,7 @@ pub struct Input {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Gameplay {
+pub struct Gameplay<'a> {
     difficulty: u8,
     resourcePacks: Vec<&'a str>,
     directConnect: &'a str,
@@ -58,17 +58,19 @@ pub struct Chat {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Settings {
+pub struct Settings<'a> {
     version: u8,
     video: Video,
-    MSAA: MSAA,
+    #[serde(rename = "MSAA")]
+    msaa: MSAA,
     input: Input,
-    gameplay: Gameplay,
+    #[serde(borrow)]
+    gameplay: Gameplay<'a>,
     window: Window,
     chat: Chat,
 }
 
-impl Settings {
+impl<'a> Settings<'a> {
     pub fn new() -> Result<Self, ConfigError> {
         let mut s = Config::new();
 
