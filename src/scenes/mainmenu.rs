@@ -28,12 +28,19 @@ impl<'a> Component for MainMenu<'a> {}
 
 impl<'a> Scene for MainMenu<'a> {
     fn draw(&self, client: &mut Client) -> Option<Box<Scene>> {
-        client.get_core().clear_to_color(Color::from_rgb_f(1.0, 1.0, 1.0));
+        client.get_core().clear_to_color(
+            Color::from_rgb_f(1.0, 1.0, 1.0),
+        );
 
         let w = client.get_display().get_width() as f32;
         let h = client.get_display().get_height() as f32;
 
-        self.draw_2d(client, 0.0, 0.0, w, h, "menu_1");
+        match client.get_timer().get_count() / 1000 % 4 {
+            0 => self.draw_2d(client, 0.0, 0.0, w, h, "menu_1"),
+            1 => self.draw_2d(client, 0.0, 0.0, w, h, "menu_2"),
+            2 => self.draw_2d(client, 0.0, 0.0, w, h, "menu_3"),
+            _ => self.draw_2d(client, 0.0, 0.0, w, h, "menu_4"),
+        }
 
         None
     }

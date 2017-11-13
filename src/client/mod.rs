@@ -64,6 +64,10 @@ impl<'a> Client<'a> {
     pub fn scale(&self) -> u8 {
         self.gui_scale
     }
+
+    pub fn get_timer(&self) -> &Timer {
+        &self.timer
+    }
 }
 
 pub fn run(session: &str) {
