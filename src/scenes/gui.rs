@@ -18,10 +18,9 @@ use allegro::{Flag, Color};
 use client::Client;
 use allegro::bitmap_like::BitmapLike;
 use client::allegro_font::{FontDrawing, FontAlign};
-use client::resourcemanager::TextureType;
 
 pub trait Component {
-    fn draw_2d(&self, client: &Client, x: f32, y: f32, w: f32, h: f32, texture: &TextureType) {
+    fn draw_2d(&self, client: &Client, x: f32, y: f32, w: f32, h: f32, texture: &str) {
         let texture = client.get_resource_manager().get_texture(texture);
 
         client.get_core().draw_scaled_bitmap(
@@ -130,8 +129,8 @@ pub trait Element : Component {
 }
 
 #[derive(Debug)]
-pub struct Button {
-    texture: TextureType,
+pub struct Button<'a> {
+    texture: &'a str,
     x: f32,
     y: f32,
     width: f32,
@@ -139,8 +138,8 @@ pub struct Button {
     position: ContainerPosition
 }
 
-impl Button {
-    fn new(texture: TextureType, x: f32, y: f32, height: f32,
+impl<'a> Button<'a> {
+    fn new(texture: &str, x: f32, y: f32, height: f32,
             width: f32, position: ContainerPosition) -> Button {
         Button {
             texture,
@@ -153,9 +152,9 @@ impl Button {
     }
 }
 
-impl Component for Button {}
+impl<'a> Component for Button<'a> {}
 
-impl Element for Button {
+impl<'a> Element for Button<'a> {
     fn draw(&self, client: &Client) {
         let (x, y, w, h) = self.get_position(client, &self.position, self.x, self.y,
                                 self.width, self.height, client.scale());

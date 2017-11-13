@@ -18,46 +18,69 @@ use client::Client;
 use std::fs;
 use std::path::PathBuf;
 use std::collections::HashMap;
-use std::fmt;
 use client::allegro_font::Font;
 use client::allegro_font::*;
 use client::allegro_ttf::{TtfAddon, TtfFlags};
 use allegro::Flag;
-use std::collections::VecDeque;
 
-#[derive(Debug, PartialEq, Eq, Hash)]
-pub enum TextureType {
-    // Add all known textures here and in fmt::Display
-    Logo,
-    SplashBackground,
+trait Loadable {
+    fn load(&self, client: &mut Client);
 }
 
-impl fmt::Display for TextureType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            // Add texture file names here
-            TextureType::Logo => write!(f, "logo"),
-            TextureType::SplashBackground => write!(f, "background"),
-        }
+struct LitecraftTexture {
+    name: &'static str,
+}
+
+impl Loadable for LitecraftTexture {
+    fn load(&self, client: &mut Client) {
+        ResourceManager::load_litecraft_texture(client, self.name);
     }
 }
 
-pub struct ResourceManager {
-    textures: HashMap<TextureType, Bitmap>,
+impl LitecraftTexture {
+    fn new(name: &'static str) -> Self {
+        LitecraftTexture { name }
+    }
+}
+
+struct MinecraftTexture {
+    name: &'static str,
+}
+
+impl Loadable for MinecraftTexture {
+    fn load(&self, client: &mut Client) {
+        ResourceManager::load_minecraft_texture(client, self.name);
+    }
+}
+
+impl MinecraftTexture {
+    fn new(name: &'static str) -> Self {
+        MinecraftTexture { name }
+    }
+}
+
+pub struct ResourceManager<'a> {
+    textures: HashMap<&'a str, Bitmap>,
     dynamic_textures: HashMap<&'static str, Bitmap>,
     minecraft_font: Option<Font>,
     litecraft_font: Option<Font>,
-    load_queue: VecDeque<Box<Fn()>>,
+    load_queue: Vec<Box<Loadable>>,
 }
 
-impl ResourceManager {
-    pub fn new() -> ResourceManager {
+impl<'a> ResourceManager<'a> {
+    pub fn new() -> ResourceManager<'a> {
+        let q: Vec<Box<Loadable>> = vec![
+            Box::new(LitecraftTexture::new("menu_1")),
+            Box::new(LitecraftTexture::new("menu_2")),
+            Box::new(LitecraftTexture::new("menu_3")),
+            Box::new(LitecraftTexture::new("menu_4")),
+        ];
         ResourceManager {
             textures: HashMap::new(),
             dynamic_textures: HashMap::new(),
             minecraft_font: None,
             litecraft_font: None,
-            load_queue: VecDeque::new(),
+            load_queue: q,
         }
     }
 
@@ -75,12 +98,8 @@ impl ResourceManager {
         }
     }
 
-    pub fn get_dynamic_texture(&self, name: &str) -> &Bitmap {
-        self.dynamic_textures.get(name).unwrap()
-    }
-
-    pub fn get_texture(&self, name: &TextureType) -> &Bitmap {
-        self.textures.get(&name).unwrap()
+    pub fn get_texture(&self, name: &str) -> &Bitmap {
+        self.textures.get(name).unwrap()
     }
 
     pub fn load(client: &mut Client) {
@@ -99,6 +118,7 @@ impl ResourceManager {
                 TtfFlags::zero(),
             )
             .unwrap();
+
         client.resource_manager.minecraft_font = Some(font);
         info!("Loading litecraft font");
         let font = ttf_addon
@@ -111,35 +131,33 @@ impl ResourceManager {
             .unwrap();
         client.resource_manager.litecraft_font = Some(font);
 
-        ResourceManager::load_litecraft_texture(client, TextureType::Logo);
-        ResourceManager::load_litecraft_texture(client, TextureType::SplashBackground);
+        ResourceManager::load_litecraft_texture(client, "logo");
+        ResourceManager::load_litecraft_texture(client, "background");
 
         // Set our awesome logo ;3
-        let logo = client.resource_manager.get_texture(&TextureType::Logo);
+        let logo = client.resource_manager.get_texture("logo");
         client.display.set_icon(logo);
-
-        //self.load_queue.push_back
     }
 
-    pub fn load_assets(&mut self) -> bool {
-        match self.load_queue.pop_front() {
-            Some(load) => {
-                load();
+    pub fn load_assets(client: &mut Client) -> bool {
+        match client.resource_manager.load_queue.pop() {
+            Some(loadable) => {
+                loadable.load(client);
                 true
             }
             None => false,
         }
     }
 
-    fn load_minecraft_texture(client: &mut Client, name: TextureType) {
+    fn load_minecraft_texture(client: &mut Client, name: &'static str) {
         ResourceManager::load_texture(client, "minecraft", name);
     }
 
-    fn load_litecraft_texture(client: &mut Client, name: TextureType) {
+    fn load_litecraft_texture(client: &mut Client, name: &'static str) {
         ResourceManager::load_texture(client, "litecraft", name);
     }
 
-    fn load_texture(client: &mut Client, domain: &str, name: TextureType) {
+    fn load_texture(client: &mut Client, domain: &str, name: &'static str) {
         info!("Loading {} texture '{}'", domain, name);
 
         let bmp = Bitmap::load(

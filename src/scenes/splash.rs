@@ -16,7 +16,7 @@
 use client::Client;
 use scenes::scene::Scene;
 use scenes::gui::Component;
-use client::resourcemanager::TextureType;
+use client::resourcemanager::ResourceManager;
 use scenes::mainmenu::MainMenu;
 
 use allegro::Color;
@@ -37,11 +37,11 @@ impl Scene for SplashScreen {
 
         let color = Color::from_rgb_f(1f32, 1f32, 1f32);
 
-        self.draw_2d(client, 0.0, 0.0, w, h, &TextureType::SplashBackground);
-        self.draw_2d(client, x - 100.0, y - 130.0, 200.0, 200.0, &TextureType::Logo);
+        self.draw_2d(client, 0.0, 0.0, w, h, "background");
+        self.draw_2d(client, x - 100.0, y - 130.0, 200.0, 200.0, "logo");
         self.draw_litecraft_text(client, color, "Starting Litecraft...", x, y + 90.0);
 
-        if !client.get_resource_manager_mut().load_assets() {            
+        if !ResourceManager::load_assets(client) {
             return Some(Box::new(MainMenu::new()));
         }
         None
@@ -50,7 +50,6 @@ impl Scene for SplashScreen {
 
 impl SplashScreen {
     pub fn new() -> Self {
-        info!("Starting splash screen...");
         SplashScreen {}
     }
 }
