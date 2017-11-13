@@ -40,7 +40,8 @@ pub struct Client<'a> {
     queue: EventQueue,
     display: Box<Display>,
     resource_manager: ResourceManager<'a>,
-    gui_scale: u8
+    gui_scale: u8,
+    timer: Timer
 }
 
 impl<'a> Client<'a> {
@@ -85,13 +86,14 @@ pub fn run(session: &str) {
         queue,
         display,
         resource_manager: ResourceManager::new(),
-        gui_scale: 1u8
+        gui_scale: 1u8,
+        timer: timer,
     };
 
     ResourceManager::load(&mut client);
 
     let mut redraw = true;
-    timer.start();
+    client.timer.start();
 
     let mut scene: Box<Scene> = Box::new(SplashScreen::new());
 

@@ -61,7 +61,6 @@ impl MinecraftTexture {
 
 pub struct ResourceManager<'a> {
     textures: HashMap<&'a str, Bitmap>,
-    dynamic_textures: HashMap<&'static str, Bitmap>,
     minecraft_font: Option<Font>,
     litecraft_font: Option<Font>,
     load_queue: Vec<Box<Loadable>>,
@@ -69,18 +68,16 @@ pub struct ResourceManager<'a> {
 
 impl<'a> ResourceManager<'a> {
     pub fn new() -> ResourceManager<'a> {
-        let q: Vec<Box<Loadable>> = vec![
-            Box::new(LitecraftTexture::new("menu_1")),
-            Box::new(LitecraftTexture::new("menu_2")),
-            Box::new(LitecraftTexture::new("menu_3")),
-            Box::new(LitecraftTexture::new("menu_4")),
-        ];
         ResourceManager {
             textures: HashMap::new(),
-            dynamic_textures: HashMap::new(),
             minecraft_font: None,
             litecraft_font: None,
-            load_queue: q,
+            load_queue: vec![
+                Box::new(LitecraftTexture::new("menu_1")),
+                Box::new(LitecraftTexture::new("menu_2")),
+                Box::new(LitecraftTexture::new("menu_3")),
+                Box::new(LitecraftTexture::new("menu_4")),
+            ],
         }
     }
 

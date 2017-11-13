@@ -30,6 +30,11 @@ impl<'a> Scene for MainMenu<'a> {
     fn draw(&self, client: &mut Client) -> Option<Box<Scene>> {
         client.get_core().clear_to_color(Color::from_rgb_f(1.0, 1.0, 1.0));
 
+        let w = client.get_display().get_width() as f32;
+        let h = client.get_display().get_height() as f32;
+
+        self.draw_2d(client, 0.0, 0.0, w, h, "menu_1");
+
         None
     }
 }
