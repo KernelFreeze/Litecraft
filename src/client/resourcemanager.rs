@@ -46,6 +46,11 @@ impl<'a> ResourceManager<'a> {
                 ("menu_2", ResourseType::LitecraftTexture),
                 ("menu_3", ResourseType::LitecraftTexture),
                 ("menu_4", ResourseType::LitecraftTexture),
+                ("menu_5", ResourseType::LitecraftTexture),
+                ("menu_6", ResourseType::LitecraftTexture),
+                ("menu_7", ResourseType::LitecraftTexture),
+                ("menu_8", ResourseType::LitecraftTexture),
+                ("menu_9", ResourseType::LitecraftTexture),
             ],
         }
     }
