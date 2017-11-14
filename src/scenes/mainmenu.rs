@@ -47,6 +47,7 @@ impl<'a> Scene for MainMenu<'a> {
             _ => self.draw_2d(client, 0.0, 0.0, w, h, "menu_9"),
         }
 
+        self.scenemanager.render(client);
         None
     }
 }

@@ -28,6 +28,7 @@ extern crate colored_logger;
 extern crate allegro;
 extern crate os_type;
 extern crate dirs;
+extern crate smallvec;
 
 mod scenes;
 mod client;

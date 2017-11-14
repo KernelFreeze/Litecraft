@@ -22,6 +22,7 @@ use client::allegro_font::Font;
 use client::allegro_font::*;
 use client::allegro_ttf::{TtfAddon, TtfFlags};
 use allegro::Flag;
+use smallvec::SmallVec;
 
 pub enum ResourseType {
     LitecraftTexture,
@@ -32,7 +33,7 @@ pub struct ResourceManager<'a> {
     textures: HashMap<&'a str, Bitmap>,
     minecraft_font: Option<Font>,
     litecraft_font: Option<Font>,
-    load_queue: Vec<(&'static str, ResourseType)>,
+    load_queue: SmallVec<[(&'static str, ResourseType); 9]>,
 }
 
 impl<'a> ResourceManager<'a> {
@@ -41,7 +42,7 @@ impl<'a> ResourceManager<'a> {
             textures: HashMap::new(),
             minecraft_font: None,
             litecraft_font: None,
-            load_queue: vec![
+            load_queue: SmallVec::from_buf([
                 ("menu_1", ResourseType::LitecraftTexture),
                 ("menu_2", ResourseType::LitecraftTexture),
                 ("menu_3", ResourseType::LitecraftTexture),
@@ -51,7 +52,7 @@ impl<'a> ResourceManager<'a> {
                 ("menu_7", ResourseType::LitecraftTexture),
                 ("menu_8", ResourseType::LitecraftTexture),
                 ("menu_9", ResourseType::LitecraftTexture),
-            ],
+            ]),
         }
     }
 

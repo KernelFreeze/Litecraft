@@ -163,12 +163,64 @@ impl<'a> Element for Button<'a> {
     }
 }
 
+#[derive(Debug)]
+pub struct Image<'a> {
+    texture: &'a str,
+    x: f32,
+    y: f32,
+    width: f32,
+    height: f32,
+    position: ContainerPosition
+}
+
+impl<'a> Image<'a> {
+    fn new(texture: &str, x: f32, y: f32, height: f32,
+            width: f32, position: ContainerPosition) -> Image {
+        Image {
+            texture,
+            x,
+            y,
+            width,
+            height,
+            position,
+        }
+    }
+}
+
+impl<'a> Component for Image<'a> {}
+
+impl<'a> Element for Image<'a> {
+    fn draw(&self, client: &Client) {
+        let (x, y, w, h) = self.get_position(client, &self.position, self.x, self.y,
+                                self.width, self.height, client.scale());
+
+        self.draw_2d(client, x, y, w, h, &self.texture);
+    }
+}
+
 pub struct SceneManager<'a> {
-    elements: Vec<&'a Element>
+    images: Vec<Image<'a>>,
+    buttons: Vec<Button<'a>>
 }
 
 impl<'a> SceneManager<'a> {
     pub fn new() -> Self {
-        SceneManager{elements: Vec::new()}
+        SceneManager{
+            images: Vec::new(),
+            buttons: Vec::new(),
+        }
+    }
+
+    pub fn add_image(&mut self, e: Image<'a>) {
+        self.images.push(e);
+    }
+
+    pub fn render(&self, client: &Client) {
+        for e in &self.images {
+            e.draw(client);
+        }
+        for e in &self.buttons {
+            e.draw(client);
+        }
     }
 }
