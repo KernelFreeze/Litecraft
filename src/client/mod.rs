@@ -17,12 +17,16 @@ pub extern crate allegro;
 pub extern crate allegro_font;
 pub extern crate allegro_image;
 pub extern crate allegro_ttf;
-pub extern crate allegro_sys;
+extern crate allegro_sys;
+extern crate allegro_audio;
+extern crate allegro_acodec;
 
 pub mod resourcemanager;
 
 use self::allegro::*;
 use self::allegro_image::*;
+use self::allegro_acodec::*;
+use self::allegro_audio::*;
 use self::allegro::display::{RESIZABLE, PROGRAMMABLE_PIPELINE, MAXIMIZED};
 use self::allegro_sys::base::ALLEGRO_VERSION_STR;
 
@@ -75,6 +79,9 @@ pub fn run(session: &str) {
     let core = Core::init().unwrap();
     ImageAddon::init(&core).unwrap();
 
+    let audio_addon = AudioAddon::init(&core).unwrap();
+    AcodecAddon::init(&audio_addon).unwrap();
+
     info!("Using Allegro v{}", ALLEGRO_VERSION_STR);
 
     core.set_new_display_flags(RESIZABLE | PROGRAMMABLE_PIPELINE | MAXIMIZED);
@@ -116,11 +123,15 @@ pub fn run(session: &str) {
         }
 
         match client.queue.wait_for_event() {
-            DisplayClose { .. } => break 'exit,
+            DisplayClose { .. } => {
+                info!("Stoping Litecraft Client...");
+                break 'exit;
+            },
             TimerTick { .. } => redraw = true,
-            DisplayResize { .. } => {
-                client.display.acknowledge_resize();
-            }
+            DisplayResize { .. } => match client.display.acknowledge_resize() {
+                Err(err) => warn!("Error while trying to resize window: {:?}", err),
+                Ok(_) => ()
+            },
             _ => (),
         }
     }
