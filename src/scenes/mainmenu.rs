@@ -35,11 +35,16 @@ impl<'a> Scene for MainMenu<'a> {
         let w = client.get_display().get_width() as f32;
         let h = client.get_display().get_height() as f32;
 
-        match client.get_timer().get_count() / 1000 % 4 {
+        match client.get_timer().get_count() / 1000 % 9 {
             0 => self.draw_2d(client, 0.0, 0.0, w, h, "menu_1"),
             1 => self.draw_2d(client, 0.0, 0.0, w, h, "menu_2"),
             2 => self.draw_2d(client, 0.0, 0.0, w, h, "menu_3"),
-            _ => self.draw_2d(client, 0.0, 0.0, w, h, "menu_4"),
+            4 => self.draw_2d(client, 0.0, 0.0, w, h, "menu_4"),
+            5 => self.draw_2d(client, 0.0, 0.0, w, h, "menu_5"),
+            6 => self.draw_2d(client, 0.0, 0.0, w, h, "menu_6"),
+            7 => self.draw_2d(client, 0.0, 0.0, w, h, "menu_7"),
+            8 => self.draw_2d(client, 0.0, 0.0, w, h, "menu_8"),
+            _ => self.draw_2d(client, 0.0, 0.0, w, h, "menu_9"),
         }
 
         None

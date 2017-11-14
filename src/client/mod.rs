@@ -23,6 +23,7 @@ pub mod resourcemanager;
 
 use self::allegro::*;
 use self::allegro_image::*;
+use self::allegro::display::{RESIZABLE, PROGRAMMABLE_PIPELINE, MAXIMIZED};
 use self::allegro_sys::base::ALLEGRO_VERSION_STR;
 
 use scenes::scene::Scene;
@@ -41,7 +42,7 @@ pub struct Client<'a> {
     display: Box<Display>,
     resource_manager: ResourceManager<'a>,
     gui_scale: u8,
-    timer: Timer
+    timer: Timer,
 }
 
 impl<'a> Client<'a> {
@@ -76,7 +77,9 @@ pub fn run(session: &str) {
 
     info!("Using Allegro v{}", ALLEGRO_VERSION_STR);
 
-    let display = Box::new(Display::new(&core, 800, 600).unwrap());
+    core.set_new_display_flags(RESIZABLE | PROGRAMMABLE_PIPELINE | MAXIMIZED);
+
+    let display = Box::new(Display::new(&core, 1024, 576).unwrap());
     let timer = Timer::new(&core, 1.0 / 60.0).unwrap();
 
     display.set_window_title("Litecraft");
@@ -115,6 +118,9 @@ pub fn run(session: &str) {
         match client.queue.wait_for_event() {
             DisplayClose { .. } => break 'exit,
             TimerTick { .. } => redraw = true,
+            DisplayResize { .. } => {
+                client.display.acknowledge_resize();
+            }
             _ => (),
         }
     }
