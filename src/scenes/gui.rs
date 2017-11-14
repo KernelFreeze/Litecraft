@@ -72,33 +72,32 @@ pub enum ContainerPosition {
 
 pub trait Element : Component {
     fn get_position(&self, client: &Client, position: &ContainerPosition, x: f32, y: f32, w: f32, h: f32, scale: u8) -> (f32, f32, f32, f32) {
-        let mut x = x;
-        let mut y = y;
+        let (mut x, mut y, w, h) = self.get_scale(position, x, y, w, h, scale);
 
         match *position {
             ContainerPosition::UpLeft => (),
             ContainerPosition::UpCenter => {
-                x += (client.get_display().get_width() / 2 - (w as i32 / 2)) as f32;
+                x += (client.get_display().get_width() / 2) as f32;
             },
             ContainerPosition::UpRight => {
                 x += client.get_display().get_width() as f32 - w;
             },
             ContainerPosition::MiddleLeft => {
-                y += (client.get_display().get_height() / 2 - (h as i32 / 2)) as f32;
+                y += (client.get_display().get_height() / 2) as f32;
             },
             ContainerPosition::MiddleCenter => {
-                x += (client.get_display().get_width() / 2 - (w as i32 / 2)) as f32;
-                y += (client.get_display().get_height() / 2 - (h as i32 / 2)) as f32;
+                x += (client.get_display().get_width() / 2) as f32;
+                y += (client.get_display().get_height() / 2) as f32;
             },
             ContainerPosition::MiddleRight => {
                 x += client.get_display().get_width() as f32 - w;
-                y += (client.get_display().get_height() / 2 - (h as i32 / 2)) as f32;
+                y += (client.get_display().get_height() / 2) as f32;
             },
             ContainerPosition::BottomLeft => {
                 y += client.get_display().get_height() as f32 - h;
             },
             ContainerPosition::BottonCenter => {
-                x += (client.get_display().get_width() / 2 - (w as i32 / 2)) as f32;
+                x += (client.get_display().get_width() / 2) as f32;
                 y += client.get_display().get_height() as f32 - h;
             },
             ContainerPosition::BottonRight => {
@@ -106,7 +105,7 @@ pub trait Element : Component {
                 y += client.get_display().get_height() as f32 - h;
             },
         };
-        self.get_scale(position, x, y, w, h, scale)
+        (x, y, w, h)
     }
 
     fn get_scale(&self, position: &ContainerPosition, x: f32, y: f32, w: f32, h: f32, scale: u8) -> (f32, f32, f32, f32) {
@@ -114,14 +113,14 @@ pub trait Element : Component {
 
         match *position {
             ContainerPosition::UpLeft => (x, y, w + scale, h + scale),
-            ContainerPosition::UpCenter => (x + scale, y, w + scale, h + scale),
-            ContainerPosition::UpRight => (x + scale, y, w, h + scale),
+            ContainerPosition::UpCenter => (x - scale / 2.0, y, w + scale, h + scale),
+            ContainerPosition::UpRight => (x - scale / 2.0, y, w, h + scale),
             ContainerPosition::MiddleLeft => (x, y + scale, w + scale, h + scale),
-            ContainerPosition::MiddleCenter => (x + scale, y + scale, w + scale, h + scale),
+            ContainerPosition::MiddleCenter => (x - scale / 2.0, y + scale, w + scale, h + scale),
             ContainerPosition::MiddleRight => (x, y + scale, w + scale, h + scale),
             ContainerPosition::BottomLeft => (x, y + scale, w + scale, h),
-            ContainerPosition::BottonCenter => (x + scale, y + scale, w + scale, h),
-            ContainerPosition::BottonRight => (x + scale, y + scale, w, h),
+            ContainerPosition::BottonCenter => (x - scale / 2.0, y + scale, w + scale, h),
+            ContainerPosition::BottonRight => (x - scale / 2.0, y + scale, w, h),
         }
     }
 
@@ -139,8 +138,8 @@ pub struct Button<'a> {
 }
 
 impl<'a> Button<'a> {
-    fn new(texture: &str, x: f32, y: f32, height: f32,
-            width: f32, position: ContainerPosition) -> Button {
+    pub fn new(texture: &str, x: f32, y: f32, width: f32,
+            height: f32, position: ContainerPosition) -> Button {
         Button {
             texture,
             x,
@@ -174,8 +173,8 @@ pub struct Image<'a> {
 }
 
 impl<'a> Image<'a> {
-    fn new(texture: &str, x: f32, y: f32, height: f32,
-            width: f32, position: ContainerPosition) -> Image {
+    pub fn new(texture: &str, x: f32, y: f32, width: f32,
+            height: f32, position: ContainerPosition) -> Image {
         Image {
             texture,
             x,
@@ -213,6 +212,10 @@ impl<'a> SceneManager<'a> {
 
     pub fn add_image(&mut self, e: Image<'a>) {
         self.images.push(e);
+    }
+
+    pub fn add_button(&mut self, e: Button<'a>) {
+        self.buttons.push(e);
     }
 
     pub fn render(&self, client: &Client) {

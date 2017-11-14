@@ -15,8 +15,7 @@
 
 use client::Client;
 use scenes::scene::Scene;
-use scenes::gui::Component;
-use scenes::gui::SceneManager;
+use scenes::gui::{SceneManager, Image, Component, ContainerPosition};
 
 use allegro::Color;
 
@@ -54,6 +53,8 @@ impl<'a> Scene for MainMenu<'a> {
 
 impl<'a> MainMenu<'a> {
     pub fn new() -> Self {
-        MainMenu { scenemanager: SceneManager::new() }
+        let mut sm = SceneManager::new();
+        sm.add_image(Image::new("logo", 0.0, 5.0, 5.0, 5.0, ContainerPosition::UpCenter));
+        MainMenu { scenemanager: sm }
     }
 }
