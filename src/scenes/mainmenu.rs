@@ -54,7 +54,10 @@ impl<'a> Scene for MainMenu<'a> {
 impl<'a> MainMenu<'a> {
     pub fn new() -> Self {
         let mut sm = SceneManager::new();
-        sm.add_image(Image::new("logo", 0.0, 5.0, 5.0, 5.0, ContainerPosition::UpCenter));
+
+        sm.add_image(Image::new("menu_selector", 0.0, 0.0, 200.0, 300.0, ContainerPosition::MiddleCenter));
+        sm.add_image(Image::new("logo", 0.0, -125.0, 50.0, 50.0, ContainerPosition::MiddleCenter));
+
         MainMenu { scenemanager: sm }
     }
 }

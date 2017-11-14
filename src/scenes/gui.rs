@@ -109,18 +109,18 @@ pub trait Element : Component {
     }
 
     fn get_scale(&self, position: &ContainerPosition, x: f32, y: f32, w: f32, h: f32, scale: u8) -> (f32, f32, f32, f32) {
-        let scale = scale as f32 * 100f32;
+        let scale = scale as f32 / 2.0;
 
         match *position {
-            ContainerPosition::UpLeft => (x, y, w + scale, h + scale),
-            ContainerPosition::UpCenter => (x - scale / 2.0, y, w + scale, h + scale),
-            ContainerPosition::UpRight => (x - scale / 2.0, y, w, h + scale),
-            ContainerPosition::MiddleLeft => (x, y + scale, w + scale, h + scale),
-            ContainerPosition::MiddleCenter => (x - scale / 2.0, y + scale, w + scale, h + scale),
-            ContainerPosition::MiddleRight => (x, y + scale, w + scale, h + scale),
-            ContainerPosition::BottomLeft => (x, y + scale, w + scale, h),
-            ContainerPosition::BottonCenter => (x - scale / 2.0, y + scale, w + scale, h),
-            ContainerPosition::BottonRight => (x - scale / 2.0, y + scale, w, h),
+            ContainerPosition::UpLeft => (x, y, w * scale, h * scale),
+            ContainerPosition::UpCenter => (x - (w * scale / 2.0), y, w * scale, h * scale),
+            ContainerPosition::UpRight => (x - (w * scale / 2.0), y, w, h * scale),
+            ContainerPosition::MiddleLeft => (x, y - (h * scale / 2.0), w * scale, h * scale),
+            ContainerPosition::MiddleCenter => (x - (w * scale / 2.0), y - (h * scale / 2.0), w * scale, h * scale),
+            ContainerPosition::MiddleRight => (x, y - (h * scale / 2.0), w * scale, h * scale),
+            ContainerPosition::BottomLeft => (x, y - (h * scale / 2.0), w * scale, h),
+            ContainerPosition::BottonCenter => (x - (w * scale / 2.0), y - (h * scale / 2.0), w * scale, h),
+            ContainerPosition::BottonRight => (x - (w * scale / 2.0), y - (h * scale / 2.0), w, h),
         }
     }
 

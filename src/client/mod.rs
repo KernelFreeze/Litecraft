@@ -100,7 +100,7 @@ pub fn run(session: &str) {
         queue,
         display,
         resource_manager: ResourceManager::new(),
-        gui_scale: 1u8,
+        gui_scale: 3u8, // 1 = very small, 2 = small, 3 = normal, 4 = big, 5 = (◉ ͜ʖ ◉)
         timer: timer,
     };
 
