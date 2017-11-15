@@ -132,7 +132,13 @@ enum ButtonStatus {
     Active,
     Disabled,
     Hover,
-    Clicked
+    Clicked,
+}
+
+pub enum ButtonSize {
+    Normal,
+    Small,
+    Icon,
 }
 
 pub struct Button<'a> {
@@ -142,11 +148,13 @@ pub struct Button<'a> {
     height: f32,
     position: ContainerPosition,
     status: ButtonStatus,
+    size: ButtonSize,
     text: &'a str
 }
 
 impl<'a> Button<'a> {
-    pub fn new(x: f32, y: f32, width: f32, position: ContainerPosition, text: &'a str) -> Button {
+    pub fn new(x: f32, y: f32, width: f32, position: ContainerPosition,
+            text: &'a str, size: ButtonSize) -> Button {
         Button {
             x,
             y,
@@ -155,6 +163,7 @@ impl<'a> Button<'a> {
             position,
             status: ButtonStatus::Active,
             text,
+            size,
         }
     }
 }
@@ -163,7 +172,7 @@ impl<'a> Component for Button<'a> {}
 
 impl<'a> Element for Button<'a> {
     fn draw(&self, client: &Client) {
-        let (x, y, w, h) = self.get_position(client, &self.position, self.x, self.y,
+        let (x, y, mut w, h) = self.get_position(client, &self.position, self.x, self.y,
                                 self.width, self.height, client.scale());
 
         let texture = client.get_resource_manager().get_texture("gui/widgets");
@@ -194,6 +203,12 @@ impl<'a> Element for Button<'a> {
                             texture.get_height() as f32 * 106.0 / 256.0,
                         );
             },
+        }
+
+        match self.size {
+            ButtonSize::Small => w /= 2.0,
+            ButtonSize::Icon => w = 40.0,
+            _ => (),
         }
 
         let (sx, sy, sw, sh) = tuple;

@@ -15,7 +15,7 @@
 
 use client::Client;
 use scenes::scene::Scene;
-use scenes::gui::{SceneManager, Image, Component, Button, ContainerPosition};
+use scenes::gui::{SceneManager, Image, Component, Button, ButtonSize, ContainerPosition};
 
 use allegro::Color;
 
@@ -59,9 +59,9 @@ impl<'a> MainMenu<'a> {
                 ContainerPosition::UpCenter));
 
         sm.add_button(Button::new(0.0, -40.0, 250.0,
-                ContainerPosition::MiddleCenter, "Singleplayer"));
+                ContainerPosition::MiddleCenter, "Singleplayer", ButtonSize::Normal));
         sm.add_button(Button::new(0.0, 10.0, 250.0,
-                ContainerPosition::MiddleCenter, "Multiplayer"));
+                ContainerPosition::MiddleCenter, "Multiplayer", ButtonSize::Normal));
 
         MainMenu { scenemanager: sm }
     }
