@@ -17,6 +17,7 @@ pub extern crate allegro;
 pub extern crate allegro_font;
 pub extern crate allegro_image;
 pub extern crate allegro_ttf;
+pub extern crate allegro_primitives;
 extern crate allegro_sys;
 extern crate allegro_audio;
 extern crate allegro_acodec;
@@ -29,6 +30,7 @@ use self::allegro_acodec::*;
 use self::allegro_audio::*;
 use self::allegro::display::{RESIZABLE, PROGRAMMABLE_PIPELINE, MAXIMIZED};
 use self::allegro_sys::base::ALLEGRO_VERSION_STR;
+use self::allegro_primitives::PrimitivesAddon;
 
 use scenes::scene::Scene;
 use scenes::splash::SplashScreen;
@@ -47,6 +49,7 @@ pub struct Client<'a> {
     resource_manager: ResourceManager<'a>,
     gui_scale: u8,
     timer: Timer,
+    primitives: PrimitivesAddon,
 }
 
 impl<'a> Client<'a> {
@@ -73,6 +76,10 @@ impl<'a> Client<'a> {
     pub fn get_timer(&self) -> &Timer {
         &self.timer
     }
+
+    pub fn get_primitives(&self) -> &PrimitivesAddon {
+        &self.primitives
+    }
 }
 
 pub fn run(session: &str) {
@@ -81,6 +88,8 @@ pub fn run(session: &str) {
 
     let audio_addon = AudioAddon::init(&core).unwrap();
     AcodecAddon::init(&audio_addon).unwrap();
+
+    let primitives = PrimitivesAddon::init(&core).unwrap();
 
     info!("Using Allegro v{}", ALLEGRO_VERSION_STR);
 
@@ -102,6 +111,7 @@ pub fn run(session: &str) {
         resource_manager: ResourceManager::new(),
         gui_scale: 3u8, // 1 = very small, 2 = small, 3 = normal, 4 = big, 5 = (◉ ͜ʖ ◉)
         timer: timer,
+        primitives,
     };
 
     ResourceManager::load(&mut client);

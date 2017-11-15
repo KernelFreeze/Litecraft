@@ -52,7 +52,7 @@ impl<'a> ResourceManager<'a> {
                 ("menu_7", ResourseType::LitecraftTexture),
                 ("menu_8", ResourseType::LitecraftTexture),
                 ("menu_9", ResourseType::LitecraftTexture),
-                ("menu_selector", ResourseType::LitecraftTexture),
+                ("gui/widgets", ResourseType::MinecraftTexture),
             ]),
         }
     }

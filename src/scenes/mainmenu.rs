@@ -15,7 +15,7 @@
 
 use client::Client;
 use scenes::scene::Scene;
-use scenes::gui::{SceneManager, Image, Component, ContainerPosition};
+use scenes::gui::{SceneManager, Image, Component, Rectangle, ContainerPosition};
 
 use allegro::Color;
 
@@ -55,8 +55,10 @@ impl<'a> MainMenu<'a> {
     pub fn new() -> Self {
         let mut sm = SceneManager::new();
 
-        sm.add_image(Image::new("menu_selector", 0.0, 0.0, 200.0, 300.0, ContainerPosition::MiddleCenter));
-        sm.add_image(Image::new("logo", 0.0, -125.0, 50.0, 50.0, ContainerPosition::MiddleCenter));
+        sm.add_rectangle(Rectangle::new(0.0, 0.0, 225.0, 300.0,
+                ContainerPosition::MiddleCenter, Color::from_rgba_f(0.3, 0.24, 0.24, 0.3)));
+        sm.add_image(Image::new("logo", -115.0, -170.0, 50.0, 50.0,
+                ContainerPosition::MiddleCenter));
 
         MainMenu { scenemanager: sm }
     }

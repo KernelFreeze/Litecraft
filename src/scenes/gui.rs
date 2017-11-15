@@ -18,6 +18,7 @@ use allegro::{Flag, Color};
 use client::Client;
 use allegro::bitmap_like::BitmapLike;
 use client::allegro_font::{FontDrawing, FontAlign};
+use smallvec::SmallVec;
 
 pub trait Component {
     fn draw_2d(&self, client: &Client, x: f32, y: f32, w: f32, h: f32, texture: &str) {
@@ -127,7 +128,6 @@ pub trait Element : Component {
     fn draw(&self, client: &Client);
 }
 
-#[derive(Debug)]
 pub struct Button<'a> {
     texture: &'a str,
     x: f32,
@@ -162,7 +162,42 @@ impl<'a> Element for Button<'a> {
     }
 }
 
-#[derive(Debug)]
+// Rectangle
+pub struct Rectangle {
+    x: f32,
+    y: f32,
+    width: f32,
+    height: f32,
+    position: ContainerPosition,
+    color: Color
+}
+
+impl Rectangle {
+    pub fn new(x: f32, y: f32, width: f32,
+            height: f32, position: ContainerPosition, color: Color) -> Rectangle {
+        Rectangle {
+            x,
+            y,
+            width,
+            height,
+            position,
+            color,
+        }
+    }
+}
+
+impl Component for Rectangle {}
+
+impl Element for Rectangle {
+    fn draw(&self, client: &Client) {
+        let (x, y, w, h) = self.get_position(client, &self.position, self.x, self.y,
+                                self.width, self.height, client.scale());
+
+        client.get_primitives().draw_filled_rectangle(x, y, x + w, y + h, self.color);
+    }
+}
+
+// Image
 pub struct Image<'a> {
     texture: &'a str,
     x: f32,
@@ -198,15 +233,17 @@ impl<'a> Element for Image<'a> {
 }
 
 pub struct SceneManager<'a> {
-    images: Vec<Image<'a>>,
-    buttons: Vec<Button<'a>>
+    images: SmallVec<[Image<'a>; 8]>,
+    buttons: SmallVec<[Button<'a>; 8]>,
+    rectangles: SmallVec<[Rectangle; 8]>,
 }
 
 impl<'a> SceneManager<'a> {
     pub fn new() -> Self {
         SceneManager{
-            images: Vec::new(),
-            buttons: Vec::new(),
+            images: SmallVec::new(),
+            buttons: SmallVec::new(),
+            rectangles: SmallVec::new(),
         }
     }
 
@@ -214,11 +251,18 @@ impl<'a> SceneManager<'a> {
         self.images.push(e);
     }
 
+    pub fn add_rectangle(&mut self, e: Rectangle) {
+        self.rectangles.push(e);
+    }
+
     pub fn add_button(&mut self, e: Button<'a>) {
         self.buttons.push(e);
     }
 
     pub fn render(&self, client: &Client) {
+        for e in &self.rectangles {
+            e.draw(client);
+        }
         for e in &self.images {
             e.draw(client);
         }
