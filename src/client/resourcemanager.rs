@@ -33,7 +33,7 @@ pub struct ResourceManager<'a> {
     textures: HashMap<&'a str, Bitmap>,
     minecraft_font: Option<Font>,
     litecraft_font: Option<Font>,
-    load_queue: SmallVec<[(&'static str, ResourseType); 10]>,
+    load_queue: SmallVec<[(&'static str, ResourseType); 11]>,
 }
 
 impl<'a> ResourceManager<'a> {
@@ -52,6 +52,7 @@ impl<'a> ResourceManager<'a> {
                 ("menu_7", ResourseType::LitecraftTexture),
                 ("menu_8", ResourseType::LitecraftTexture),
                 ("menu_9", ResourseType::LitecraftTexture),
+                ("title", ResourseType::LitecraftTexture),
                 ("gui/widgets", ResourseType::MinecraftTexture),
             ]),
         }

@@ -128,25 +128,33 @@ pub trait Element : Component {
     fn draw(&self, client: &Client);
 }
 
+enum ButtonStatus {
+    Active,
+    Disabled,
+    Hover,
+    Clicked
+}
+
 pub struct Button<'a> {
-    texture: &'a str,
     x: f32,
     y: f32,
     width: f32,
     height: f32,
-    position: ContainerPosition
+    position: ContainerPosition,
+    status: ButtonStatus,
+    text: &'a str
 }
 
 impl<'a> Button<'a> {
-    pub fn new(texture: &str, x: f32, y: f32, width: f32,
-            height: f32, position: ContainerPosition) -> Button {
+    pub fn new(x: f32, y: f32, width: f32, position: ContainerPosition, text: &'a str) -> Button {
         Button {
-            texture,
             x,
             y,
             width,
-            height,
+            height: width / 10.0,
             position,
+            status: ButtonStatus::Active,
+            text,
         }
     }
 }
@@ -158,7 +166,49 @@ impl<'a> Element for Button<'a> {
         let (x, y, w, h) = self.get_position(client, &self.position, self.x, self.y,
                                 self.width, self.height, client.scale());
 
-        self.draw_2d(client, x, y, w, h, &self.texture);
+        let texture = client.get_resource_manager().get_texture("gui/widgets");
+        let tuple: (f32, f32, f32, f32);
+
+        match self.status {
+            ButtonStatus::Clicked | ButtonStatus::Active => { 
+                tuple = (
+                            0.0,
+                            texture.get_height() as f32 * 66.0 / 256.0,
+                            texture.get_width() as f32 * 200.0 / 256.0,
+                            texture.get_height() as f32 * 86.0 / 256.0,
+                        );
+            },
+            ButtonStatus::Disabled => {
+                tuple = (
+                            0.0,
+                            texture.get_height() as f32 * 46.0 / 256.0,
+                            texture.get_width() as f32 * 200.0 / 256.0,
+                            texture.get_height() as f32 * 66.0 / 256.0,
+                        );
+            },
+            ButtonStatus::Hover => {
+                tuple = (
+                            0.0,
+                            texture.get_height() as f32 * 86.0 / 256.0,
+                            texture.get_width() as f32 * 200.0 / 256.0,
+                            texture.get_height() as f32 * 106.0 / 256.0,
+                        );
+            },
+        }
+
+        let (sx, sy, sw, sh) = tuple;
+
+        client.get_core().draw_scaled_bitmap(
+            texture,
+            sx, sy,                              // source origin
+            sw - sx, sh - sy,                    // source dimensions
+            x, y,                                // target origin
+            w, h,                                // target dimensions
+            BitmapDrawingFlags::zero()           // flags
+        );
+
+        self.draw_text(client, Color::from_rgb(224, 224, 224),
+                    self.text, x + w / 2.0, y  + h / 8.0);
     }
 }
 
