@@ -58,8 +58,10 @@ impl<'a> MainMenu<'a> {
         sm.add_image(Image::new("title", 0.0, 50.0, 400.0, 71.342,
                 ContainerPosition::UpCenter));
 
-        sm.add_button(Button::new(0.0, -50.0, 250.0,
+        sm.add_button(Button::new(0.0, -40.0, 250.0,
                 ContainerPosition::MiddleCenter, "Singleplayer"));
+        sm.add_button(Button::new(0.0, 10.0, 250.0,
+                ContainerPosition::MiddleCenter, "Multiplayer"));
 
         MainMenu { scenemanager: sm }
     }
