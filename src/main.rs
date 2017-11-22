@@ -14,7 +14,6 @@ extern crate allegro;
 extern crate os_type;
 extern crate dirs;
 extern crate smallvec;
-extern crate event_dispatcher;
 
 mod scenes;
 mod client;
