@@ -1,18 +1,3 @@
-/*
-   Copyright 2017 Miguel Peláez <kernelfreeze@greenlab.games>
-   Copyright 2017 Raúl Salas <raulsalas.martin@greenlab.games>
-   
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-       http://www.apache.org/licenses/LICENSE-2.0
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 use allegro::core::BitmapDrawingFlags;
 use allegro::{Flag, Color};
 use client::Client;
@@ -37,7 +22,7 @@ pub trait Component {
 
     fn draw_text(&self, client: &Client, color: Color, text: &str, x: f32, y: f32) {
         client.get_core().draw_text(
-            &client.get_resource_manager().get_minecraft_font(),
+            client.get_resource_manager().get_minecraft_font(),
             color,
             x,
             y,
@@ -48,7 +33,7 @@ pub trait Component {
 
     fn draw_litecraft_text(&self, client: &Client, color: Color, text: &str, x: f32, y: f32) {
         client.get_core().draw_text(
-            &client.get_resource_manager().get_litecraft_font(),
+            client.get_resource_manager().get_litecraft_font(),
             color,
             x,
             y,
@@ -110,18 +95,18 @@ pub trait Element : Component {
     }
 
     fn get_scale(&self, position: &ContainerPosition, x: f32, y: f32, w: f32, h: f32, scale: u8) -> (f32, f32, f32, f32) {
-        let scale = scale as f32 / 2.0;
+        let scale = f32::from(scale) / 2.0;
 
         match *position {
-            ContainerPosition::UpLeft => (x, y, w * scale, h * scale),
-            ContainerPosition::UpCenter => (x - (w * scale / 2.0), y, w * scale, h * scale),
-            ContainerPosition::UpRight => (x - (w * scale / 2.0), y, w, h * scale),
-            ContainerPosition::MiddleLeft => (x, y - (h * scale / 2.0), w * scale, h * scale),
-            ContainerPosition::MiddleCenter => (x - (w * scale / 2.0), y - (h * scale / 2.0), w * scale, h * scale),
-            ContainerPosition::MiddleRight => (x, y - (h * scale / 2.0), w * scale, h * scale),
-            ContainerPosition::BottomLeft => (x, y - (h * scale / 2.0), w * scale, h),
-            ContainerPosition::BottonCenter => (x - (w * scale / 2.0), y - (h * scale / 2.0), w * scale, h),
-            ContainerPosition::BottonRight => (x - (w * scale / 2.0), y - (h * scale / 2.0), w, h),
+            ContainerPosition::UpLeft => (x, y, w * scale, h * scale), // Change w, h
+            ContainerPosition::UpCenter => (x - (w * scale / 2.0), y, w * scale, h * scale), // Change w, h, -x
+            ContainerPosition::UpRight => (x - (w * scale / 2.0), y, w, h * scale), // Change h, -x
+            ContainerPosition::MiddleLeft => (x, y - (h * scale / 2.0), w * scale, h * scale), // Change w, h, -y
+            ContainerPosition::MiddleCenter => (x - (w * scale / 2.0), y - (h * scale / 2.0), w * scale, h * scale), // Change w, h, -y, -x
+            ContainerPosition::MiddleRight => (x  - (w * scale / 2.0), y - (h * scale / 2.0), w, h * scale), // Change h, -y, -x
+            ContainerPosition::BottomLeft => (x, y - (h * scale / 2.0), w * scale, h), // Change w, y
+            ContainerPosition::BottonCenter => (x - (w * scale / 2.0), y - (h * scale / 2.0), w * scale, h), // Change w, -y, -x
+            ContainerPosition::BottonRight => (x - (w * scale / 2.0), y - (h * scale / 2.0), w, h), // Change -y, -x
         }
     }
 
@@ -222,7 +207,7 @@ impl<'a> Element for Button<'a> {
             BitmapDrawingFlags::zero()           // flags
         );
 
-        self.draw_text(client, Color::from_rgb(224, 224, 224),
+        self.draw_text(client, Color::from_rgb(255, 255, 255),
                     self.text, x + w / 2.0, y  + h / 8.0);
     }
 }
@@ -293,7 +278,7 @@ impl<'a> Element for Image<'a> {
         let (x, y, w, h) = self.get_position(client, &self.position, self.x, self.y,
                                 self.width, self.height, client.scale());
 
-        self.draw_2d(client, x, y, w, h, &self.texture);
+        self.draw_2d(client, x, y, w, h, self.texture);
     }
 }
 

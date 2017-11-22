@@ -1,18 +1,3 @@
-/*
-   Copyright 2017 Miguel Peláez <kernelfreeze@greenlab.games>
-   Copyright 2017 Raúl Salas <raulsalas.martin@greenlab.games>
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-       http://www.apache.org/licenses/LICENSE-2.0
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 use allegro::bitmap::Bitmap;
 use client::Client;
 use std::fs;
@@ -73,7 +58,7 @@ impl<'a> ResourceManager<'a> {
     }
 
     pub fn get_texture(&self, name: &str) -> &Bitmap {
-        self.textures.get(name).unwrap()
+        &self.textures[name]
     }
 
     pub fn load(client: &mut Client) {
@@ -86,7 +71,7 @@ impl<'a> ResourceManager<'a> {
         info!("Loading default font");
         let font = ttf_addon
             .load_ttf_font(
-                ResourceManager::get_asset("litecraft", "fonts", String::from("minecraft"), "ttf")
+                ResourceManager::get_asset("litecraft", "fonts", "minecraft", "ttf")
                     .as_str(),
                 16,
                 TtfFlags::zero(),
@@ -97,7 +82,7 @@ impl<'a> ResourceManager<'a> {
         info!("Loading litecraft font");
         let font = ttf_addon
             .load_ttf_font(
-                ResourceManager::get_asset("litecraft", "fonts", String::from("litecraft"), "ttf")
+                ResourceManager::get_asset("litecraft", "fonts", "litecraft", "ttf")
                     .as_str(),
                 22,
                 TtfFlags::zero(),
@@ -143,7 +128,7 @@ impl<'a> ResourceManager<'a> {
 
         let bmp = Bitmap::load(
             &client.core,
-            ResourceManager::get_asset(domain, "textures", name.to_string(), "png").as_str(),
+            ResourceManager::get_asset(domain, "textures", name, "png").as_str(),
         );
 
         match bmp {
@@ -155,7 +140,7 @@ impl<'a> ResourceManager<'a> {
         };
     }
 
-    fn get_asset_path(domain: &str, class: &str, path: String, extension: &str) -> PathBuf {
+    fn get_asset_path(domain: &str, class: &str, path: &str, extension: &str) -> PathBuf {
         let path = PathBuf::from(format!(
             "./assets/{}/{}/{}.{}",
             domain,
@@ -166,7 +151,7 @@ impl<'a> ResourceManager<'a> {
         fs::canonicalize(path).unwrap()
     }
 
-    fn get_asset(domain: &str, class: &str, path: String, extension: &str) -> String {
+    fn get_asset(domain: &str, class: &str, path: &str, extension: &str) -> String {
         ResourceManager::get_asset_path(domain, class, path, extension)
             .into_os_string()
             .into_string()
