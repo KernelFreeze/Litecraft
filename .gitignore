@@ -13,3 +13,4 @@ resources/assets/minecraft
 .idea/
 litecraft.iml
 src/chunk/
+output/
