@@ -43,15 +43,18 @@ impl<'a> MainMenu<'a> {
         sm.add_image(Image::new("title", 0.0, 50.0, 400.0, 71.342,
                 ContainerPosition::UpCenter));
 
-        sm.add_button(Button::new(0.0, -40.0, 250.0,
+        sm.add_button(Button::new(0.0, -90.0, 250.0,
                 ContainerPosition::MiddleCenter, "Singleplayer", ButtonSize::Normal));
-        sm.add_button(Button::new(0.0, 5.0, 250.0,
+        sm.add_button(Button::new(0.0, 0.0, 250.0,
                 ContainerPosition::MiddleCenter, "Multiplayer", ButtonSize::Normal));
-        sm.add_button(Button::new(0.0, 50.0, 250.0,
+        sm.add_button(Button::new(0.0, 90.0, 250.0,
                 ContainerPosition::MiddleCenter, "Minecraft Realms", ButtonSize::Normal));
 
-        sm.add_button(Button::new(0.0, 95.0, 250.0,
-                ContainerPosition::MiddleCenter, "Options", ButtonSize::Normal));
+        sm.add_button(Button::new(0.0, 180.0, 250.0,
+                ContainerPosition::MiddleCenter, "Options", ButtonSize::Small));
+
+        /*sm.add_button(Button::new(200.0, 180.0, 250.0,
+                ContainerPosition::MiddleCenter, "Quit Game", ButtonSize::Small));*/
 
         MainMenu { scenemanager: sm }
     }

@@ -101,12 +101,12 @@ pub trait Element : Component {
             ContainerPosition::UpLeft => (x, y, w * scale, h * scale), // Change w, h
             ContainerPosition::UpCenter => (x - (w * scale / 2.0), y, w * scale, h * scale), // Change w, h, -x
             ContainerPosition::UpRight => (x - (w * scale / 2.0), y, w, h * scale), // Change h, -x
-            ContainerPosition::MiddleLeft => (x, y - (h * scale / 2.0), w * scale, h * scale), // Change w, h, -y
-            ContainerPosition::MiddleCenter => (x - (w * scale / 2.0), y - (h * scale / 2.0), w * scale, h * scale), // Change w, h, -y, -x
-            ContainerPosition::MiddleRight => (x  - (w * scale / 2.0), y - (h * scale / 2.0), w, h * scale), // Change h, -y, -x
-            ContainerPosition::BottomLeft => (x, y - (h * scale / 2.0), w * scale, h), // Change w, y
-            ContainerPosition::BottonCenter => (x - (w * scale / 2.0), y - (h * scale / 2.0), w * scale, h), // Change w, -y, -x
-            ContainerPosition::BottonRight => (x - (w * scale / 2.0), y - (h * scale / 2.0), w, h), // Change -y, -x
+            ContainerPosition::MiddleLeft => (x, y * (scale / 3.0), w * scale, h * scale), // Change w, h, -y
+            ContainerPosition::MiddleCenter => (x - (w * scale / 2.0), y * (scale / 3.0), w * scale, h * scale), // Change w, h, -y, -x
+            ContainerPosition::MiddleRight => (x  - (w * scale / 2.0), y * (scale / 3.0), w, h * scale), // Change h, -y, -x
+            ContainerPosition::BottomLeft => (x, y * (scale / 3.0), w * scale, h), // Change w, y
+            ContainerPosition::BottonCenter => (x - (w * scale / 2.0), y * (scale / 3.0), w * scale, h), // Change w, -y, -x
+            ContainerPosition::BottonRight => (x - (w * scale / 2.0), y * (scale / 3.0), w, h), // Change -y, -x
         }
     }
 
@@ -147,6 +147,20 @@ impl<'a> Button<'a> {
             height: width / 10.0,
             position,
             status: ButtonStatus::Active,
+            text,
+            size,
+        }
+    }
+
+    pub fn new_disabled(x: f32, y: f32, width: f32, position: ContainerPosition,
+            text: &'a str, size: ButtonSize) -> Button {
+        Button {
+            x,
+            y,
+            width,
+            height: width / 10.0,
+            position,
+            status: ButtonStatus::Disabled,
             text,
             size,
         }
@@ -208,7 +222,10 @@ impl<'a> Element for Button<'a> {
         );
 
         self.draw_text(client, Color::from_rgb(255, 255, 255),
-                    self.text, x + w / 2.0, y  + h / 8.0);
+            self.text, x + w / 2.0,
+            (y + h / 2.0) -
+                client.get_resource_manager().get_minecraft_font().get_line_height() as f32 / 2.0
+        );
     }
 }
 
