@@ -53,8 +53,8 @@ impl<'a> MainMenu<'a> {
         sm.add_button(Button::new(0.0, 180.0, 250.0,
                 ContainerPosition::MiddleCenter, "Options", ButtonSize::Small));
 
-        /*sm.add_button(Button::new(200.0, 180.0, 250.0,
-                ContainerPosition::MiddleCenter, "Quit Game", ButtonSize::Small));*/
+        sm.add_button(Button::new(400.0, 180.0, 250.0,
+                ContainerPosition::MiddleCenter, "Quit Game", ButtonSize::Small));
 
         MainMenu { scenemanager: sm }
     }

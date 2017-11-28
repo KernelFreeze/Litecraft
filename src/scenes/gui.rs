@@ -72,7 +72,7 @@ pub trait Element : Component {
                 y += (client.get_display().get_height() / 2) as f32;
             },
             ContainerPosition::MiddleCenter => {
-                x += (client.get_display().get_width() / 2) as f32;
+                x += (client.get_display().get_width() / 2) as f32 - w / 2.0;
                 y += (client.get_display().get_height() / 2) as f32;
             },
             ContainerPosition::MiddleRight => {
@@ -102,7 +102,7 @@ pub trait Element : Component {
             ContainerPosition::UpCenter => (x - (w * scale / 2.0), y, w * scale, h * scale), // Change w, h, -x
             ContainerPosition::UpRight => (x - (w * scale / 2.0), y, w, h * scale), // Change h, -x
             ContainerPosition::MiddleLeft => (x, y * (scale / 3.0), w * scale, h * scale), // Change w, h, -y
-            ContainerPosition::MiddleCenter => (x - (w * scale / 2.0), y * (scale / 3.0), w * scale, h * scale), // Change w, h, -y, -x
+            ContainerPosition::MiddleCenter => (x * (scale / 3.0), y * (scale / 3.0), w * scale, h * scale), // Change w, h, -y, -x
             ContainerPosition::MiddleRight => (x  - (w * scale / 2.0), y * (scale / 3.0), w, h * scale), // Change h, -y, -x
             ContainerPosition::BottomLeft => (x, y * (scale / 3.0), w * scale, h), // Change w, y
             ContainerPosition::BottonCenter => (x - (w * scale / 2.0), y * (scale / 3.0), w * scale, h), // Change w, -y, -x
@@ -205,7 +205,7 @@ impl<'a> Element for Button<'a> {
         }
 
         match self.size {
-            ButtonSize::Small => w /= 2.0,
+            ButtonSize::Small => w = w / 2.0 - 10.0,
             ButtonSize::Icon => w = 40.0,
             _ => (),
         }
