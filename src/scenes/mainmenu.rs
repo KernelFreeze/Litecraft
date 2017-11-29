@@ -73,6 +73,7 @@ impl<'a> MainMenu<'a> {
             "Singleplayer",
             ButtonSize::Normal,
         ));
+
         sm.add_button(Button::new(
             0.0,
             0.0,
@@ -81,6 +82,7 @@ impl<'a> MainMenu<'a> {
             "Multiplayer",
             ButtonSize::Normal,
         ));
+
         sm.add_button(Button::new(
             0.0,
             90.0,
@@ -92,7 +94,7 @@ impl<'a> MainMenu<'a> {
 
         sm.add_button(Button::new(
             0.0,
-            180.0,
+            200.0,
             250.0,
             ContainerPosition::MiddleCenter,
             "Options",
@@ -100,10 +102,10 @@ impl<'a> MainMenu<'a> {
         ));
 
         sm.add_button(Button::new(
-            400.0,
-            180.0,
+            0.0,
+            200.0,
             250.0,
-            ContainerPosition::MiddleCenter,
+            ContainerPosition::MiddleRightCenter,
             "Quit Game",
             ButtonSize::Small,
         ));

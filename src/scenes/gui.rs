@@ -66,6 +66,7 @@ pub enum ContainerPosition {
     UpRight,
     MiddleLeft,
     MiddleCenter,
+    MiddleRightCenter,
     MiddleRight,
     BottomLeft,
     BottonCenter,
@@ -74,7 +75,7 @@ pub enum ContainerPosition {
 
 pub trait Element : Component {
     fn get_position(&self, client: &Client, position: &ContainerPosition, x: f32, y: f32, w: f32, h: f32, scale: u8) -> (f32, f32, f32, f32) {
-        let (mut x, mut y, w, h) = self.get_scale(position, x, y, w, h, scale);
+        let (mut x, mut y, mut w, h) = self.get_scale(position, x, y, w, h, scale);
 
         match *position {
             ContainerPosition::UpLeft => (),
@@ -91,6 +92,11 @@ pub trait Element : Component {
                 x += (client.get_display().get_width() / 2) as f32 - w / 2.0;
                 y += (client.get_display().get_height() / 2) as f32;
             },
+            ContainerPosition::MiddleRightCenter => {
+                x += (client.get_display().get_width() / 2) as f32 + 5.0;
+                y += (client.get_display().get_height() / 2) as f32;
+                w += 5.0;
+            }
             ContainerPosition::MiddleRight => {
                 x += client.get_display().get_width() as f32 - w;
                 y += (client.get_display().get_height() / 2) as f32;
@@ -99,7 +105,7 @@ pub trait Element : Component {
                 y += client.get_display().get_height() as f32 - h;
             },
             ContainerPosition::BottonCenter => {
-                x += (client.get_display().get_width() / 2) as f32;
+                x += (client.get_display().get_width() / 2) as f32 - w / 2.0;
                 y += client.get_display().get_height() as f32 - h;
             },
             ContainerPosition::BottonRight => {
@@ -118,7 +124,7 @@ pub trait Element : Component {
             ContainerPosition::UpCenter => (x - (w * scale / 2.0), y, w * scale, h * scale), // Change w, h, -x
             ContainerPosition::UpRight => (x - (w * scale / 2.0), y, w, h * scale), // Change h, -x
             ContainerPosition::MiddleLeft => (x, y * (scale / 3.0), w * scale, h * scale), // Change w, h, -y
-            ContainerPosition::MiddleCenter => (x * (scale / 3.0), y * (scale / 3.0), w * scale, h * scale), // Change w, h, -y, -x
+            ContainerPosition::MiddleRightCenter | ContainerPosition::MiddleCenter => (x * (scale / 3.0), y * (scale / 3.0), w * scale, h * scale), // Change w, h, -y, -x
             ContainerPosition::MiddleRight => (x  - (w * scale / 2.0), y * (scale / 3.0), w, h * scale), // Change h, -y, -x
             ContainerPosition::BottomLeft => (x, y * (scale / 3.0), w * scale, h), // Change w, y
             ContainerPosition::BottonCenter => (x - (w * scale / 2.0), y * (scale / 3.0), w * scale, h), // Change w, -y, -x
