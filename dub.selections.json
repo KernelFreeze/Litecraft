@@ -1,0 +1,16 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"accessors": "1.2.4",
+		"derelict-gl3": "2.0.0-beta.5",
+		"derelict-glfw3": "4.0.0-beta.1",
+		"derelict-imgui": "0.9.4",
+		"derelict-util": "3.0.0-beta.2",
+		"dlib": "0.12.2",
+		"libinputvisitor": "1.2.2",
+		"nukleard": "0.0.2",
+		"sdlang-d": "0.10.1",
+		"taggedalgebraic": "0.10.9",
+		"unit-threaded": "0.6.36"
+	}
+}
