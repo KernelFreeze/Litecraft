@@ -12,3 +12,5 @@ dependency "dlib" version="~>0.12.2"
 
 libs "glfw3dll" platform="windows"
 libs "glfw3" platform="posix"
+
+versions "DerelictGL3_CustomFreeFuncs"

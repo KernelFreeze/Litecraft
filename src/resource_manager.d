@@ -107,6 +107,12 @@ public final class Texture : Loadable {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     }
 
+    void bind(uint uniform) {
+        glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, id);
+		glUniform1i(uniform, 0);
+    }
+
     mixin(GenerateFieldAccessors);
 }
 
@@ -158,6 +164,8 @@ public final class AnimatedTexture : Loadable {
 
         infof("Loaded %d frames for %s", ids.length, name);
     }
+
+    // TODO: Bind
 
     mixin(GenerateFieldAccessors);
 }
@@ -279,13 +287,22 @@ public final class Shader : Loadable {
 
     /// Get Shader uniform
     uint uniform(string u) {
-        return glGetUniformLocation(program, u.toStringz);
+        auto unif = glGetUniformLocation(program, u.toStringz);
+
+        if (unif >= GL_MAX_VERTEX_ATTRIBS) {
+            warningf("Uniform '%s' for program '%s' is invalid!", u, name);
+        }
+        return unif;
     }
 
-    /// Make an attribute current
-    void attribute(string a) {
-        auto attrib = glGetAttribLocation(program, a.toStringz);
-        glEnableVertexAttribArray(attrib);
+    /// Get attribute shader attribute location
+    uint attribute(string a) {
+        auto atr = glGetAttribLocation(program, a.toStringz);
+
+        if (atr >= GL_MAX_VERTEX_ATTRIBS) {
+            warningf("Attribute '%s' for program '%s' is invalid!", a, name);
+        }
+        return atr;
     }
 
     ~this() {
@@ -302,6 +319,15 @@ Shader shader(string name) {
     }
 
     return shaders[name];
+}
+
+/// Get or load a texture by name
+Texture texture(string name) {
+    if (textures[name] is null) {
+        return new Texture(name);
+    }
+
+    return textures[name];
 }
 
 /// Load a resource by name

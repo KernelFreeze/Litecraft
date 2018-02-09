@@ -63,6 +63,39 @@ final class VAO {
 }
 
 /**
+    Element Buffer Object
+*/
+final class EBO {
+    @Read private uint _id;
+
+    /// Ask the GPU to generate a new VBO
+    this(float[] element_buffer_data) {
+        glGenBuffers(1, &_id);
+        bind();
+
+        // Send buffer data to GPU
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, element_buffer_data.sizeof,
+                &element_buffer_data, GL_STATIC_DRAW);
+    }
+
+    ~this() {
+        glDeleteBuffers(1, &_id);
+    }
+
+    /// Bind VBO to current stack
+    void bind() {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id);
+    }
+
+    /// Unbind VBO from current stack
+    void unbind() {
+        glBindVertexArray(0);
+    }
+
+    mixin(GenerateFieldAccessors);
+}
+
+/**
     GPU Vertex Buffer Object:
 
     OpenGL feature that provides methods for uploading vertex data
@@ -78,7 +111,7 @@ final class VBO {
         bind();
 
         // Send buffer data to GPU
-        glBufferData(GL_ARRAY_BUFFER, vertex_buffer_data[0].sizeof * vertex_buffer_data.length,
+        glBufferData(GL_ARRAY_BUFFER, vertex_buffer_data.sizeof,
                 &vertex_buffer_data, GL_STATIC_DRAW);
     }
 
@@ -115,6 +148,10 @@ private void init() {
 
     // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
+
+    // Enable transparency
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 /// Get time for use on rendering stuf
@@ -139,6 +176,11 @@ public void showPointer() {
 
 private void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    import dlib.geometry;
+    import resource_manager;
+
+    Quad.draw(Plane(), texture("logo"));
 }
 
 /// Free all resources used by GLFW; Don't call this from a callback!
@@ -205,7 +247,7 @@ void load() {
 
     while (!glfwWindowShouldClose(window)) {
         import resource_manager : loadResources;
-        
+
         // Do a load tick
         loadResources();
         display();
@@ -217,7 +259,7 @@ void load() {
         // Check any GPU error
         auto err = glGetError();
         if (err != GL_NO_ERROR) {
-            throw new Exception("OpenGL Error: %s".format(err));
+            throw new Exception("OpenGL Error: 0x%04x".format(err));
         }
     }
 
@@ -232,16 +274,16 @@ private void register() {
 }
 
 extern (C) {
-    void resizeWindow(GLFWwindow* window, int w, int h) nothrow {
+    private void resizeWindow(GLFWwindow* window, int w, int h) nothrow {
     }
 
-    void mouseMove(GLFWwindow* window, double x, double y) nothrow {
+    private void mouseMove(GLFWwindow* window, double x, double y) nothrow {
     }
 
-    void mouseClick(GLFWwindow* window, int button, int action, int mods) nothrow {
+    private void mouseClick(GLFWwindow* window, int button, int action, int mods) nothrow {
     }
 
-    void keyTrigger(GLFWwindow* window, int key, int scancode, int action, int mods) nothrow {
+    private void keyTrigger(GLFWwindow* window, int key, int scancode, int action, int mods) nothrow {
         if (action != GLFW_PRESS) {
             return;
         }

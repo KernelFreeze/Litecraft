@@ -20,6 +20,7 @@
 import std.experimental.logger;
 import std.stdio;
 import gl;
+import draw;
 import configuration;
 import litecraft;
 import resource_manager;
@@ -35,9 +36,14 @@ void main() {
 	try {
 		new Litecraft(new SDLConfigurationAdapter);
 
+		// Shaders
 		loadResource(new Shader("block"));
-		loadResource(new Shader("gui"));
+		loadResource(new Shader("quad"));
 
+		// Primitives
+		loadResource(new Quad);
+
+		// Textures
 		loadResource(new Texture("logo", "litecraft"));
 
 		load();
