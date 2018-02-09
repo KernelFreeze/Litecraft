@@ -6,13 +6,16 @@
 [Open source](https://en.wikipedia.org/wiki/Free_and_open-source_software), [clean room](https://en.wikipedia.org/wiki/Clean_room_design) implementation of [Minecraft](https://minecraft.net) Client. Although this implementation does not use any Mojang source code, you must have a valid Minecraft account to play. We do not support piracy in any way.
 
 # Features
-- [X] Better memory management.
+- [X] Native perfomance and better memory management. (Thanks to D Programming Language).
 - [X] Better rendering system.
-- [ ] Rendering using shaders.
+- [X] Multi-thread and low Heap allocations.
+- [X] Rendering using shaders. [Shaders are faster than old OpenGL](https://thebookofshaders.com/00/).
+- [X] Safe by design.
+- [X] Supported by an awesome community.
 - [ ] All vanilla client features.
 - [ ] Launcher with assets downloader [(WIP!)](https://github.com/Litecrafty/Launcher)
 - [ ] Server side plugin (mod) API (Send resources from server to client)
-- [x] More soon™ We have some crazy ideas... ;)
+- [ ] More soon™ We have some crazy ideas... ;)
 
 # Screenshots
 <img src="https://i.imgur.com/7u4Zyy1.png" width="600">
@@ -21,31 +24,22 @@
 
 # Compile
 
- - Download Rust Nightly with rustup.
- - Install allegro with your package manager or build it (Also see the next section)
- - Build with cargo.
+ - Download D Programming Language: `dub`, `ldc2` or any D compiler, and `gcc` as linker.
+ - Install libraries: `glfw3`
+ - Build with dub.
  - Run with our [Launcher](https://github.com/Litecrafty/Launcher) or manually with any client token:
 ```bash
-cargo run -- client_token
+dub build && ./litecraft TESTTOKEN
 ```
  - Profit!
 
-# Allegro on Windows
-Litecraft works well with the official Allegro pre-compiled binaries. First, download the official binaries from http://liballeg.org. You'll want to match the ABI of your Rust installation. GNU ABI on 32 bit can load Allegro 32 bit MSVC binaries, but otherwise you'll want to match the platform and ABI exactly. Let's say you extract the binaries to C:/allegro. That directory will contain the include, bin and lib directories. To compile and run, do the following from the Litecraft source directory:
+# F.A.Q
 
-If you're using MSYS:
-```bash
-export ALLEGRO_INCLUDE_DIR=C:/allegro/include
-export RUST_ALLEGRO_EXAMPLE_LINK_PATH=C:/allegro/lib
-cargo build
-```
+### I want to help! Where can I learn D?
+Here: https://tour.dlang.org
 
-If you're using cmd directly:
-```cmd
-set ALLEGRO_INCLUDE_DIR=C:/allegro/include
-set RUST_ALLEGRO_EXAMPLE_LINK_PATH=C:/allegro/lib
-cargo build
-```
+### How long will it take you to program a usable version?
+Although we have thousands of hours of work, we probably have many thousands more.
 
 # Contributing
 [Bug reports](https://github.com/Litecrafty/Litecraft/issues) and [pull requests](https://github.com/Litecrafty/Litecraft/pulls) are welcome on our GitHub. This project is intended to be a safe, welcoming space for collaboration and discussion, and contributors are expected to adhere to the [Contributor Covenant code of conduct](https://github.com/Litecrafty/Litecraft/blob/master/CONTRIBUTING.md), you can read it on your Language [here](https://www.contributor-covenant.org/translations.html).
