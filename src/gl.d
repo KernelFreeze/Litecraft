@@ -24,7 +24,7 @@ import derelict.glfw3.glfw3;
 import draw;
 import litecraft;
 import std.experimental.logger;
-import std.string : toStringz;
+import std.string : toStringz, format;
 
 mixin glFreeFuncs!(GLVersion.gl21);
 mixin(arbVertexArrayObject);
@@ -78,7 +78,7 @@ final class VBO {
         bind();
 
         // Send buffer data to GPU
-        glBufferData(GL_ARRAY_BUFFER, vertex_buffer_data.sizeof,
+        glBufferData(GL_ARRAY_BUFFER, vertex_buffer_data[0].sizeof * vertex_buffer_data.length,
                 &vertex_buffer_data, GL_STATIC_DRAW);
     }
 
@@ -213,6 +213,12 @@ void load() {
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        // Check any GPU error
+        auto err = glGetError();
+        if (err != GL_NO_ERROR) {
+            throw new Exception("OpenGL Error: %s".format(err));
+        }
     }
 
     info("Shutting down Litecraft...");

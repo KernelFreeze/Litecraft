@@ -86,12 +86,12 @@ public final class Quad : Drawable {
         ebo = new VBO([0, 1, 2, 2, 3, 0]);
 
         // Generate Vertex Buffer Object
-        vbo = new VBO([-0.5f, 0.5f, 1.0f, 0.0f, 0.0f, // Top-left
-                0.5f, 0.5f, 0.0f, 1.0f,
-                0.0f, // Top-right
-                0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
-                -0.5f, -0.5f, 1.0f, 1.0f, 1.0f // Bottom-left
-                ]);
+        vbo = new VBO([
+            -0.5f, 0.5f, 1.0f, // Top-left
+            0.5f, 0.5f, 0.0f, // Top-right
+            0.5f, -0.5f, 0.0f, // Bottom-right
+            -0.5f, -0.5f, 1.0f // Bottom-left
+        ]);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, null);
     }

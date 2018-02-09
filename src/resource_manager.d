@@ -22,7 +22,8 @@ import dlib.container.queue : Queue;
 import std.experimental.logger;
 import std.string : format, chomp, toStringz;
 
-private static string[string] textures;
+private static Texture[string] textures;
+private static AnimatedTexture[string] animated_textures;
 private static Shader[string] shaders;
 
 private static Queue!Loadable loadQueue;
@@ -68,11 +69,104 @@ public abstract class Loadable {
     mixin(GenerateFieldAccessors);
 }
 
+/// GPU Texture
+public final class Texture : Loadable {
+    import dlib.image;
+
+    @Read private uint _id;
+    @Read @Write private string _namespace;
+
+    /// Create a GPU texture
+    this(string name, string namespace = "minecraft") {
+        this.name = name;
+        this.namespace = namespace;
+
+        textures[name] = this;
+    }
+
+    override void unload(bool force = false) {
+        if (isLoaded || force) {
+            infof("Unloading texture %s...", name);
+
+            glDeleteTextures(1, &_id);
+        }
+    }
+
+    override void load() {
+        auto texture = loadPNG(resourcePath(name ~ ".png", "textures", namespace));
+        auto data = texture.data;
+
+        glGenTextures(1, &_id);
+        glBindTexture(GL_TEXTURE_2D, id);
+
+        // Send image to GPU
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.width, texture.height,
+                0, GL_BGR, GL_UNSIGNED_BYTE, data.ptr);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    }
+
+    mixin(GenerateFieldAccessors);
+}
+
+/// Animated GPU Texture
+public final class AnimatedTexture : Loadable {
+    import dlib.image;
+
+    @Read private uint[] _ids;
+    @Read @Write private string _namespace;
+
+    /// Create a GPU texture
+    this(string name, string namespace = "minecraft") {
+        this.name = name;
+        this.namespace = namespace;
+
+        animated_textures[name] = this;
+    }
+
+    override void unload(bool force = false) {
+        if (isLoaded || force) {
+            infof("Unloading animated texture %s...", name);
+
+            glDeleteTextures(cast(int) ids.length, _ids.ptr);
+        }
+    }
+
+    override void load() {
+        auto texture = loadAPNG(resourcePath(name ~ ".apng", "textures", namespace));
+
+        info("Loading animated texture...");
+
+        for(int i = 0; i < texture.frameSize; i++) {
+            auto data = texture.data;
+            uint frame;
+
+            glGenTextures(1, &frame);
+            glBindTexture(GL_TEXTURE_2D, frame);
+
+            // Send frame to GPU
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width,
+                    texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.ptr);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+            _ids ~= frame;
+            texture.advanceFrame;
+        }
+
+        infof("Loaded %d frames for %s", ids.length, name);
+    }
+
+    mixin(GenerateFieldAccessors);
+}
+
 /// OpenGL Shader loader
 public final class Shader : Loadable {
     @Read private uint _program;
 
-    /// Create and load vertex and fragment shaders
+    /// Create vertex and fragment shaders
     this(string name) {
         this.name = name;
         shaders[name] = this;
@@ -173,7 +267,7 @@ public final class Shader : Loadable {
 
             glDetachShader(program, vertex);
             glDetachShader(program, fragment);
-            
+
             infof("Successfully compiled shader %s", name);
         }
     }
@@ -181,6 +275,17 @@ public final class Shader : Loadable {
     /// Use shader program on this thread
     void use() {
         glUseProgram(program);
+    }
+
+    /// Get Shader uniform
+    uint uniform(string u) {
+        return glGetUniformLocation(program, u.toStringz);
+    }
+
+    /// Make an attribute current
+    void attribute(string a) {
+        auto attrib = glGetAttribLocation(program, a.toStringz);
+        glEnableVertexAttribArray(attrib);
     }
 
     ~this() {

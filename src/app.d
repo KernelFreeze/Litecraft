@@ -37,6 +37,9 @@ void main() {
 
 		loadResource(new Shader("block"));
 		loadResource(new Shader("gui"));
+
+		loadResource(new Texture("logo", "litecraft"));
+
 		load();
 	} catch (Exception e) {
 		infof("Fatal error: %s\n%s", e.toString, e.info);
