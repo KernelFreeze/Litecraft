@@ -17,38 +17,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import std.experimental.logger;
-import std.stdio;
-import gl;
-import draw;
-import configuration;
-import litecraft;
-import resource_manager;
+module util;
 
-void main() {
-	// Litecraft logo
-	writeln(r"  _    _ _                    __ _   
- | |  (_) |_ ___ __ _ _ __ _ / _| |_ 
- | |__| |  _/ -_) _| '_/ _` |  _|  _|
- |____|_|\__\___\__|_| \__,_|_|  \__|
-                                     ");
-
-	try {
-		new Litecraft(new SDLConfigurationAdapter);
-
-		// Shaders
-		new Shader("block").loadResource;
-		new Shader("quad").loadResource;
-
-		// Primitives
-		new Quad().loadResource;
-
-		// Textures
-		new Texture("logo", "litecraft").loadResource;
-
-		load();
-	}
-	catch (Exception e) {
-		infof("Fatal error: %s\n%s", e.toString, e.info);
-	}
+public {
+    import util.queue;
 }

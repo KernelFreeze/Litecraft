@@ -180,7 +180,7 @@ private void display() {
     import dlib.math;
     import resource_manager;
 
-    auto trans = scaleMatrix(vec3(0.5f, 0.5f, 0.5f));
+    auto trans = scaleMatrix(vec3(0.5f, 0.5f, 0.5f)) * rotationMatrix(Axis.z, time);
 
     Quad.draw(trans, texture("litecraft:logo"));
 }
@@ -192,7 +192,8 @@ private void close() nothrow {
 
         info("Released all resources!");
     }
-    catch (Exception e) {}
+    catch (Exception e) {
+    }
 }
 
 /// Initialize and load Litecraft engine

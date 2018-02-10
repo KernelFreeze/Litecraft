@@ -19,16 +19,17 @@
 import gl;
 import accessors;
 import dlib.math;
-import dlib.container.queue : Queue;
 import std.experimental.logger;
 import std.string : format, chomp, toStringz;
 import std.array : split;
+import std.parallelism : task, taskPool;
+import util;
 
 private static Texture[string] textures;
 private static AnimatedTexture[string] animated_textures;
 private static Shader[string] shaders;
 
-private static Queue!Loadable loadQueue;
+private static SafeQueue!Loadable loadQueue;
 private static Loadable[] loadedResources;
 
 /// Ensure we free all resources...
@@ -43,12 +44,24 @@ shared static ~this() {
 /// Do a pending load tick
 void loadResources() {
     if (!loadQueue.empty) {
-        auto resource = loadQueue.dequeue;
+        Loadable resource = cast(Loadable) loadQueue.pop;
+
+        if (auto asyncResource = cast(AsyncLoadable) resource) {
+            if (!asyncResource.isPreLoaded) {
+                auto t = task!preLoadResource(asyncResource);
+                taskPool.put(t);
+
+                // Request another resource load as this task is running async...
+                loadResources();
+                return;
+            }
+        }
 
         auto type = typeid(resource).toString.split(".")[$ - 1];
         infof("Loading %s '%s:%s'...", type, resource.namespace, resource.name);
 
-        resource.unload();
+        if (resource.isLoaded)
+            resource.unload();
         resource.load();
         resource.isLoaded = true;
         loadedResources ~= resource;
@@ -56,8 +69,20 @@ void loadResources() {
 }
 
 /// Add a resource to load queue
-void loadResource(Loadable toLoad) {
-    loadQueue.enqueue(toLoad);
+void loadResource(Loadable resource) {
+    loadQueue.push(cast(shared(Loadable)) resource);
+}
+
+/// Pre-load a resource, you should call loadResource instead...
+void preLoadResource(AsyncLoadable resource) {
+    auto type = typeid(resource).toString.split(".")[$ - 1];
+    infof("Pre-Loading %s '%s:%s'...", type, resource.namespace, resource.name);
+
+    resource.asyncLoad();
+    resource.isPreLoaded = true;
+
+    // Add resource to the queue again, but this time will be full loaded...
+    resource.loadResource;
 }
 
 /// Represents a resource that can be loaded at initialization
@@ -75,11 +100,25 @@ public abstract class Loadable {
     mixin(GenerateFieldAccessors);
 }
 
+/// Represents a resource that can be loaded async at initialization
+public abstract class AsyncLoadable : Loadable {
+    @Read @Write private bool _isPreLoaded;
+
+    /// Load the resource async
+    abstract void asyncLoad();
+
+    mixin(GenerateFieldAccessors);
+}
+
 /// GPU Texture
-public final class Texture : Loadable {
+public final class Texture : AsyncLoadable {
     import dlib.image;
 
     @Read private uint _id;
+    @Read private ubyte[] _data;
+    @Read uint _width, _height;
+
+    private uint internalFormat, format;
 
     /// Create a GPU texture
     this(string name, string namespace = "minecraft") {
@@ -89,27 +128,12 @@ public final class Texture : Loadable {
         textures[namespace ~ ":" ~ name] = this;
     }
 
-    override void unload(bool force = false) {
-        if (isLoaded || force) {
-            infof("Unloading texture %s...", name);
-
-            glDeleteTextures(1, &_id);
-        }
-    }
-
-    override void load() {
+    override void asyncLoad() {
         auto texture = loadPNG(resourcePath(name ~ ".png", "textures", namespace));
-        auto data = texture.data;
+        this._data = texture.data;
 
-        if (texture is null) {
-            throw new Exception("A texture can't be loaded!");
-        }
-
-        glGenTextures(1, &_id);
-        bind();
-
-        uint internalFormat;
-        uint format;
+        this._width = texture.width;
+        this._height = texture.height;
 
         switch (texture.pixelFormat) {
         case PixelFormat.RGB8:
@@ -140,6 +164,25 @@ public final class Texture : Loadable {
         default:
             throw new Exception("Unsupported PNG image format");
         }
+    }
+
+    override void unload(bool force = false) {
+        if (isLoaded || force) {
+            infof("Unloading texture %s...", name);
+
+            glDeleteTextures(1, &_id);
+
+            this.isPreLoaded = false;
+        }
+    }
+
+    override void load() {
+        if (!isPreLoaded) {
+            throw new Exception("The resource is not pre-loaded!");
+        }
+
+        glGenTextures(1, &_id);
+        bind();
 
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -150,11 +193,8 @@ public final class Texture : Loadable {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.width,
-                texture.height, 0, format, GL_UNSIGNED_BYTE, data.ptr);
-
-        data.destroy;
-        texture.destroy;
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width,
+                height, 0, format, GL_UNSIGNED_BYTE, data.ptr);
     }
 
     void bind() {
