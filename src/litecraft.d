@@ -27,8 +27,11 @@ final class Litecraft {
     @Read @Write private ConfigurationAdapter _configuration;
 
     @Read private static const string _litecraft = "A1";
-
     @Read private static const string _minecraft = "1.13";
+    @Read private static const string _clientbrand = "vanilla/litecraft";
+
+    @Read @Write private static string _opengl;
+    @Read @Write private static string _glVendor;
 
     /// Create a new instance of Litecraft main class
     this(ConfigurationAdapter configuration) {

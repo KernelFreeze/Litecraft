@@ -59,16 +59,16 @@ public final class Quad : Drawable {
         s.use;
         i.vao.bind;
 
-        // Set our TextureSampler sampler to user Texture Unit 0
-		glUniform1i(s.uniform("uTexture"), 0);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
-        glEnableVertexAttribArray(0);
+        glDrawElements(GL_TRIANGLES, i.ebo.size, GL_UNSIGNED_SHORT, null);
     }
 
     override void load() {
         // Generate and bind VAO
         vao = new VAO;
+
+        auto s = shader("quad");
+        s.use;
+        s.set("uTexture", 0);
 
         // Generate Vertex Buffer Object
         vbo = new VBO([
@@ -79,23 +79,19 @@ public final class Quad : Drawable {
             -0.5f,  0.5f, 0.0f,  0.0f, 1.0f    // top left
         ]);
 
+        // Positions
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * float.sizeof, cast(void*) 0);
+        glEnableVertexAttribArray(0);
+
+        // Texture coords
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * float.sizeof, cast(void*) (3 * float.sizeof));
+        glEnableVertexAttribArray(1);
+
         // Generate Element Buffer Object
         ebo = new EBO([
             0, 1, 3,   // first triangle
             1, 2, 3    // second triangle
         ]);
-
-        // Now, we tell OpenGL how to pass data to the shader...
-
-        // Positions
-        auto position = shader("quad").attribute("aPos");
-        glVertexAttribPointer(position, 3, GL_FLOAT, GL_FALSE, 5 * float.sizeof, cast(void*) 0);
-        glEnableVertexAttribArray(position);
-
-        // Texture coords
-        auto texCoord = shader("quad").attribute("aTexCoord");
-        glVertexAttribPointer(texCoord, 2, GL_FLOAT, GL_FALSE, 5 * float.sizeof, cast(void*) (3 * float.sizeof));
-        glEnableVertexAttribArray(texCoord);
     }
 
     override void unload(bool force = false) {

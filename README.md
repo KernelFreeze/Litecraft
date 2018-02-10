@@ -12,6 +12,7 @@
 - [X] Rendering using shaders. [Shaders are faster than old OpenGL](https://thebookofshaders.com/00/).
 - [X] Safe by design.
 - [X] Supported by an awesome community.
+- [X] Modern design (Design patterns and use of VAOs, VBOs, EBOs, etc), use of new interfaces and libraries (like OpenGL >= 3.0).
 - [ ] All vanilla client features.
 - [ ] Launcher with assets downloader [(WIP!)](https://github.com/Litecrafty/Launcher)
 - [ ] Server side plugin (mod) API (Send resources from server to client)
@@ -40,6 +41,9 @@ Here: https://tour.dlang.org
 
 ### How long will it take you to program a usable version?
 Although we have thousands of hours of work, we probably have many thousands more.
+
+### Litecraft is supposed to be faster, why does not it support old computers with OpenGL 2.1?
+OpenGL 3.X has been launched for more than 10 years, besides facilitating the development, it allows us to do things in a more efficient way that otherwise would not be possible. If you really want to use OpenGL 2.1 or 1.1, we recommend using Minecraft Vanilla, sorry :(
 
 # Contributing
 [Bug reports](https://github.com/Litecrafty/Litecraft/issues) and [pull requests](https://github.com/Litecrafty/Litecraft/pulls) are welcome on our GitHub. This project is intended to be a safe, welcoming space for collaboration and discussion, and contributors are expected to adhere to the [Contributor Covenant code of conduct](https://github.com/Litecrafty/Litecraft/blob/master/CONTRIBUTING.md), you can read it on your Language [here](https://www.contributor-covenant.org/translations.html).

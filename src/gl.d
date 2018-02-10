@@ -19,15 +19,14 @@
 
 import accessors;
 import derelict.opengl;
-import derelict.opengl.extensions.arb_v;
 import derelict.glfw3.glfw3;
 import draw;
 import litecraft;
 import std.experimental.logger;
 import std.string : toStringz, format;
+import std.conv : to;
 
-mixin glFreeFuncs!(GLVersion.gl21);
-mixin(arbVertexArrayObject);
+mixin glFreeFuncs!(GLVersion.gl33);
 
 private GLFWwindow* window;
 
@@ -67,15 +66,20 @@ final class VAO {
 */
 final class EBO {
     @Read private uint _id;
+    @Read private uint _size;
 
     /// Ask the GPU to generate a new VBO
-    this(float[] element_buffer_data) {
+    this(ushort[] element_buffer_data) {
+        _size = cast(uint) element_buffer_data.length;
+
         glGenBuffers(1, &_id);
         bind();
 
         // Send buffer data to GPU
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, float.sizeof * element_buffer_data.length,
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ushort.sizeof * element_buffer_data.length,
                 &element_buffer_data, GL_STATIC_DRAW);
+
+        element_buffer_data.destroy;
     }
 
     ~this() {
@@ -109,9 +113,11 @@ final class VBO {
     this(float[] vertex_buffer_data) {
         glGenBuffers(1, &_id);
         bind();
+
         // Send buffer data to GPU
         glBufferData(GL_ARRAY_BUFFER, float.sizeof * vertex_buffer_data.length,
                 &vertex_buffer_data, GL_STATIC_DRAW);
+        vertex_buffer_data.destroy;
     }
 
     ~this() {
@@ -140,13 +146,9 @@ private void init() {
     // White background
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-    // Enable depth test
     glEnable(GL_DEPTH_TEST);
-    // Accept fragment if it closer to the camera than the former one
-    glDepthFunc(GL_LESS);
-
-    // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
+    glDepthFunc(GL_LESS);
 
     // Enable transparency
     glEnable(GL_BLEND);
@@ -174,7 +176,7 @@ public void showPointer() {
 }
 
 private void display() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     import dlib.geometry;
     import resource_manager;
@@ -204,13 +206,13 @@ void load() {
         return;
     }
 
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    // Use OpenGL 3.3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-    // Use OpenGL 2.1
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    auto displayname = "Litecraft " ~ Litecraft.minecraft ~ "-" ~ Litecraft.litecraft;
+    static auto displayname = "Litecraft %s-%s".format(Litecraft.minecraft, Litecraft.litecraft);
 
     window = glfwCreateWindow(Litecraft.instance.width,
             Litecraft.instance.height, displayname.toStringz, null, null);
@@ -224,22 +226,21 @@ void load() {
     }
 
     if (window is null) {
-        error("I can't open Game Window. Please upgrade your GPU drivers");
+        error("I can't open Game Window. Please upgrade your Graphic card drivers");
         return;
     }
 
     glfwMakeContextCurrent(window);
 
-    if (DerelictGL3.reload() < GLVersion.gl21) {
-        error("Your OpenGL version is too low! Please upgrade your GPU drivers");
+    if (DerelictGL3.reload() < GLVersion.gl33) {
+        error("Your OpenGL version is too low! Please upgrade your Graphic card drivers");
         return;
     }
 
-    if (!DerelictGL3.isExtensionLoaded("GL_ARB_vertex_array_object")) {
-        error("Your OpenGL API doesn't have a required extension.
-                Please upgrade your GPU drivers or buy a new GPU");
-        return;
-    }
+    Litecraft.opengl = to!(string)(glGetString(GL_VERSION));
+    Litecraft.glVendor = to!(string)(glGetString(GL_RENDERER));
+
+    infof("Running on modern OpenGL %s using %s", Litecraft.opengl, Litecraft.glVendor);
 
     init();
     register();
@@ -274,6 +275,7 @@ private void register() {
 
 extern (C) {
     private void resizeWindow(GLFWwindow* window, int w, int h) nothrow {
+        glViewport(0, 0, w, h);
     }
 
     private void mouseMove(GLFWwindow* window, double x, double y) nothrow {

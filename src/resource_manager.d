@@ -33,6 +33,7 @@ private static Loadable[] loadedResources;
 shared static ~this() {
     foreach (resource; loadedResources) {
         resource.unload(true);
+        resource.isLoaded = false;
     }
 }
 
@@ -317,6 +318,11 @@ public final class Shader : Loadable {
     /// Use shader program on this thread
     void use() {
         glUseProgram(program);
+    }
+
+    /// Set uniform with value
+    void set(string u, int value) {
+        glUniform1i(uniform(u), value);
     }
 
     /// Get Shader uniform
