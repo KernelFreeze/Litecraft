@@ -19,7 +19,7 @@
 
 import gl;
 import resource_manager;
-import dlib.geometry;
+import dlib.math;
 import std.experimental.logger;
 
 /// A drawable primitive element
@@ -44,20 +44,26 @@ public final class Quad : Drawable {
     private EBO ebo; // Elements
 
     this() {
-        name = "quad_primitive";
+        this.name = "quad_primitive";
+        this.namespace = "litecraft";
     }
 
     /// Draw primitive on screen
-    static void draw(Plane plane, Texture texture) {
+    static void draw(mat4 transform, Texture texture) {
         auto i = cast(Quad) instance;
 
         if (!i.isLoaded) return;
+        if (!texture.isLoaded) return;
 
-        auto s = shader("quad");
+        auto s = shader("litecraft:quad");
 
-        texture.bind();
+        if (!s.isLoaded) return;
+
+        texture.bind;
         s.use;
         i.vao.bind;
+
+        s.set("transform", transform);
 
         glDrawElements(GL_TRIANGLES, i.ebo.size, GL_UNSIGNED_SHORT, null);
     }
@@ -66,7 +72,7 @@ public final class Quad : Drawable {
         // Generate and bind VAO
         vao = new VAO;
 
-        auto s = shader("quad");
+        auto s = shader("litecraft:quad");
         s.use;
         s.set("uTexture", 0);
 

@@ -77,7 +77,7 @@ final class EBO {
 
         // Send buffer data to GPU
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, ushort.sizeof * element_buffer_data.length,
-                &element_buffer_data, GL_STATIC_DRAW);
+                element_buffer_data.ptr, GL_STATIC_DRAW);
 
         element_buffer_data.destroy;
     }
@@ -116,7 +116,7 @@ final class VBO {
 
         // Send buffer data to GPU
         glBufferData(GL_ARRAY_BUFFER, float.sizeof * vertex_buffer_data.length,
-                &vertex_buffer_data, GL_STATIC_DRAW);
+                vertex_buffer_data.ptr, GL_STATIC_DRAW);
         vertex_buffer_data.destroy;
     }
 
@@ -147,8 +147,8 @@ private void init() {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);
+    //glEnable(GL_CULL_FACE);
 
     // Enable transparency
     glEnable(GL_BLEND);
@@ -166,7 +166,6 @@ public void hidePointer() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Set the mouse at the center of the screen
-    glfwPollEvents();
     glfwSetCursorPos(window, Litecraft.instance.width / 2, Litecraft.instance.height / 2);
 }
 
@@ -178,10 +177,12 @@ public void showPointer() {
 private void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    import dlib.geometry;
+    import dlib.math;
     import resource_manager;
 
-    Quad.draw(Plane(), texture("logo"));
+    auto trans = scaleMatrix(vec3(0.5f, 0.5f, 0.5f));
+
+    Quad.draw(trans, texture("litecraft:logo"));
 }
 
 /// Free all resources used by GLFW; Don't call this from a callback!
@@ -191,9 +192,7 @@ private void close() nothrow {
 
         info("Released all resources!");
     }
-    catch (Exception e) {
-        // :S
-    }
+    catch (Exception e) {}
 }
 
 /// Initialize and load Litecraft engine
@@ -211,6 +210,10 @@ void load() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    version (OSX) {
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    }
 
     static auto displayname = "Litecraft %s-%s".format(Litecraft.minecraft, Litecraft.litecraft);
 
@@ -240,7 +243,12 @@ void load() {
     Litecraft.opengl = to!(string)(glGetString(GL_VERSION));
     Litecraft.glVendor = to!(string)(glGetString(GL_RENDERER));
 
-    infof("Running on modern OpenGL %s using %s", Litecraft.opengl, Litecraft.glVendor);
+    {
+        import std.compiler : name;
+
+        infof("Running on modern OpenGL %s using %s", Litecraft.opengl, Litecraft.glVendor);
+        infof("%s, compiled at %s, using %s", displayname, __TIMESTAMP__, name);
+    }
 
     init();
     register();

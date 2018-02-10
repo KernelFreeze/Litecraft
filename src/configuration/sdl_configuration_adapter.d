@@ -32,6 +32,20 @@ public final class SDLConfigurationAdapter : ConfigurationAdapter {
             auto data = parseFile("configs/litecraft.sdl");
 
             _renderDistance = data.getTagValue!int("render-distance", renderDistance);
+            _configVersion = data.getTagValue!int("version", configVersion);
+
+            _difficulty = data.getTagValue!int("difficulty", difficulty);
+            _quality = data.getTagValue!int("quality", quality);
+
+            _width = data.getTagValue!int("width", width);
+            _height = data.getTagValue!int("height", height);
+
+            _mouseSensitivity = data.getTagValue!float("mouse-sensitivity", mouseSensitivity);
+            _fov = data.getTagValue!float("fov", fov);
+
+            _guiScale = data.getTagValue!int("gui-scale", guiScale);
+            _particles = data.getTagValue!int("particles", particles);
+            _lastServer = data.getTagValue!string("lastServer", lastServer);
         }
         catch (FileException e) {
             warning("Generating new configuration...");
@@ -44,6 +58,16 @@ public final class SDLConfigurationAdapter : ConfigurationAdapter {
         auto data = new Tag();
 
         new Tag(data, null, "render-distance", [Value(renderDistance)]);
+        new Tag(data, null, "version", [Value(configVersion)]);
+        new Tag(data, null, "difficulty", [Value(difficulty)]);
+        new Tag(data, null, "quality", [Value(quality)]);
+        new Tag(data, null, "width", [Value(width)]);
+        new Tag(data, null, "height", [Value(height)]);
+        new Tag(data, null, "mouse-sensitivity", [Value(mouseSensitivity)]);
+        new Tag(data, null, "fov", [Value(fov)]);
+        new Tag(data, null, "gui-scale", [Value(guiScale)]);
+        new Tag(data, null, "particles", [Value(particles)]);
+        new Tag(data, null, "lastServer", [Value(lastServer)]);
 
         import std.file : exists, mkdir, write;
 

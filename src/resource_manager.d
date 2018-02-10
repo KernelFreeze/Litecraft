@@ -18,9 +18,11 @@
 */
 import gl;
 import accessors;
+import dlib.math;
 import dlib.container.queue : Queue;
 import std.experimental.logger;
 import std.string : format, chomp, toStringz;
+import std.array : split;
 
 private static Texture[string] textures;
 private static AnimatedTexture[string] animated_textures;
@@ -34,6 +36,7 @@ shared static ~this() {
     foreach (resource; loadedResources) {
         resource.unload(true);
         resource.isLoaded = false;
+        resource.destroy;
     }
 }
 
@@ -42,7 +45,8 @@ void loadResources() {
     if (!loadQueue.empty) {
         auto resource = loadQueue.dequeue;
 
-        infof("Loading resource '%s'...", resource.name);
+        auto type = typeid(resource).toString.split(".")[$ - 1];
+        infof("Loading %s '%s:%s'...", type, resource.namespace, resource.name);
 
         resource.unload();
         resource.load();
@@ -60,6 +64,7 @@ void loadResource(Loadable toLoad) {
 public abstract class Loadable {
     @Read @Write private bool _isLoaded;
     @Read @Write private string _name;
+    @Read @Write private string _namespace;
 
     /// Load the resource
     abstract void load();
@@ -75,14 +80,13 @@ public final class Texture : Loadable {
     import dlib.image;
 
     @Read private uint _id;
-    @Read @Write private string _namespace;
 
     /// Create a GPU texture
     this(string name, string namespace = "minecraft") {
         this.name = name;
         this.namespace = namespace;
 
-        textures[name] = this;
+        textures[namespace ~ ":" ~ name] = this;
     }
 
     override void unload(bool force = false) {
@@ -97,47 +101,57 @@ public final class Texture : Loadable {
         auto texture = loadPNG(resourcePath(name ~ ".png", "textures", namespace));
         auto data = texture.data;
 
+        if (texture is null) {
+            throw new Exception("A texture can't be loaded!");
+        }
+
         glGenTextures(1, &_id);
         bind();
 
         uint internalFormat;
         uint format;
+
         switch (texture.pixelFormat) {
-            case PixelFormat.RGB8:
-                internalFormat = GL_RGB8;
-                format = GL_RGB;
+        case PixelFormat.RGB8:
+            internalFormat = GL_RGB8;
+            format = GL_RGB;
 
-                info("Loading 8 bits RGB texture");
-                break;
-            case PixelFormat.RGBA8:
-                internalFormat = GL_RGBA8;
-                format = GL_RGBA;
+            info("Loading 8 bits RGB texture");
+            break;
+        case PixelFormat.RGBA8:
+            internalFormat = GL_RGBA8;
+            format = GL_RGBA;
 
-                info("Loading 8 bits RGBA texture");
-                break;
-            case PixelFormat.RGB16:
-                internalFormat = GL_RGB16;
-                format = GL_RGB;
+            info("Loading 8 bits RGBA texture");
+            break;
+        case PixelFormat.RGB16:
+            internalFormat = GL_RGB16;
+            format = GL_RGB;
 
-                info("Loading 16 bits RGB texture");
-                break;
-            case PixelFormat.RGBA_FLOAT:
-            case PixelFormat.RGBA16:
-                internalFormat = GL_RGBA16;
-                format = GL_RGBA;
+            info("Loading 16 bits RGB texture");
+            break;
+        case PixelFormat.RGBA_FLOAT:
+        case PixelFormat.RGBA16:
+            internalFormat = GL_RGBA16;
+            format = GL_RGBA;
 
-                info("Loading 16 bits RGBA texture");
-                break;
-            default:
-                throw new Exception("Unsupported PNG image format");
+            info("Loading 16 bits RGBA texture");
+            break;
+        default:
+            throw new Exception("Unsupported PNG image format");
         }
 
-        // Send image to GPU
-        glTexImage2D(GL_TEXTURE_2D, 0, format, texture.width, texture.height,
-                0, format, GL_UNSIGNED_BYTE, data.ptr);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        // set texture filtering parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.width,
+                texture.height, 0, format, GL_UNSIGNED_BYTE, data.ptr);
 
         data.destroy;
         texture.destroy;
@@ -156,14 +170,13 @@ public final class AnimatedTexture : Loadable {
     import dlib.image;
 
     @Read private uint[] _ids;
-    @Read @Write private string _namespace;
 
     /// Create a GPU texture
     this(string name, string namespace = "minecraft") {
         this.name = name;
         this.namespace = namespace;
 
-        animated_textures[name] = this;
+        animated_textures[namespace ~ ":" ~ name] = this;
     }
 
     override void unload(bool force = false) {
@@ -212,7 +225,8 @@ public final class Shader : Loadable {
     /// Create vertex and fragment shaders
     this(string name) {
         this.name = name;
-        shaders[name] = this;
+        this.namespace = "litecraft";
+        shaders[namespace ~ ":" ~ name] = this;
     }
 
     override void unload(bool force = false) {
@@ -323,6 +337,11 @@ public final class Shader : Loadable {
     /// Set uniform with value
     void set(string u, int value) {
         glUniform1i(uniform(u), value);
+    }
+
+    /// Set uniform with value
+    void set(string u, mat4 value) {
+        glUniformMatrix4fv(uniform(u), 1, GL_FALSE, value.arrayof.ptr);
     }
 
     /// Get Shader uniform

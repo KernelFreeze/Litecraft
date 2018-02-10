@@ -25,8 +25,8 @@ import accessors;
 public abstract class ConfigurationAdapter {
     @Read @Write protected int _configVersion;
     @Read @Write protected int _renderDistance = 12;
-    @Read @Write protected ubyte _difficulty = 2;
-    @Read @Write protected ubyte _quality = 3; // Low, Normal, Higth
+    @Read @Write protected int _difficulty = 2;
+    @Read @Write protected int _quality = 3; // Low, Normal, Higth
 
     @Read @Write protected int _width = 800;
     @Read @Write protected int _height = 600;
@@ -34,8 +34,8 @@ public abstract class ConfigurationAdapter {
     @Read @Write protected float _mouseSensitivity = 0.5f;
     @Read @Write protected float _fov = 0.5f;
 
-    @Read @Write protected ubyte _guiScale; // Auto, Smaller, Small, Normal, Big, Bigger
-    @Read @Write protected ubyte _particles; // None, Low, Medium, Higth
+    @Read @Write protected int _guiScale; // Auto, Smaller, Small, Normal, Big, Bigger
+    @Read @Write protected int _particles; // None, Low, Medium, Higth
 
     @Read @Write protected string _lastServer = "";
 
