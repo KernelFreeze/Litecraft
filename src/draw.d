@@ -55,9 +55,12 @@ public final class Quad : Drawable {
 
         auto s = shader("quad");
 
+        texture.bind();
         s.use;
-        texture.bind(s.uniform("uTexture"));
         i.vao.bind;
+
+        // Set our TextureSampler sampler to user Texture Unit 0
+		glUniform1i(s.uniform("uTexture"), 0);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
         glEnableVertexAttribArray(0);
@@ -67,12 +70,6 @@ public final class Quad : Drawable {
         // Generate and bind VAO
         vao = new VAO;
 
-        // Generate Element Buffer Object
-        ebo = new EBO([
-            0, 1, 3,   // first triangle
-            1, 2, 3    // second triangle
-        ]);
-
         // Generate Vertex Buffer Object
         vbo = new VBO([
             // positions         // texture coords
@@ -80,6 +77,12 @@ public final class Quad : Drawable {
             0.5f, -0.5f, 0.0f,   1.0f, 0.0f,   // bottom right
             -0.5f, -0.5f, 0.0f,  0.0f, 0.0f,   // bottom left
             -0.5f,  0.5f, 0.0f,  0.0f, 1.0f    // top left
+        ]);
+
+        // Generate Element Buffer Object
+        ebo = new EBO([
+            0, 1, 3,   // first triangle
+            1, 2, 3    // second triangle
         ]);
 
         // Now, we tell OpenGL how to pass data to the shader...

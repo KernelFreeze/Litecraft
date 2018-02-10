@@ -97,20 +97,54 @@ public final class Texture : Loadable {
         auto data = texture.data;
 
         glGenTextures(1, &_id);
-        glBindTexture(GL_TEXTURE_2D, id);
+        bind();
+
+        uint internalFormat;
+        uint format;
+        switch (texture.pixelFormat) {
+            case PixelFormat.RGB8:
+                internalFormat = GL_RGB8;
+                format = GL_RGB;
+
+                info("Loading 8 bits RGB texture");
+                break;
+            case PixelFormat.RGBA8:
+                internalFormat = GL_RGBA8;
+                format = GL_RGBA;
+
+                info("Loading 8 bits RGBA texture");
+                break;
+            case PixelFormat.RGB16:
+                internalFormat = GL_RGB16;
+                format = GL_RGB;
+
+                info("Loading 16 bits RGB texture");
+                break;
+            case PixelFormat.RGBA_FLOAT:
+            case PixelFormat.RGBA16:
+                internalFormat = GL_RGBA16;
+                format = GL_RGBA;
+
+                info("Loading 16 bits RGBA texture");
+                break;
+            default:
+                throw new Exception("Unsupported PNG image format");
+        }
 
         // Send image to GPU
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.width, texture.height,
-                0, GL_BGR, GL_UNSIGNED_BYTE, data.ptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, texture.width, texture.height,
+                0, format, GL_UNSIGNED_BYTE, data.ptr);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        data.destroy;
+        texture.destroy;
     }
 
-    void bind(uint uniform) {
+    void bind() {
         glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, id);
-		glUniform1i(uniform, 0);
+        glBindTexture(GL_TEXTURE_2D, id);
     }
 
     mixin(GenerateFieldAccessors);
@@ -144,7 +178,7 @@ public final class AnimatedTexture : Loadable {
 
         info("Loading animated texture...");
 
-        for(int i = 0; i < texture.frameSize; i++) {
+        for (int i = 0; i < texture.frameSize; i++) {
             auto data = texture.data;
             uint frame;
 

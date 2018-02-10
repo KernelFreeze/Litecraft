@@ -74,7 +74,7 @@ final class EBO {
         bind();
 
         // Send buffer data to GPU
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, element_buffer_data.sizeof,
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, float.sizeof * element_buffer_data.length,
                 &element_buffer_data, GL_STATIC_DRAW);
     }
 
@@ -109,9 +109,8 @@ final class VBO {
     this(float[] vertex_buffer_data) {
         glGenBuffers(1, &_id);
         bind();
-
         // Send buffer data to GPU
-        glBufferData(GL_ARRAY_BUFFER, vertex_buffer_data.sizeof,
+        glBufferData(GL_ARRAY_BUFFER, float.sizeof * vertex_buffer_data.length,
                 &vertex_buffer_data, GL_STATIC_DRAW);
     }
 
