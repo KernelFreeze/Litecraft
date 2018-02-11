@@ -64,8 +64,6 @@ public final class Quad : Drawable!Quad {
         if (!s.isLoaded)
             return;
 
-        glFrontFace(GL_CW);
-
         texture.bind;
         s.use;
         instance.vao.bind;
@@ -153,8 +151,6 @@ public final class FullScreenQuad : Drawable!FullScreenQuad {
 
         if (!s.isLoaded)
             return;
-
-        glFrontFace(GL_CW);
 
         s.use;
         instance.vao.bind;

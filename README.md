@@ -26,7 +26,7 @@
 # Compile
 
  - Download D Programming Language: `dub`, `ldc2` or any D compiler, and `gcc` as linker.
- - Install libraries: `glfw3` and `libwebp` (animated images).
+ - Install libraries: `glfw3`.
  - Build with dub.
  - Run with our [Launcher](https://github.com/Litecrafty/Launcher) or manually with any client token:
 ```bash

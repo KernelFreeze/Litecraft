@@ -45,7 +45,10 @@ public final class SDLConfigurationAdapter : ConfigurationAdapter {
 
             _guiScale = data.getTagValue!int("gui-scale", guiScale);
             _particles = data.getTagValue!int("particles", particles);
-            _lastServer = data.getTagValue!string("lastServer", lastServer);
+            _lastServer = data.getTagValue!string("last-server", lastServer);
+
+            _antiAliasing = data.getTagValue!bool("anti-aliasing", antiAliasing);
+            _antiAliasingLevel = data.getTagAttribute!int("anti-aliasing", "level", antiAliasingLevel);
         }
         catch (FileException e) {
             warning("Generating new configuration...");
@@ -69,7 +72,10 @@ public final class SDLConfigurationAdapter : ConfigurationAdapter {
         new Tag(data, null, "fov", [Value(fov)]);
         new Tag(data, null, "gui-scale", [Value(guiScale)]);
         new Tag(data, null, "particles", [Value(particles)]);
-        new Tag(data, null, "lastServer", [Value(lastServer)]);
+        new Tag(data, null, "last-server", [Value(lastServer)]);
+
+        auto AALevelAttribute = new Attribute(null, "level", Value(antiAliasingLevel));
+        new Tag(data, null, "anti-aliasing", [Value(antiAliasing)], [AALevelAttribute]);
 
         import std.file : exists, mkdir, write;
 

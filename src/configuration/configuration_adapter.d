@@ -39,5 +39,8 @@ public abstract class ConfigurationAdapter {
 
     @Read @Write protected string _lastServer = "";
 
+    @Read @Write protected bool _antiAliasing = true;
+    @Read @Write protected int _antiAliasingLevel = 4;
+
     mixin(GenerateFieldAccessors);
 }

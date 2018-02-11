@@ -140,6 +140,8 @@ final class VBO {
 }
 
 private void init() {
+    glEnable(GL_MULTISAMPLE);
+
     glViewport(0, 0, Litecraft.width, Litecraft.height);
 
     // Ensure we can capture the escape key being pressed below
@@ -148,11 +150,15 @@ private void init() {
     showPointer();
 
     // White background
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+
+    // Cull faces
     glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CW);
 
     // Enable transparency
     glEnable(GL_BLEND);
@@ -222,6 +228,13 @@ void load() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    if (Litecraft.instance.configuration.antiAliasing) {
+        auto level = Litecraft.instance.configuration.antiAliasingLevel;
+        infof("Enabled anti-aliasing MSAA x%d", level);
+
+        glfwWindowHint(GLFW_SAMPLES, level);
+    }
 
     version (OSX) {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
