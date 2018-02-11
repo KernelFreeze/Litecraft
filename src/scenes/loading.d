@@ -17,40 +17,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import accessors;
-import configuration;
-import scenes;
+module scenes.loading;
 
-/// Util class with some Game data
-final class Litecraft {
-    @Read private static Litecraft _instance;
+import scenes.scene;
+import dlib.math;
+import resource_manager;
+import litecraft;
 
-    @Read @Write private ConfigurationAdapter _configuration;
+/// Show a fancy loading screen...
+public final class LoadingScene : Scene {
+    override void render3D() {
 
-    @Read private static const string _litecraft = "A1";
-    @Read private static const string _minecraft = "1.13";
-    @Read private static const string _clientbrand = "vanilla/litecraft";
-
-    @Read @Write private static string _opengl;
-    @Read @Write private static string _glVendor;
-
-    @Read @Write private Scene _scene;
-
-    /// Create a new instance of Litecraft main class
-    this(ConfigurationAdapter configuration) {
-        _configuration = configuration;
-        _instance = this;
     }
 
-    /// Get client width
-    static auto width() {
-        return _instance._configuration.width;
+    override void render2D() {
+        // Render our fancy logo
+        //Quad.draw(Litecraft.width / 2, Litecraft.height / 2, 100, 100, texture("litecraft:logo"), shader("litecraft:litecraft"));
+        Quad.draw(mat4.identity, texture("litecraft:logo"), shader("litecraft:litecraft"));
     }
-
-    /// Get client height
-    static auto height() {
-        return _instance._configuration.height;
-    }
-
-    mixin(GenerateFieldAccessors);
 }

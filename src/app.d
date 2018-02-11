@@ -24,6 +24,7 @@ import draw;
 import configuration;
 import litecraft;
 import resource_manager;
+import scenes;
 
 void main() {
 	// Litecraft logo
@@ -34,7 +35,9 @@ void main() {
                                      ");
 
 	try {
-		new Litecraft(new SDLConfigurationAdapter);
+		auto configuration = new SDLConfigurationAdapter;
+		auto litecraft = new Litecraft(configuration);
+		litecraft.scene = new LoadingScene;
 
 		// Shaders
 		new Shader("litecraft").loadResource;
@@ -48,6 +51,7 @@ void main() {
 		new Texture("logo", "litecraft").loadResource;
 
 		load();
+		configuration.save();
 	}
 	catch (Exception e) {
 		infof("Fatal error: %s\n%s", e.toString, e.info);

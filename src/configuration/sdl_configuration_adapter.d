@@ -55,6 +55,8 @@ public final class SDLConfigurationAdapter : ConfigurationAdapter {
 
     /// Save configuration to file
     public void save() {
+        info("Saving configuration...");
+
         auto data = new Tag();
 
         new Tag(data, null, "render-distance", [Value(renderDistance)]);

@@ -22,9 +22,11 @@ import derelict.opengl;
 import derelict.glfw3.glfw3;
 import draw;
 import litecraft;
+import configuration;
 import std.experimental.logger;
 import std.string : toStringz, format;
 import std.conv : to;
+import dlib.math : mat4, orthoMatrix;
 
 mixin glFreeFuncs!(GLVersion.gl33);
 
@@ -138,6 +140,8 @@ final class VBO {
 }
 
 private void init() {
+    glViewport(0, 0, Litecraft.width, Litecraft.height);
+
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
@@ -148,21 +152,21 @@ private void init() {
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 
     // Enable transparency
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-/// Get time for use on rendering stuf
+/// Get time for use on rendering stuff
 public auto time() {
     return cast(float) glfwGetTime();
 }
 
 /// Center and hide mouse pointer
 public void hidePointer() {
-    // Hide the mouse and enable unlimited mouvement
+    // Hide the mouse and enable unlimited movement
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Set the mouse at the center of the screen
@@ -175,12 +179,22 @@ public void showPointer() {
 }
 
 private void display() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    import dlib.math;
-    import resource_manager;
+    // 3D
+    glEnable(GL_DEPTH_TEST);
+    Litecraft.instance.scene.render3D();
 
-    Quad.draw(mat4.identity, texture("litecraft:logo"), shader("litecraft:litecraft"));
+    // 2D
+    glDisable(GL_DEPTH_TEST);
+
+    Litecraft.instance.scene.render2D();
+}
+
+/// Get orthographic projection for 2D rendering
+public mat4 orthoProjection() {
+    //return orthoMatrix(0.0f, Litecraft.width, 0.0f, Litecraft.height, 0.0f, 1.0f);
+    return orthoMatrix(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f);
 }
 
 /// Free all resources used by GLFW; Don't call this from a callback!
@@ -188,7 +202,7 @@ private void close() nothrow {
     try {
         glfwTerminate();
 
-        info("Released all resources!");
+        info("Released GLFW resources!");
     }
     catch (Exception e) {
     }
@@ -283,6 +297,9 @@ private void register() {
 extern (C) {
     private void resizeWindow(GLFWwindow* window, int w, int h) nothrow {
         glViewport(0, 0, w, h);
+
+        Litecraft.instance.configuration.width = w;
+        Litecraft.instance.configuration.height = h;
     }
 
     private void mouseMove(GLFWwindow* window, double x, double y) nothrow {

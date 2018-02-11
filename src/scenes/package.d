@@ -21,4 +21,5 @@ module scenes;
 
 public {
     import scenes.scene;
+    import scenes.loading;
 }

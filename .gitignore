@@ -14,5 +14,5 @@ litecraft-test-*
 *.o
 *.obj
 *.lst
-config/
+configs/
 resources/minecraft/

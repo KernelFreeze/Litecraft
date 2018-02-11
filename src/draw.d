@@ -50,6 +50,14 @@ public final class Quad : Drawable {
     }
 
     /// Draw primitive on screen
+    static void draw(uint x, uint y, uint width, uint height, Texture texture, Shader s = shader("litecraft:quad")) {
+        auto mtx = translationMatrix(vec3(cast(float) x, cast(float) y, 0.0f));
+        mtx *= scaleMatrix(vec3(cast(float) width, cast(float) height, 0.0f));
+        
+        draw(mtx, texture, s);
+    }
+
+    /// Draw primitive on screen
     static void draw(mat4 transform, Texture texture, Shader s = shader("litecraft:quad")) {
         auto i = cast(Quad) instance;
 
@@ -58,11 +66,15 @@ public final class Quad : Drawable {
 
         if (!s.isLoaded) return;
 
+        glFrontFace(GL_CW);
+
         texture.bind;
         s.use;
         i.vao.bind;
 
         s.set("uTransform", transform);
+        s.set("uProjection", orthoProjection);
+        
         s.set("uTime", time);
         s.set("uTexture", 0);
         s.set("uResolution", vec2(Litecraft.width, Litecraft.height));
@@ -77,18 +89,18 @@ public final class Quad : Drawable {
         // Generate Vertex Buffer Object
         vbo = new VBO([
             // positions         // texture coords
-            0.5f,  0.5f, 0.0f,   1.0f, 1.0f,   // top right
-            0.5f, -0.5f, 0.0f,   1.0f, 0.0f,   // bottom right
-            -0.5f, -0.5f, 0.0f,  0.0f, 0.0f,   // bottom left
-            -0.5f,  0.5f, 0.0f,  0.0f, 1.0f    // top left
+            0.5f,  0.5f,   1.0f, 1.0f,   // top right
+            0.5f, -0.5f,   1.0f, 0.0f,   // bottom right
+            -0.5f, -0.5f,  0.0f, 0.0f,   // bottom left
+            -0.5f,  0.5f,  0.0f, 1.0f    // top left
         ]);
 
         // Positions
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * float.sizeof, cast(void*) 0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * float.sizeof, cast(void*) 0);
         glEnableVertexAttribArray(0);
 
         // Texture coords
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * float.sizeof, cast(void*) (3 * float.sizeof));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * float.sizeof, cast(void*) (2 * float.sizeof));
         glEnableVertexAttribArray(1);
 
         // Generate Element Buffer Object
