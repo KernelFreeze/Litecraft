@@ -17,6 +17,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+module gl.render;
+
 import accessors;
 import derelict.opengl;
 import derelict.glfw3.glfw3;
@@ -31,113 +33,6 @@ import dlib.math : mat4, orthoMatrix;
 mixin glFreeFuncs!(GLVersion.gl33);
 
 private GLFWwindow* window;
-
-/**
-    GPU Vertex Array Object:
-
-    Encapsulate vertex array state on the GPU side.
-*/
-final class VAO {
-    @Read private uint _id;
-
-    /// Ask the GPU to generate a new VAO
-    this() {
-        glGenVertexArrays(1, &_id);
-        bind();
-    }
-
-    ~this() {
-        glDeleteVertexArrays(1, &_id);
-    }
-
-    /// Bind VAO to current stack
-    void bind() {
-        glBindVertexArray(_id);
-    }
-
-    /// Unbind VBO from current stack
-    void unbind() {
-        glBindVertexArray(0);
-    }
-
-    mixin(GenerateFieldAccessors);
-}
-
-/**
-    Element Buffer Object
-*/
-final class EBO {
-    @Read private uint _id;
-    @Read private uint _size;
-
-    /// Ask the GPU to generate a new VBO
-    this(ushort[] element_buffer_data) {
-        _size = cast(uint) element_buffer_data.length;
-
-        glGenBuffers(1, &_id);
-        bind();
-
-        // Send buffer data to GPU
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ushort.sizeof * element_buffer_data.length,
-                element_buffer_data.ptr, GL_STATIC_DRAW);
-
-        element_buffer_data.destroy;
-    }
-
-    ~this() {
-        glDeleteBuffers(1, &_id);
-    }
-
-    /// Bind VBO to current stack
-    void bind() {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id);
-    }
-
-    /// Unbind VBO from current stack
-    void unbind() {
-        glBindVertexArray(0);
-    }
-
-    mixin(GenerateFieldAccessors);
-}
-
-/**
-    GPU Vertex Buffer Object:
-
-    OpenGL feature that provides methods for uploading vertex data
-    (position, normal vector, color, etc.) to the video device
-    for non-immediate-mode rendering.
-*/
-final class VBO {
-    @Read private uint _id;
-
-    /// Ask the GPU to generate a new VBO
-    this(float[] vertex_buffer_data) {
-        glGenBuffers(1, &_id);
-        bind();
-
-        // Send buffer data to GPU
-        glBufferData(GL_ARRAY_BUFFER, float.sizeof * vertex_buffer_data.length,
-                vertex_buffer_data.ptr, GL_STATIC_DRAW);
-        vertex_buffer_data.destroy;
-    }
-
-    ~this() {
-        glDeleteBuffers(1, &_id);
-    }
-
-    /// Bind VBO to current stack
-    void bind() {
-        glBindBuffer(GL_ARRAY_BUFFER, _id);
-    }
-
-    /// Unbind VBO from current stack
-    void unbind() {
-        glBindVertexArray(0);
-    }
-
-    mixin(GenerateFieldAccessors);
-}
 
 private void init() {
     glEnable(GL_MULTISAMPLE);
@@ -229,8 +124,8 @@ void load() {
 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    if (Litecraft.instance.configuration.antiAliasing) {
-        auto level = Litecraft.instance.configuration.antiAliasingLevel;
+    if (config.antiAliasing) {
+        auto level = config.antiAliasingLevel;
         infof("Enabled anti-aliasing MSAA x%d", level);
 
         glfwWindowHint(GLFW_SAMPLES, level);
@@ -310,8 +205,8 @@ extern (C) {
     private void resizeWindow(GLFWwindow* window, int w, int h) nothrow {
         glViewport(0, 0, w, h);
 
-        Litecraft.instance.configuration.width = w;
-        Litecraft.instance.configuration.height = h;
+        config.width = w;
+        config.height = h;
     }
 
     private void mouseMove(GLFWwindow* window, double x, double y) nothrow {

@@ -17,44 +17,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+module gl.ebo;
+
 import accessors;
-import configuration;
-import scenes;
+import gl.render;
 
-/// Get Litecraft configuration
-ConfigurationAdapter config() nothrow {
-    return Litecraft.instance.configuration;
-}
+/**
+    Element Buffer Object
+*/
+final class EBO {
+    @Read private uint _id;
+    @Read private uint _size;
 
-/// Util class with some Game data
-final class Litecraft {
-    @Read private static Litecraft _instance;
+    /// Ask the GPU to generate a new VBO
+    this(ushort[] element_buffer_data) {
+        _size = cast(uint) element_buffer_data.length;
 
-    @Read @Write private ConfigurationAdapter _configuration;
+        glGenBuffers(1, &_id);
+        bind();
 
-    @Read private static const string _litecraft = "A1";
-    @Read private static const string _minecraft = "1.13";
-    @Read private static const string _clientbrand = "vanilla/litecraft";
+        // Send buffer data to GPU
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ushort.sizeof * element_buffer_data.length,
+                element_buffer_data.ptr, GL_STATIC_DRAW);
 
-    @Read @Write private static string _opengl;
-    @Read @Write private static string _glVendor;
-
-    @Read @Write private Scene _scene;
-
-    /// Create a new instance of Litecraft main class
-    this(ConfigurationAdapter configuration) {
-        _configuration = configuration;
-        _instance = this;
+        element_buffer_data.destroy;
     }
 
-    /// Get client width
-    static auto width() {
-        return _instance._configuration.width;
+    ~this() {
+        glDeleteBuffers(1, &_id);
     }
 
-    /// Get client height
-    static auto height() {
-        return _instance._configuration.height;
+    /// Bind VBO to current stack
+    void bind() {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id);
+    }
+
+    /// Unbind VBO from current stack
+    void unbind() {
+        glBindVertexArray(0);
     }
 
     mixin(GenerateFieldAccessors);

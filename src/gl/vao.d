@@ -17,44 +17,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+module gl.vao;
+
 import accessors;
-import configuration;
-import scenes;
+import gl.render;
 
-/// Get Litecraft configuration
-ConfigurationAdapter config() nothrow {
-    return Litecraft.instance.configuration;
-}
+/**
+    GPU Vertex Array Object:
 
-/// Util class with some Game data
-final class Litecraft {
-    @Read private static Litecraft _instance;
+    Encapsulate vertex array state on the GPU side.
+*/
+final class VAO {
+    @Read private uint _id;
 
-    @Read @Write private ConfigurationAdapter _configuration;
-
-    @Read private static const string _litecraft = "A1";
-    @Read private static const string _minecraft = "1.13";
-    @Read private static const string _clientbrand = "vanilla/litecraft";
-
-    @Read @Write private static string _opengl;
-    @Read @Write private static string _glVendor;
-
-    @Read @Write private Scene _scene;
-
-    /// Create a new instance of Litecraft main class
-    this(ConfigurationAdapter configuration) {
-        _configuration = configuration;
-        _instance = this;
+    /// Ask the GPU to generate a new VAO
+    this() {
+        glGenVertexArrays(1, &_id);
+        bind();
     }
 
-    /// Get client width
-    static auto width() {
-        return _instance._configuration.width;
+    ~this() {
+        glDeleteVertexArrays(1, &_id);
     }
 
-    /// Get client height
-    static auto height() {
-        return _instance._configuration.height;
+    /// Bind VAO to current stack
+    void bind() {
+        glBindVertexArray(_id);
+    }
+
+    /// Unbind VBO from current stack
+    void unbind() {
+        glBindVertexArray(0);
     }
 
     mixin(GenerateFieldAccessors);

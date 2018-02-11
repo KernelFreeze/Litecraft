@@ -17,44 +17,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+module gl.vbo;
+
 import accessors;
-import configuration;
-import scenes;
+import gl.render;
 
-/// Get Litecraft configuration
-ConfigurationAdapter config() nothrow {
-    return Litecraft.instance.configuration;
-}
+/**
+    GPU Vertex Buffer Object:
 
-/// Util class with some Game data
-final class Litecraft {
-    @Read private static Litecraft _instance;
+    OpenGL feature that provides methods for uploading vertex data
+    (position, normal vector, color, etc.) to the video device
+    for non-immediate-mode rendering.
+*/
+final class VBO {
+    @Read private uint _id;
 
-    @Read @Write private ConfigurationAdapter _configuration;
+    /// Ask the GPU to generate a new VBO
+    this(float[] vertex_buffer_data) {
+        glGenBuffers(1, &_id);
+        bind();
 
-    @Read private static const string _litecraft = "A1";
-    @Read private static const string _minecraft = "1.13";
-    @Read private static const string _clientbrand = "vanilla/litecraft";
-
-    @Read @Write private static string _opengl;
-    @Read @Write private static string _glVendor;
-
-    @Read @Write private Scene _scene;
-
-    /// Create a new instance of Litecraft main class
-    this(ConfigurationAdapter configuration) {
-        _configuration = configuration;
-        _instance = this;
+        // Send buffer data to GPU
+        glBufferData(GL_ARRAY_BUFFER, float.sizeof * vertex_buffer_data.length,
+                vertex_buffer_data.ptr, GL_STATIC_DRAW);
+        vertex_buffer_data.destroy;
     }
 
-    /// Get client width
-    static auto width() {
-        return _instance._configuration.width;
+    ~this() {
+        glDeleteBuffers(1, &_id);
     }
 
-    /// Get client height
-    static auto height() {
-        return _instance._configuration.height;
+    /// Bind VBO to current stack
+    void bind() {
+        glBindBuffer(GL_ARRAY_BUFFER, _id);
+    }
+
+    /// Unbind VBO from current stack
+    void unbind() {
+        glBindVertexArray(0);
     }
 
     mixin(GenerateFieldAccessors);
