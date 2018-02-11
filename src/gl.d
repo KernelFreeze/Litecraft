@@ -193,8 +193,7 @@ private void display() {
 
 /// Get orthographic projection for 2D rendering
 public mat4 orthoProjection() {
-    //return orthoMatrix(0.0f, Litecraft.width, 0.0f, Litecraft.height, 0.0f, 1.0f);
-    return orthoMatrix(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f);
+    return orthoMatrix(0.0f, Litecraft.width, 0.0f, Litecraft.height, 0.0f, 1.0f);
 }
 
 /// Free all resources used by GLFW; Don't call this from a callback!

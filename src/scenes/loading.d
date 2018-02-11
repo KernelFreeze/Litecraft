@@ -32,7 +32,9 @@ public final class LoadingScene : Scene {
 
     override void render2D() {
         // Render our fancy logo
-        //Quad.draw(Litecraft.width / 2, Litecraft.height / 2, 100, 100, texture("litecraft:logo"), shader("litecraft:litecraft"));
-        Quad.draw(mat4.identity, texture("litecraft:logo"), shader("litecraft:litecraft"));
+        auto location = vec2(Litecraft.width / 2.0, Litecraft.height / 2.0);
+        static auto size = vec2(300.0f, 300.0f);
+
+        Quad.draw(location, texture("litecraft:logo"), shader("litecraft:litecraft"), size);
     }
 }

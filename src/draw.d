@@ -50,21 +50,18 @@ public final class Quad : Drawable {
     }
 
     /// Draw primitive on screen
-    static void draw(uint x, uint y, uint width, uint height, Texture texture, Shader s = shader("litecraft:quad")) {
-        auto mtx = translationMatrix(vec3(cast(float) x, cast(float) y, 0.0f));
-        mtx *= scaleMatrix(vec3(cast(float) width, cast(float) height, 0.0f));
-        
-        draw(mtx, texture, s);
-    }
+    static void draw(vec2 position, Texture texture = texture("litecraft:logo"),
+            Shader s = shader("litecraft:quad"), vec2 size = vec2(10.0, 10.0), float rotation = 0.0f) {
 
-    /// Draw primitive on screen
-    static void draw(mat4 transform, Texture texture, Shader s = shader("litecraft:quad")) {
         auto i = cast(Quad) instance;
 
-        if (!i.isLoaded) return;
-        if (!texture.isLoaded) return;
+        if (!i.isLoaded)
+            return;
+        if (!texture.isLoaded)
+            return;
 
-        if (!s.isLoaded) return;
+        if (!s.isLoaded)
+            return;
 
         glFrontFace(GL_CW);
 
@@ -72,9 +69,17 @@ public final class Quad : Drawable {
         s.use;
         i.vao.bind;
 
-        s.set("uTransform", transform);
+        auto model = translationMatrix(vec3(position.x, position.y, 0.0f));
+
+        model *= translationMatrix(vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
+        model *= rotationMatrix(Axis.z, rotation);
+        model *= translationMatrix(vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
+
+        model *= scaleMatrix(vec3(size.x, size.y, 1.0f));
+
+        s.set("uTransform", model);
         s.set("uProjection", orthoProjection);
-        
+
         s.set("uTime", time);
         s.set("uTexture", 0);
         s.set("uResolution", vec2(Litecraft.width, Litecraft.height));
@@ -84,30 +89,30 @@ public final class Quad : Drawable {
 
     override void load() {
         // Generate and bind VAO
-        vao = new VAO;        
+        vao = new VAO;
 
         // Generate Vertex Buffer Object
-        vbo = new VBO([
-            // positions         // texture coords
-            0.5f,  0.5f,   1.0f, 1.0f,   // top right
-            0.5f, -0.5f,   1.0f, 0.0f,   // bottom right
-            -0.5f, -0.5f,  0.0f, 0.0f,   // bottom left
-            -0.5f,  0.5f,  0.0f, 1.0f    // top left
-        ]);
+        vbo = new VBO([ // positions         // texture coords
+                0.5f, 0.5f, 1.0f, 1.0f, // top right
+                0.5f, -0.5f, 1.0f, 0.0f, // bottom right
+                -0.5f,
+                -0.5f, 0.0f, 0.0f, // bottom left
+                -0.5f, 0.5f, 0.0f, 1.0f // top left
+                ]);
 
         // Positions
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * float.sizeof, cast(void*) 0);
         glEnableVertexAttribArray(0);
 
         // Texture coords
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * float.sizeof, cast(void*) (2 * float.sizeof));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * float.sizeof,
+                cast(void*)(2 * float.sizeof));
         glEnableVertexAttribArray(1);
 
         // Generate Element Buffer Object
-        ebo = new EBO([
-            0, 1, 3,   // first triangle
-            1, 2, 3    // second triangle
-        ]);
+        ebo = new EBO([0, 1, 3, // first triangle
+                1, 2, 3 // second triangle
+                ]);
     }
 
     override void unload(bool force = false) {
