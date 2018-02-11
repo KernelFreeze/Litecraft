@@ -418,7 +418,7 @@ public final class Shader : Loadable {
 
 /// Get or load a shader program by name
 Shader shader(string name) {
-    if (shaders[name] is null) {
+    if ((name in shaders) is null) {
         return new Shader(name);
     }
 
@@ -427,7 +427,7 @@ Shader shader(string name) {
 
 /// Get or load a texture by name
 Texture texture(string name) {
-    if (textures[name] is null) {
+    if ((name in textures) is null) {
         return new Texture(name);
     }
 

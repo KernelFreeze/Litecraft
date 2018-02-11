@@ -24,27 +24,24 @@ import std.experimental.logger;
 import litecraft;
 
 /// A drawable primitive element
-public abstract class Drawable : Loadable {
-    private static Drawable _instance;
+public abstract class Drawable(T) : Loadable {
+    protected static T _instance;
 
     /// Get a instance of this geometric
     public static auto instance() {
         return _instance;
     }
-
-    /// Create a new primitive
-    this() {
-        _instance = this;
-    }
 }
 
 /// 2D Quad
-public final class Quad : Drawable {
+public final class Quad : Drawable!Quad {
     private VAO vao; // Status
     private VBO vbo; // Vertex
     private EBO ebo; // Elements
 
     this() {
+        this._instance = this;
+
         this.name = "quad_primitive";
         this.namespace = "litecraft";
     }
@@ -53,10 +50,14 @@ public final class Quad : Drawable {
     static void draw(vec2 position, Texture texture = texture("litecraft:logo"),
             Shader s = shader("litecraft:quad"), vec2 size = vec2(10.0, 10.0), float rotation = 0.0f) {
 
-        auto i = cast(Quad) instance;
-
-        if (!i.isLoaded)
+        if (instance is null) {
+            warning("Tried to draw unloaded primitive");
             return;
+        }
+
+        if (!instance.isLoaded)
+            return;
+
         if (!texture.isLoaded)
             return;
 
@@ -67,7 +68,7 @@ public final class Quad : Drawable {
 
         texture.bind;
         s.use;
-        i.vao.bind;
+        instance.vao.bind;
 
         auto model = translationMatrix(vec3(position.x, position.y, 0.0f));
 
@@ -84,7 +85,7 @@ public final class Quad : Drawable {
         s.set("uTexture", 0);
         s.set("uResolution", vec2(Litecraft.width, Litecraft.height));
 
-        glDrawElements(GL_TRIANGLES, i.ebo.size, GL_UNSIGNED_SHORT, null);
+        glDrawElements(GL_TRIANGLES, instance.ebo.size, GL_UNSIGNED_SHORT, null);
     }
 
     override void load() {
@@ -92,13 +93,13 @@ public final class Quad : Drawable {
         vao = new VAO;
 
         // Generate Vertex Buffer Object
-        vbo = new VBO([ // positions         // texture coords
-                0.5f, 0.5f, 1.0f, 1.0f, // top right
-                0.5f, -0.5f, 1.0f, 0.0f, // bottom right
-                -0.5f,
-                -0.5f, 0.0f, 0.0f, // bottom left
-                -0.5f, 0.5f, 0.0f, 1.0f // top left
-                ]);
+        vbo = new VBO(
+        [ // positions         // texture coords
+            0.5f, 0.5f,          1.0f, 1.0f, // top right
+            0.5f, -0.5f,         1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f,        0.0f, 0.0f, // bottom left
+            -0.5f, 0.5f,         0.0f, 1.0f  // top left
+        ]);
 
         // Positions
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * float.sizeof, cast(void*) 0);
@@ -110,9 +111,82 @@ public final class Quad : Drawable {
         glEnableVertexAttribArray(1);
 
         // Generate Element Buffer Object
-        ebo = new EBO([0, 1, 3, // first triangle
-                1, 2, 3 // second triangle
-                ]);
+        ebo = new EBO([
+            0, 1, 3, // first triangle
+            1, 2, 3 // second triangle
+        ]);
+    }
+
+    override void unload(bool force = false) {
+        if (isLoaded || force) {
+            infof("Unloading geometry '%s'", name);
+
+            vao.destroy;
+            vbo.destroy;
+            ebo.destroy;
+        }
+    }
+}
+
+/// 2D Full Screen Quad
+public final class FullScreenQuad : Drawable!FullScreenQuad {
+    private VAO vao; // Status
+    private VBO vbo; // Vertex
+    private EBO ebo; // Elements
+
+    this() {
+        this._instance = this;
+
+        this.name = "fullscreen_primitive";
+        this.namespace = "litecraft";
+    }
+
+    /// Draw primitive on screen
+    static void draw(Shader s) {
+        if (instance is null) {
+            warning("Tried to draw unloaded primitive");
+            return;
+        }
+
+        if (!instance.isLoaded)
+            return;
+
+        if (!s.isLoaded)
+            return;
+
+        glFrontFace(GL_CW);
+
+        s.use;
+        instance.vao.bind;
+
+        s.set("uTime", time);
+        s.set("uResolution", vec2(Litecraft.width, Litecraft.height));
+
+        glDrawElements(GL_TRIANGLES, instance.ebo.size, GL_UNSIGNED_SHORT, null);
+    }
+
+    override void load() {
+        // Generate and bind VAO
+        vao = new VAO;
+
+        // Generate Vertex Buffer Object
+        vbo = new VBO(
+        [ // positions
+            1.0f, 1.0f,
+            1.0f, -1.0f,
+            -1.0f, -1.0f,
+            -1.0f, 1.0f,
+        ]);
+
+        // Positions
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * float.sizeof, cast(void*) 0);
+        glEnableVertexAttribArray(0);
+
+        // Generate Element Buffer Object
+        ebo = new EBO([
+            0, 1, 3, // first triangle
+            1, 2, 3 // second triangle
+        ]);
     }
 
     override void unload(bool force = false) {

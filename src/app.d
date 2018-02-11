@@ -37,15 +37,22 @@ void main() {
 	try {
 		auto configuration = new SDLConfigurationAdapter;
 		auto litecraft = new Litecraft(configuration);
+		
 		litecraft.scene = new LoadingScene;
+
+		/*******************
+		* Create load queue
+		********************/
 
 		// Shaders
 		new Shader("litecraft").loadResource;
 		new Shader("block").loadResource;
 		new Shader("quad").loadResource;
+		new Shader("noise").loadResource;
 
 		// Primitives
 		new Quad().loadResource;
+		new FullScreenQuad().loadResource;
 
 		// Textures
 		new Texture("logo", "litecraft").loadResource;

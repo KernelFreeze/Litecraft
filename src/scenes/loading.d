@@ -31,6 +31,8 @@ public final class LoadingScene : Scene {
     }
 
     override void render2D() {
+        FullScreenQuad.draw(shader("litecraft:noise"));
+
         // Render our fancy logo
         auto location = vec2(Litecraft.width / 2.0, Litecraft.height / 2.0);
         static auto size = vec2(300.0f, 300.0f);
