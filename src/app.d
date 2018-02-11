@@ -37,6 +37,7 @@ void main() {
 		new Litecraft(new SDLConfigurationAdapter);
 
 		// Shaders
+		new Shader("litecraft").loadResource;
 		new Shader("block").loadResource;
 		new Shader("quad").loadResource;
 

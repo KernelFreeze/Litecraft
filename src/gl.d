@@ -180,9 +180,7 @@ private void display() {
     import dlib.math;
     import resource_manager;
 
-    auto trans = scaleMatrix(vec3(0.5f, 0.5f, 0.5f)) * rotationMatrix(Axis.z, time);
-
-    Quad.draw(trans, texture("litecraft:logo"));
+    Quad.draw(mat4.identity, texture("litecraft:logo"), shader("litecraft:litecraft"));
 }
 
 /// Free all resources used by GLFW; Don't call this from a callback!

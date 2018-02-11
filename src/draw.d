@@ -21,6 +21,7 @@ import gl;
 import resource_manager;
 import dlib.math;
 import std.experimental.logger;
+import litecraft;
 
 /// A drawable primitive element
 public abstract class Drawable : Loadable {
@@ -49,13 +50,11 @@ public final class Quad : Drawable {
     }
 
     /// Draw primitive on screen
-    static void draw(mat4 transform, Texture texture) {
+    static void draw(mat4 transform, Texture texture, Shader s = shader("litecraft:quad")) {
         auto i = cast(Quad) instance;
 
         if (!i.isLoaded) return;
         if (!texture.isLoaded) return;
-
-        auto s = shader("litecraft:quad");
 
         if (!s.isLoaded) return;
 
@@ -63,18 +62,17 @@ public final class Quad : Drawable {
         s.use;
         i.vao.bind;
 
-        s.set("transform", transform);
+        s.set("uTransform", transform);
+        s.set("uTime", time);
+        s.set("uTexture", 0);
+        s.set("uResolution", vec2(Litecraft.width, Litecraft.height));
 
         glDrawElements(GL_TRIANGLES, i.ebo.size, GL_UNSIGNED_SHORT, null);
     }
 
     override void load() {
         // Generate and bind VAO
-        vao = new VAO;
-
-        auto s = shader("litecraft:quad");
-        s.use;
-        s.set("uTexture", 0);
+        vao = new VAO;        
 
         // Generate Vertex Buffer Object
         vbo = new VBO([

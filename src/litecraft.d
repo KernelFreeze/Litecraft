@@ -40,13 +40,13 @@ final class Litecraft {
     }
 
     /// Get client width
-    auto width() {
-        return _configuration.width;
+    static auto width() {
+        return _instance._configuration.width;
     }
 
     /// Get client height
-    auto height() {
-        return _configuration.height;
+    static auto height() {
+        return _instance._configuration.height;
     }
 
     mixin(GenerateFieldAccessors);

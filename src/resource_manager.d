@@ -186,8 +186,8 @@ public final class Texture : AsyncLoadable {
 
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
         // set texture filtering parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -380,18 +380,23 @@ public final class Shader : Loadable {
     }
 
     /// Set uniform with value
+    void set(string u, float value) {
+        glUniform1f(uniform(u), value);
+    }
+
+    /// Set uniform with value
     void set(string u, mat4 value) {
         glUniformMatrix4fv(uniform(u), 1, GL_FALSE, value.arrayof.ptr);
     }
 
+    /// Set uniform with value
+    void set(string u, vec2 value) {
+        glUniform2fv(uniform(u), 1, value.arrayof.ptr);
+    }
+
     /// Get Shader uniform
     uint uniform(string u) {
-        auto unif = glGetUniformLocation(program, u.toStringz);
-
-        if (unif >= GL_MAX_VERTEX_ATTRIBS) {
-            warningf("Uniform '%s' for program '%s' is invalid!", u, name);
-        }
-        return unif;
+        return glGetUniformLocation(program, u.toStringz);
     }
 
     /// Get attribute shader attribute location
