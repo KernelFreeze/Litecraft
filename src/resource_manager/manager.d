@@ -36,6 +36,8 @@ private static Shader[string] shaders;
 private static SafeQueue!Loadable loadQueue;
 private static Loadable[] loadedResources;
 
+private static uint pendingAsync;
+
 /// Ensure we free all resources...
 shared static ~this() {
     foreach (resource; loadedResources) {
@@ -43,6 +45,11 @@ shared static ~this() {
         resource.isLoaded = false;
         resource.destroy;
     }
+}
+
+/// Check if everything is loaded
+bool isGameLoaded() {
+    return pendingAsync <= 0 && loadQueue.empty;
 }
 
 /// Do a pending load tick
@@ -55,10 +62,14 @@ void loadResources() {
                 auto t = task!preLoadResource(asyncResource);
                 taskPool.put(t);
 
+                pendingAsync++;
+
                 // Request another resource load as this task is running async...
                 loadResources();
                 return;
             }
+
+            pendingAsync--;
         }
 
         auto type = typeid(resource).toString.split(".")[$ - 1];

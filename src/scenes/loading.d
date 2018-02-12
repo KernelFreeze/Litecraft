@@ -19,7 +19,7 @@
 
 module scenes.loading;
 
-import scenes.scene;
+import scenes;
 import dlib.math;
 import resource_manager;
 import litecraft;
@@ -28,10 +28,14 @@ import gui;
 /// Show a fancy loading screen...
 public final class LoadingScene : Scene {
     override void render3D() {
-
+        
     }
 
     override void render2D() {
+        if (isGameLoaded) {
+            Litecraft.instance.scene = new MainMenu;
+        }
+
         FullScreenQuad.draw(shader("litecraft:noise"));
 
         // Render our fancy logo

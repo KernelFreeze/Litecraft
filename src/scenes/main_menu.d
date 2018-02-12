@@ -17,10 +17,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-module scenes;
+module scenes.main_menu;
 
-public {
-    import scenes.scene;
-    import scenes.loading;
-    import scenes.main_menu;
+import scenes.scene;
+import dlib.math;
+import resource_manager;
+import litecraft;
+import gui;
+import gl : closeGame;
+
+/// Show a fancy loading screen...
+public final class MainMenu : Scene {
+    private bool show = true;
+
+    override void render3D() {
+
+    }
+
+    override void render2D() {
+        FullScreenQuad.draw(shader("litecraft:noise"));
+
+        auto w = Window("Litecraft", &show, 330, 390, Litecraft.width / 2, Litecraft.height / 2);
+
+        w.button("Single-Player");
+        w.button("Multi-Player");
+
+        w.button("Options");
+        
+        if (w.button("Close") || !show) {
+            closeGame();
+        }
+    }
 }

@@ -21,6 +21,7 @@ module gui.draw;
 
 import derelict.imgui.imgui;
 import std.string : toStringz;
+import dlib.core.oop;
 
 /// Draw a GUI Window
 struct Window {
@@ -29,9 +30,38 @@ struct Window {
         igBegin(name.toStringz);
     }
 
+    /// Create a window, and set size
+    this(string name, uint w, uint h) {
+        igSetNextWindowSize(ImVec2(w, h), ImGuiSetCond_FirstUseEver);
+        igBegin(name.toStringz);
+    }
+
+    /// Create a window, set size and position
+    this(string name, uint w, uint h, uint x, uint y) {
+        igSetNextWindowSize(ImVec2(w, h), ImGuiSetCond_FirstUseEver);
+        igSetNextWindowPos(ImVec2(x - (w / 2), y - (h / 2)), ImGuiSetCond_FirstUseEver);
+
+        igBegin(name.toStringz);
+    }
+
     /// Create a closeable window
-    this(string name, out bool show) {
-        igBegin(name.toStringz, &show);
+    this(string name, bool* show) {
+        igBegin(name.toStringz, show);
+    }
+
+    /// Create a closeable window
+    this(string name, bool* show, uint w, uint h) {
+        igSetNextWindowSize(ImVec2(w, h), ImGuiSetCond_FirstUseEver);
+        
+        igBegin(name.toStringz, show);
+    }
+
+    /// Create a closeable window, set size and position
+    this(string name, bool* show, uint w, uint h, uint x, uint y) {
+        igSetNextWindowSize(ImVec2(w, h), ImGuiSetCond_FirstUseEver);
+        igSetNextWindowPos(ImVec2(x - (w / 2), y - (h / 2)), ImGuiSetCond_FirstUseEver);
+
+        igBegin(name.toStringz, show);
     }
 
     ~this() {
@@ -47,4 +77,18 @@ struct Window {
     bool button(string text) {
         return igButton(text.toStringz);
     }
+}
+
+/// Invisible Window for draw elements
+struct HeadlessWindow {
+    /// Create window
+    this(string name) {
+        auto flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+            | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings
+            | ImGuiWindowFlags_NoInputs;
+
+        igBegin(name.toStringz, null, flags);
+    }
+
+    mixin Inherit!(Window);
 }

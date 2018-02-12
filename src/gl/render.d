@@ -106,6 +106,10 @@ public mat4 orthoProjection() {
     return orthoMatrix(0.0f, Litecraft.width, 0.0f, Litecraft.height, 0.0f, 1.0f);
 }
 
+void closeGame() {
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
 /// Free all resources used by GLFW; Don't call this from a callback!
 private void close() nothrow {
     try {
@@ -169,6 +173,7 @@ void load() {
     }
 
     scope (exit) {
+        glfwDestroyWindow(window);
         close();
     }
 
