@@ -17,27 +17,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-module scenes.loading;
+module gui;
 
-import scenes.scene;
-import dlib.math;
-import resource_manager;
-import litecraft;
-import gui;
-
-/// Show a fancy loading screen...
-public final class LoadingScene : Scene {
-    override void render3D() {
-
-    }
-
-    override void render2D() {
-        FullScreenQuad.draw(shader("litecraft:noise"));
-
-        // Render our fancy logo
-        auto location = vec2(Litecraft.width / 2.0, Litecraft.height / 2.0);
-        static auto size = vec2(300.0f, 300.0f);
-
-        Quad.draw(location, texture("litecraft:logo"), shader("litecraft:litecraft"), size);
-    }
+public {
+    import gui.draw;
 }

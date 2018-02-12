@@ -19,16 +19,21 @@
 
 module gl.render;
 
-import accessors;
 import derelict.opengl;
 import derelict.glfw3.glfw3;
+import derelict.imgui.imgui;
+
+import accessors;
+import dlib.math : mat4, orthoMatrix;
+
 import draw;
+import gui.imgui;
 import litecraft;
 import configuration;
+
 import std.experimental.logger;
 import std.string : toStringz, format;
 import std.conv : to;
-import dlib.math : mat4, orthoMatrix;
 
 mixin glFreeFuncs!(GLVersion.gl33);
 
@@ -57,6 +62,7 @@ private void init() {
 
     // Enable transparency
     glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -83,13 +89,16 @@ private void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // 3D
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     Litecraft.instance.scene.render3D();
 
     // 2D
     glDisable(GL_DEPTH_TEST);
 
+    imguiStartFrame();
     Litecraft.instance.scene.render2D();
+    igRender();
 }
 
 /// Get orthographic projection for 2D rendering
@@ -101,6 +110,7 @@ public mat4 orthoProjection() {
 private void close() nothrow {
     try {
         glfwTerminate();
+        imguiShutdown();
 
         info("Released GLFW resources!");
     }
@@ -111,7 +121,21 @@ private void close() nothrow {
 /// Initialize and load Litecraft engine
 void load() {
     DerelictGL3.load();
-    DerelictGLFW3.load();
+
+    version (linux) {
+        DerelictGLFW3.load();
+        DerelictImgui.load("libs/linux/imgui.so");
+    }
+
+    version (Windows) {
+        DerelictGLFW3.load("libs/windows/glfw3.so");
+        DerelictImgui.load("libs/windows/imgui.dll");
+    }
+
+    version (OSX) {
+        DerelictGLFW3.load();
+        DerelictImgui.load("libs/osx/imgui.so");
+    }
 
     if (!glfwInit()) {
         error("I can't start GLFW, please upgrade your GPU drivers");
@@ -172,6 +196,8 @@ void load() {
 
     init();
     register();
+
+    window.imguiInit();
 
     while (!glfwWindowShouldClose(window)) {
         import resource_manager : loadResources;

@@ -17,27 +17,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-module scenes.loading;
+module gui.draw;
 
-import scenes.scene;
-import dlib.math;
-import resource_manager;
-import litecraft;
-import gui;
+import derelict.imgui.imgui;
+import std.string : toStringz;
 
-/// Show a fancy loading screen...
-public final class LoadingScene : Scene {
-    override void render3D() {
-
+/// Draw a GUI Window
+struct Window {
+    /// Create a window
+    this(string name) {
+        igBegin(name.toStringz);
     }
 
-    override void render2D() {
-        FullScreenQuad.draw(shader("litecraft:noise"));
+    /// Create a closeable window
+    this(string name, out bool show) {
+        igBegin(name.toStringz, &show);
+    }
 
-        // Render our fancy logo
-        auto location = vec2(Litecraft.width / 2.0, Litecraft.height / 2.0);
-        static auto size = vec2(300.0f, 300.0f);
+    ~this() {
+        igEnd();
+    }
 
-        Quad.draw(location, texture("litecraft:logo"), shader("litecraft:litecraft"), size);
+    /// Add text to window
+    void text(string text) {
+        igText(text.toStringz);
+    }
+
+    /// Show and get a button
+    bool button(string text) {
+        return igButton(text.toStringz);
     }
 }
