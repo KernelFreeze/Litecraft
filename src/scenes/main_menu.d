@@ -35,25 +35,25 @@ public final class MainMenu : Scene {
     override void render2D() {
          switch (cast(uint) (time() / 10 % 7)) {
             case 0:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_1"));
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_1"), shader("litecraft:blur"));
                 break;
             case 1:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_2"));
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_2"), shader("litecraft:blur"));
                 break;
             case 2:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_3"));
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_3"), shader("litecraft:blur"));
                 break;
             case 3:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_4"));
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_4"), shader("litecraft:blur"));
                 break;
             case 4:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_5"));
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_5"), shader("litecraft:blur"));
                 break;
             case 5:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_6"));
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_6"), shader("litecraft:blur"));
                 break;
             default:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_7"));
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_7"), shader("litecraft:blur"));
                 break;
         }
 

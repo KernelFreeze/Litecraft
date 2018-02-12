@@ -50,6 +50,7 @@ void main() {
 		new Shader("block").loadResource;
 		new Shader("quad").loadResource;
 		new Shader("noise").loadResource;
+		new Shader("blur").loadResource;
 
 		// Primitives
 		new Quad().loadResource;

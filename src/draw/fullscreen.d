@@ -105,7 +105,7 @@ public final class TexturedFullScreenQuad : Drawable!TexturedFullScreenQuad {
     this() {
         this._instance = this;
 
-        this.name = "quad_primitive";
+        this.name = "fullscreen_textured_primitive";
         this.namespace = "litecraft";
     }
 
