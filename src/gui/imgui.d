@@ -37,7 +37,7 @@ void imguiInit(GLFWwindow* window, bool install_callbacks = true) {
     io.GetClipboardTextFn = &igImplGlfwGL3_GetClipboardText;
 
     auto font = resourcePath("font.otf", "fonts", "litecraft").toStringz;
-    ImFontAtlas_AddFontFromFileTTF(io.Fonts, font, 16, null);
+    ImFontAtlas_AddFontFromFileTTF(io.Fonts, font, 18, null);
 
     auto colors = igGetStyle().Colors;
 

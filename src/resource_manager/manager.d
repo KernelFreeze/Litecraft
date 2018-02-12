@@ -29,10 +29,6 @@ import std.parallelism : task, taskPool;
 import util;
 import resource_manager;
 
-private static Texture[string] textures;
-private static AnimatedTexture[string] animated_textures;
-private static Shader[string] shaders;
-
 private static SafeQueue!Loadable loadQueue;
 private static Loadable[] loadedResources;
 

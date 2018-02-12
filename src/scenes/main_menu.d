@@ -24,27 +24,47 @@ import dlib.math;
 import resource_manager;
 import litecraft;
 import gui;
-import gl : closeGame;
+import gl : closeGame, time;
 
 /// Show a fancy loading screen...
 public final class MainMenu : Scene {
-    private bool show = true;
-
     override void render3D() {
 
     }
 
     override void render2D() {
-        FullScreenQuad.draw(shader("litecraft:noise"));
+         switch (cast(uint) (time() / 10 % 7)) {
+            case 0:
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_1"));
+                break;
+            case 1:
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_2"));
+                break;
+            case 2:
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_3"));
+                break;
+            case 3:
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_4"));
+                break;
+            case 4:
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_5"));
+                break;
+            case 5:
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_6"));
+                break;
+            default:
+                TexturedFullScreenQuad.draw(texture("litecraft:menu_7"));
+                break;
+        }
 
-        auto w = Window("Litecraft", &show, 330, 390, Litecraft.width / 2, Litecraft.height / 2);
+        auto w = Window("Litecraft", 330, 390, Litecraft.width / 2, Litecraft.height / 2);
 
-        w.button("Single-Player");
-        w.button("Multi-Player");
+        w.bigButton("Single-Player");
+        w.bigButton("Multi-Player");
 
-        w.button("Options");
+        w.bigButton("Options");
         
-        if (w.button("Close") || !show) {
+        if (w.bigButton("Close")) {
             closeGame();
         }
     }

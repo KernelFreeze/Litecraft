@@ -46,6 +46,7 @@ void main() {
 
 		// Shaders
 		new Shader("litecraft").loadResource;
+		new Shader("fullquad").loadResource;
 		new Shader("block").loadResource;
 		new Shader("quad").loadResource;
 		new Shader("noise").loadResource;
@@ -53,9 +54,18 @@ void main() {
 		// Primitives
 		new Quad().loadResource;
 		new FullScreenQuad().loadResource;
+		new TexturedFullScreenQuad().loadResource;
 
 		// Textures
 		new Texture("logo", "litecraft").loadResource;
+
+		new Texture("menu_1", "litecraft").loadResource;
+		new Texture("menu_2", "litecraft").loadResource;
+		new Texture("menu_3", "litecraft").loadResource;
+		new Texture("menu_4", "litecraft").loadResource;
+		new Texture("menu_5", "litecraft").loadResource;
+		new Texture("menu_6", "litecraft").loadResource;
+		new Texture("menu_7", "litecraft").loadResource;
 
 		load();
 		configuration.save();

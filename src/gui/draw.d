@@ -77,6 +77,11 @@ struct Window {
     bool button(string text) {
         return igButton(text.toStringz);
     }
+
+    /// Show and get full size button
+    bool bigButton(string text) {
+        return igButton(text.toStringz, ImVec2(igGetWindowWidth() - 40.0f, 40.0f));
+    }
 }
 
 /// Invisible Window for draw elements
