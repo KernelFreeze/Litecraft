@@ -44,7 +44,7 @@ private ImageRGBA8 invertImage(SuperImage img) {
 
 /// GPU Texture
 public final class Texture : AsyncLoadable {
-    private uint _id;
+    @Read private uint _id;
     @Read private ubyte[] _data;
     @Read private uint _width, _height;
 

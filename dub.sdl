@@ -8,6 +8,7 @@ dependency "derelict-glfw3" version="~>4.0.0-beta"
 dependency "derelict-gl3" version="~>2.0.0-beta"
 dependency "derelict-imgui" version="~>0.9.4"
 dependency "accessors" version="~>1.2.4"
+dependency "colorize" version="~>1.0.5"
 dependency "sdlang-d" version="~>0.10.1"
 dependency "dlib" version="~>0.12.2"
 

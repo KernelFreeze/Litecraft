@@ -25,6 +25,7 @@ import dlib.core.oop;
 
 import gl : isKeyPressed;
 import derelict.glfw3.glfw3 : GLFW_KEY_ESCAPE;
+import resource_manager : Texture;
 
 /// Draw a GUI Window
 struct Window {
@@ -59,7 +60,7 @@ struct Window {
     /// Create a closeable window
     this(string name, bool* show, uint w, uint h) {
         igSetNextWindowSize(ImVec2(w, h), ImGuiSetCond_FirstUseEver);
-        
+
         igBegin(name.toStringz, show);
 
         if (isKeyPressed(GLFW_KEY_ESCAPE)) {
@@ -86,8 +87,7 @@ struct Window {
     /// Draw FPS
     void fps() {
         igText("Application average %.3f ms/frame (%.1f FPS)",
-            1000.0f / igGetIO().Framerate,
-            igGetIO().Framerate);
+                1000.0f / igGetIO().Framerate, igGetIO().Framerate);
     }
 
     /// Add text to window
@@ -103,6 +103,11 @@ struct Window {
     /// Show and get full size button
     bool bigButton(string text) {
         return igButton(text.toStringz, ImVec2(igGetWindowWidth() - 40.0f, 40.0f));
+    }
+
+    /// Show a textured image
+    void image(Texture texture, uint w, uint h) {
+        igImage(cast(void*) texture.id, ImVec2(w, h));
     }
 }
 

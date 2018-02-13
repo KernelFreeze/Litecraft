@@ -18,13 +18,18 @@
 */
 
 import std.experimental.logger;
-import std.stdio;
+import std.stdio : writeln;
 import gl;
 import draw;
 import configuration;
 import litecraft;
 import resource_manager;
 import scenes;
+
+/// Define global logger
+shared static this() {
+	stdThreadLocalLog = new LitecraftLogger(LogLevel.all);
+}
 
 void main() {
 	// Litecraft logo
@@ -37,7 +42,7 @@ void main() {
 	try {
 		auto configuration = new SDLConfigurationAdapter;
 		auto litecraft = new Litecraft(configuration);
-		
+
 		litecraft.scene = new LoadingScene;
 
 		/*******************

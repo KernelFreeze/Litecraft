@@ -86,6 +86,8 @@ void loadResource(Loadable resource) {
 
 /// Pre-load a resource, you should call loadResource instead...
 void preLoadResource(AsyncLoadable resource) {
+    stdThreadLocalLog = new LitecraftLogger(LogLevel.all);
+
     auto type = typeid(resource).toString.split(".")[$ - 1];
     infof("Pre-Loading %s '%s:%s'...", type, resource.namespace, resource.name);
 
@@ -96,7 +98,8 @@ void preLoadResource(AsyncLoadable resource) {
 
         // Add resource to the queue again, but this time will be full loaded...
         resource.loadResource;
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
         infof("Fatal error in worker thread: %s\n%s", e.toString, e.info);
     }
 }
@@ -144,4 +147,47 @@ ubyte[] loadBinaryResource(string name, string type, string namespace = "minecra
 string resourcePath(string name, string type, string namespace) {
     // TODO: Look-up on resource packs
     return "resources/%s/%s/%s".format(namespace, type, name);
+}
+
+/// Litecraft logger
+public final class LitecraftLogger : Logger {
+    import colorize : fg, color, cwrite;
+    import std.stdio : write;
+    import util.datetimeformat : format;
+
+    /// Create a beautiful logger
+    this(LogLevel lv) @safe {
+        super(lv);
+    }
+
+    @trusted private string getLogLevel(LogLevel level) {
+        switch (level) {
+        case level.info:
+            return "[INFO]".color(fg.light_cyan);
+        case level.warning:
+            return "[WARN]".color(fg.yellow);
+        case level.error:
+            return "[ERROR]".color(fg.magenta);
+        case level.fatal:
+            return "[FATAL]".color(fg.magenta);
+        case level.critical:
+            return "[CRITICAL]".color(fg.magenta);
+        case level.trace:
+            return "[TRACE]".color(fg.yellow);
+        default:
+            return "[LOG]".color(fg.light_green);
+        }
+    }
+
+    @trusted override void writeLogMsg(ref LogEntry payload) {
+        auto dt = payload.timestamp;
+        auto formated = dt.format("HH:ii:ss");
+
+        cwrite(formated.color(fg.light_black));
+        write(" ");
+        cwrite(getLogLevel(payload.logLevel));
+        write("  ");
+        cwrite(payload.msg.color(fg.light_white));
+        write("\n");
+    }
 }
