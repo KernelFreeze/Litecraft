@@ -2,7 +2,6 @@
 .vscode/
 docs.json
 __dummy.html
-docs/
 /litecraft
 /litecraft.so
 /litecraft.dylib
