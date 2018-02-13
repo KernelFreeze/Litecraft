@@ -32,13 +32,21 @@ import resource_manager;
 
 private static Texture[string] textures;
 
+private ImageRGBA8 invertImage(SuperImage img) {
+    auto res = new ImageRGBA8(img.width, img.height);
+
+    foreach (x; 0 .. img.width)
+        foreach (y; 0 .. img.height)
+            res[x, y] = img[x, img.height - 1 - y];
+
+    return res;
+}
+
 /// GPU Texture
 public final class Texture : AsyncLoadable {
-    @Read private uint _id;
+    private uint _id;
     @Read private ubyte[] _data;
-    @Read uint _width, _height;
-
-    private uint internalFormat, format;
+    @Read private uint _width, _height;
 
     /// Create a GPU texture
     this(string name, string namespace = "minecraft") {
@@ -54,31 +62,12 @@ public final class Texture : AsyncLoadable {
         this._width = texture.width;
         this._height = texture.height;
 
-        switch (texture.pixelFormat) {
-        case PixelFormat.RGB8:
-            internalFormat = GL_RGB8;
-            format = GL_RGB;
-            this._data = rotateImage(texture, 180).data;
-            break;
-        case PixelFormat.RGBA8:
-            internalFormat = GL_RGBA8;
-            format = GL_RGBA;
-            this._data = texture.data;
-            break;
-        case PixelFormat.RGB16:
-            internalFormat = GL_RGB16;
-            format = GL_RGB;
-            this._data = rotateImage(texture, 180).data;
-            break;
-        case PixelFormat.RGBA_FLOAT:
-        case PixelFormat.RGBA16:
-            internalFormat = GL_RGBA16;
-            format = GL_RGBA;
-            this._data = texture.data;
-            break;
-        default:
-            throw new Exception("Unsupported PNG image format");
+        if (texture.pixelFormat == PixelFormat.RGB8 || texture.pixelFormat == PixelFormat.RGB16) {
+            this._data = invertImage(texture).data;
+            return;
         }
+        
+        this._data = texture.data;
     }
 
     override void unload(bool force = false) {
@@ -108,13 +97,14 @@ public final class Texture : AsyncLoadable {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width,
-                height, 0, format, GL_UNSIGNED_BYTE, data.ptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+                    GL_UNSIGNED_BYTE, data.ptr);
     }
 
+    /// Make texture current
     void bind() {
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, id);
+        glBindTexture(GL_TEXTURE_2D, _id);
     }
 
     mixin(GenerateFieldAccessors);

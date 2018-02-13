@@ -23,6 +23,9 @@ import derelict.imgui.imgui;
 import std.string : toStringz;
 import dlib.core.oop;
 
+import gl : isKeyPressed;
+import derelict.glfw3.glfw3 : GLFW_KEY_ESCAPE;
+
 /// Draw a GUI Window
 struct Window {
     /// Create a window
@@ -47,6 +50,10 @@ struct Window {
     /// Create a closeable window
     this(string name, bool* show) {
         igBegin(name.toStringz, show);
+
+        if (isKeyPressed(GLFW_KEY_ESCAPE)) {
+            *show = true;
+        }
     }
 
     /// Create a closeable window
@@ -54,6 +61,10 @@ struct Window {
         igSetNextWindowSize(ImVec2(w, h), ImGuiSetCond_FirstUseEver);
         
         igBegin(name.toStringz, show);
+
+        if (isKeyPressed(GLFW_KEY_ESCAPE)) {
+            *show = true;
+        }
     }
 
     /// Create a closeable window, set size and position
@@ -62,10 +73,21 @@ struct Window {
         igSetNextWindowPos(ImVec2(x - (w / 2), y - (h / 2)), ImGuiSetCond_FirstUseEver);
 
         igBegin(name.toStringz, show);
+
+        if (isKeyPressed(GLFW_KEY_ESCAPE)) {
+            *show = true;
+        }
     }
 
     ~this() {
         igEnd();
+    }
+
+    /// Draw FPS
+    void fps() {
+        igText("Application average %.3f ms/frame (%.1f FPS)",
+            1000.0f / igGetIO().Framerate,
+            igGetIO().Framerate);
     }
 
     /// Add text to window

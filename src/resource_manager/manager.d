@@ -89,11 +89,16 @@ void preLoadResource(AsyncLoadable resource) {
     auto type = typeid(resource).toString.split(".")[$ - 1];
     infof("Pre-Loading %s '%s:%s'...", type, resource.namespace, resource.name);
 
-    resource.asyncLoad();
-    resource.isPreLoaded = true;
+    try {
+        resource.asyncLoad();
 
-    // Add resource to the queue again, but this time will be full loaded...
-    resource.loadResource;
+        resource.isPreLoaded = true;
+
+        // Add resource to the queue again, but this time will be full loaded...
+        resource.loadResource;
+    } catch (Exception e) {
+        infof("Fatal error in worker thread: %s\n%s", e.toString, e.info);
+    }
 }
 
 /// Represents a resource that can be loaded at initialization

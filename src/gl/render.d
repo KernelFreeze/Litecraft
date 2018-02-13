@@ -71,6 +71,11 @@ public auto time() {
     return cast(float) glfwGetTime();
 }
 
+/// Check if a key is being presse
+public bool isKeyPressed(int key) {
+    return glfwGetKey(window, key) == GLFW_PRESS;
+}
+
 /// Center and hide mouse pointer
 public void hidePointer() {
     // Hide the mouse and enable unlimited movement
