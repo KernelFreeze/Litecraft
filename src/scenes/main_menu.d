@@ -59,7 +59,7 @@ public final class MainMenu : Scene {
 
         auto w = Window("Litecraft", 330, 390, Litecraft.width / 2, Litecraft.height / 2);
 
-        w.image(texture("litecraft:logo"), 40, 40);
+        w.centeredImage(texture("litecraft:logo"), 80, 80);
 
         w.bigButton("Single-Player");
         w.bigButton("Multi-Player");

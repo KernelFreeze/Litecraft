@@ -16,6 +16,6 @@ public abstract class Scene {
     protected this() {
         auto type = typeid(this).toString.split(".")[$ - 1];
 
-        infof("Loading scene %s...", type);
+        infof("Loading scene '%s'...", type);
     }
 }

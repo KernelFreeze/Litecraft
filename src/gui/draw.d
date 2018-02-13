@@ -27,8 +27,43 @@ import gl : isKeyPressed;
 import derelict.glfw3.glfw3 : GLFW_KEY_ESCAPE;
 import resource_manager : Texture;
 
+/// Base window for inherence
+private struct BaseWindow {
+    ~this() {
+        igEnd();
+    }
+
+    /// Draw FPS
+    void fps() {
+        igText("Application average %.3f ms/frame (%.1f FPS)",
+                1000.0f / igGetIO().Framerate, igGetIO().Framerate);
+    }
+
+    /// Add text to window
+    void text(string text) {
+        igText(text.toStringz);
+    }
+
+    /// Show and get a button
+    bool button(string text) {
+        return igButton(text.toStringz);
+    }
+
+    /// Show and get full size button
+    bool bigButton(string text) {
+        return igButton(text.toStringz, ImVec2(igGetWindowWidth() - 40.0f, 40.0f));
+    }
+
+    /// Show a textured image
+    void image(Texture texture, uint w, uint h) {
+        igImage(cast(void*) texture.id, ImVec2(w, h));
+    }
+}
+
 /// Draw a GUI Window
 struct Window {
+    mixin Inherit!(BaseWindow);
+
     /// Create a window
     this(string name) {
         igBegin(name.toStringz);
@@ -80,39 +115,21 @@ struct Window {
         }
     }
 
-    ~this() {
-        igEnd();
+    private void centerElement(uint w) {
+        igSetCursorPosX((igGetWindowWidth() / 2) - (w / 2));
     }
 
-    /// Draw FPS
-    void fps() {
-        igText("Application average %.3f ms/frame (%.1f FPS)",
-                1000.0f / igGetIO().Framerate, igGetIO().Framerate);
-    }
-
-    /// Add text to window
-    void text(string text) {
-        igText(text.toStringz);
-    }
-
-    /// Show and get a button
-    bool button(string text) {
-        return igButton(text.toStringz);
-    }
-
-    /// Show and get full size button
-    bool bigButton(string text) {
-        return igButton(text.toStringz, ImVec2(igGetWindowWidth() - 40.0f, 40.0f));
-    }
-
-    /// Show a textured image
-    void image(Texture texture, uint w, uint h) {
+    /// Create a centered image
+    void centeredImage(Texture texture, uint w, uint h) {
+        centerElement(w);
         igImage(cast(void*) texture.id, ImVec2(w, h));
     }
 }
 
 /// Invisible Window for draw elements
 struct HeadlessWindow {
+    mixin Inherit!(BaseWindow);
+
     /// Create window
     this(string name) {
         auto flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
@@ -121,6 +138,4 @@ struct HeadlessWindow {
 
         igBegin(name.toStringz, null, flags);
     }
-
-    mixin Inherit!(Window);
 }
