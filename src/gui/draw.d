@@ -87,8 +87,8 @@ struct Window {
     this(string name, bool* show) {
         igBegin(name.toStringz, show);
 
-        if (isKeyPressed(GLFW_KEY_ESCAPE)) {
-            *show = true;
+        if (isKeyPressed(GLFW_KEY_ESCAPE) && igIsWindowFocused()) {
+            *show = false;
         }
     }
 
@@ -98,8 +98,8 @@ struct Window {
 
         igBegin(name.toStringz, show);
 
-        if (isKeyPressed(GLFW_KEY_ESCAPE)) {
-            *show = true;
+        if (isKeyPressed(GLFW_KEY_ESCAPE) && igIsWindowFocused()) {
+            *show = false;
         }
     }
 
@@ -110,8 +110,8 @@ struct Window {
 
         igBegin(name.toStringz, show);
 
-        if (isKeyPressed(GLFW_KEY_ESCAPE)) {
-            *show = true;
+        if (isKeyPressed(GLFW_KEY_ESCAPE) && igIsWindowFocused()) {
+            *show = false;
         }
     }
 

@@ -44,9 +44,6 @@ private void init() {
 
     glViewport(0, 0, Litecraft.width, Litecraft.height);
 
-    // Ensure we can capture the escape key being pressed below
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
     showPointer();
 
     // White background

@@ -19,7 +19,7 @@
 
 module scenes.main_menu;
 
-import scenes.scene;
+import scenes;
 import dlib.math;
 import resource_manager;
 import litecraft;
@@ -27,13 +27,13 @@ import gui;
 import gl : closeGame, time;
 
 /// Show a fancy loading screen...
-public final class MainMenu : Scene {
+public class MainMenu : Scene {
     override void render3D() {
 
     }
 
-    override void render2D() {
-         switch (cast(uint) (time() / 10 % 7)) {
+    protected void drawBackground() {
+        switch (cast(uint) (time() / 10 % 7)) {
             case 0:
                 TexturedFullScreenQuad.draw(texture("litecraft:menu_1"), shader("litecraft:blur"));
                 break;
@@ -56,17 +56,26 @@ public final class MainMenu : Scene {
                 TexturedFullScreenQuad.draw(texture("litecraft:menu_7"), shader("litecraft:blur"));
                 break;
         }
+    }
+
+    override void render2D() {
+        drawBackground();
 
         auto w = Window("Litecraft", 330, 390, Litecraft.width / 2, Litecraft.height / 2);
 
         w.centeredImage(texture("litecraft:logo"), 80, 80);
 
-        w.bigButton("Single-Player");
-        w.bigButton("Multi-Player");
+        // TODO: Translations
 
-        w.bigButton("Options");
-        
-        if (w.bigButton("Close")) {
+        w.bigButton("Singleplayer");
+
+        if (w.bigButton("Multiplayer")) {
+            Litecraft.instance.scene = new MultiPlayerMenu;
+        }
+
+        w.bigButton("Options...");
+
+        if (w.bigButton("Quit Game")) {
             closeGame();
         }
     }

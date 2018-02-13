@@ -45,8 +45,8 @@ private ImageRGBA8 invertImage(SuperImage img) {
 /// GPU Texture
 public final class Texture : AsyncLoadable {
     @Read private uint _id;
-    @Read private ubyte[] _data;
     @Read private uint _width, _height;
+    @Read private ubyte[] _data;
 
     /// Create a GPU texture
     this(string name, string namespace = "minecraft") {
@@ -66,7 +66,7 @@ public final class Texture : AsyncLoadable {
             this._data = invertImage(texture).data;
             return;
         }
-        
+
         this._data = texture.data;
     }
 
@@ -98,7 +98,9 @@ public final class Texture : AsyncLoadable {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                    GL_UNSIGNED_BYTE, data.ptr);
+                GL_UNSIGNED_BYTE, data.ptr);
+
+        _data.destroy;
     }
 
     /// Make texture current

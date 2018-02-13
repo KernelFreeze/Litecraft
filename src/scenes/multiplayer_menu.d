@@ -17,11 +17,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-module scenes;
+module scenes.multiplayer_menu;
 
-public {
-    import scenes.scene;
-    import scenes.loading;
-    import scenes.main_menu;
-    import scenes.multiplayer_menu;
+import scenes;
+import gui;
+import litecraft;
+
+/// Multi-Player Main Menu
+public class MultiPlayerMenu : MainMenu {
+    private bool show = true;
+    
+    override void render2D() {
+        drawBackground();
+
+        auto w = Window("Multiplayer", &show, 330, 390, Litecraft.width / 2, Litecraft.height / 2);
+
+        if (!show) {
+            Litecraft.instance.scene = new MainMenu;
+        }
+    }
 }
