@@ -23,11 +23,14 @@ import resource_manager : AsyncLoadable, loadResource;
 import models.base;
 import std.experimental.logger;
 import std.string : chomp;
+import dlib.math : vec2;
 
 private static BlockModel[string] blockmodels;
 
 /// Internal representation of Minecraft Model ready for render
 class BlockModel : AsyncLoadable {
+    private float[] vertices;
+
     /// Create a Model loader, name should include "block/"
     this(string name, string namespace = "minecraft") {
         this.name = name;
@@ -47,8 +50,11 @@ class BlockModel : AsyncLoadable {
             auto p = loadModelTree(j.parent, ns);
 
             // Check if we should override data
-            if (j.display == j.display.init) j.display = p.display;
-            if (j.elements == j.elements.init) j.elements = p.elements;
+            if (j.display == j.display.init)
+                j.display = p.display;
+
+            if (j.elements == j.elements.init)
+                j.elements = p.elements;
 
             foreach (texture, value; j.textures) {
                 p.textures[texture] = value;
@@ -60,12 +66,133 @@ class BlockModel : AsyncLoadable {
         return j;
     }
 
+    private float[] rotateUV(int[] uv, int rotation) @safe {
+        import std.algorithm.mutation : swap;
+
+        uv[] /= 16;
+
+        switch (rotation) {
+        case 90:
+            swap(uv[0], uv[1]);
+            swap(uv[1], uv[2]);
+            swap(uv[1], uv[3]);
+            break;
+        case 180:
+            swap(uv[0], uv[3]);
+            swap(uv[1], uv[2]);
+            break;
+        case 270:
+            swap(uv[0], uv[2]);
+            swap(uv[1], uv[2]);
+            swap(uv[2], uv[3]);
+            break;
+        case 0:
+            break;
+        default:
+            warningf("Invalid rotation '%d' found for element UV.", rotation);
+            break;
+        }
+
+        return cast(float[]) uv;
+    }
+
     override void asyncLoad() {
         auto j = loadModelTree(name, namespace);
-        
-        /*foreach (element; j.elements) {
 
-        }*/
+        foreach (element; j.elements) {
+            float[] f = element.from;
+            float[] t = element.to;
+
+            t[] /= 16.0f;
+            f[] /= 16.0f;
+
+            // dfmt off
+            
+            // South
+            if (element.faces.south != ElementFace.init) {
+                auto uv = rotateUV(element.faces.south.uv, element.faces.south.rotation);
+
+                vertices ~= [
+                    f[0], f[1],  t[2],  uv[0], uv[1],
+                    t[0], f[1],  t[2],  uv[2], uv[1],
+                    t[0], t[1],  t[2],  uv[2], uv[3],
+                    t[0], t[1],  t[2],  uv[2], uv[3],
+                    f[0], t[1],  t[2],  uv[0], uv[3],
+                    f[0], f[1],  t[2],  uv[0], uv[1]
+                ];
+            }
+            
+            // North
+            if (element.faces.north != ElementFace.init) {
+                auto uv = rotateUV(element.faces.north.uv, element.faces.north.rotation);
+
+                vertices ~= [
+                    f[0], f[1], f[2],  uv[0], uv[1],
+                    t[0], f[1], f[2],  uv[2], uv[1],
+                    t[0], t[1], f[2],  uv[2], uv[3],
+                    t[0], t[1], f[2],  uv[2], uv[3],
+                    f[0], t[1], f[2],  uv[0], uv[3],
+                    f[0], f[1], f[2],  uv[0], uv[1]
+                ];
+            }
+            
+            // Top face
+            if (element.faces.up != ElementFace.init) {
+                auto uv = rotateUV(element.faces.up.uv, element.faces.up.rotation);
+
+                vertices ~= [
+                    f[0],  t[1], f[2],  uv[0], uv[3],
+                    t[0],  t[1], f[2],  uv[2], uv[3],
+                    t[0],  t[1], t[2],  uv[2], uv[1],
+                    t[0],  t[1], t[2],  uv[2], uv[1],
+                    f[0],  t[1], t[2],  uv[0], uv[1],
+                    f[0],  t[1], f[2],  uv[0], uv[3]
+                ];
+            }
+            
+            // Bottom face
+            if (element.faces.down != ElementFace.init) {
+                auto uv = rotateUV(element.faces.down.uv, element.faces.down.rotation);
+
+                vertices ~= [
+                    f[0], f[1], f[2],  uv[0], uv[3],
+                    t[0], f[1], f[2],  uv[2], uv[3],
+                    t[0], f[1], t[2],  uv[2], uv[1],
+                    t[0], f[1], t[2],  uv[2], uv[1],
+                    f[0], f[1], t[2],  uv[0], uv[1],
+                    f[0], f[1], f[2],  uv[0], uv[3]
+                ];
+            }
+            
+            // East face
+            if (element.faces.east != ElementFace.init) {
+                auto uv = rotateUV(element.faces.east.uv, element.faces.east.rotation);
+
+                vertices ~= [
+                    t[0], t[1], t[2],  uv[2], uv[1],
+                    t[0], t[1], f[2],  uv[2], uv[3],
+                    t[0], f[1], f[2],  uv[0], uv[3],
+                    t[0], f[1], f[2],  uv[0], uv[3],
+                    t[0], f[1], t[2],  uv[0], uv[1],
+                    t[0], t[1], t[2],  uv[2], uv[1]
+                ];
+            }
+            
+            // West face
+            if (element.faces.west != ElementFace.init) {
+                auto uv = rotateUV(element.faces.west.uv, element.faces.west.rotation);
+
+                vertices ~= [
+                    f[0], t[1], t[2],  uv[2], uv[1],
+                    f[0], t[1], f[2],  uv[2], uv[3],
+                    f[0], f[1], f[2],  uv[0], uv[3],
+                    f[0], f[1], f[2],  uv[0], uv[3],
+                    f[0], f[1], t[2],  uv[0], uv[1],
+                    f[0], t[1], t[2],  uv[2], uv[1]
+                ];
+            }
+             // dfmt on
+        }
     }
 
     override void unload(bool force = false) {
