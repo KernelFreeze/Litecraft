@@ -80,3 +80,13 @@ void main() {
 		infof("Fatal error: %s\n%s", e.toString, e.info);
 	}
 }
+
+/// Check if models are loading right
+unittest {
+	import models;
+
+	string model = `{"parent": "block/leaves","textures": {"all": "blocks/leaves_acacia"}}`;
+	JSONModel x = JSONModel(model);
+
+	assert(x.parent == "block/leaves");
+}
