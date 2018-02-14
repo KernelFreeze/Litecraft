@@ -24,6 +24,7 @@ import std.traits;
 import std.exception : enforceEx;
 import std.variant;
 import std.stdio;
+import std.string : format;
 
 public:
 
@@ -48,7 +49,7 @@ R jsonEncode(R, T)(T obj, R range) if (isOutputRange!(R, dchar)) {
 T jsonDecode(T = JsonValue, R)(R input) if (isInputCharRange!R) {
     auto val = jsonDecode_impl!T(input);
     if (!input.empty)
-        throw new JsonException("Garbage at end of stream.");
+        throw new JsonException("Garbage at end of stream: '%s'".format(input));
     return val;
 }
 
@@ -98,7 +99,7 @@ void skipChar(R)(ref R input) {
 void enforceChar(R)(ref R input, char c, bool sw) if (isInputCharRange!R) {
     auto nextChar = nextChar(input);
     if (nextChar != c)
-        throw new JsonException("Expected " ~ to!string(c) ~ ", saw " ~ to!string(nextChar));
+        throw new JsonException("Expected '%s' but saw '%s'".format(to!string(c), to!string(nextChar)));
 
     skipChar(input);
     if (sw)

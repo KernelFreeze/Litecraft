@@ -21,4 +21,5 @@ module models;
 
 public {
     import models.base;
+    import models.block_model;
 }

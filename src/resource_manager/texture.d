@@ -114,7 +114,7 @@ public final class Texture : AsyncLoadable {
 
 /// Get or load a texture by name
 Texture texture(string name) {
-    if ((name in textures) is null) {
+    if (!(name in textures)) {
         return new Texture(name);
     }
 

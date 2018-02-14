@@ -25,6 +25,7 @@ import configuration;
 import litecraft;
 import resource_manager;
 import scenes;
+import models;
 
 /// Define global logger
 shared static this() {
@@ -72,6 +73,8 @@ void main() {
 		new Texture("menu_5", "litecraft").loadResource;
 		new Texture("menu_6", "litecraft").loadResource;
 		new Texture("menu_7", "litecraft").loadResource;
+
+		new BlockModel("block/diamond_ore").loadResource;
 
 		load();
 		configuration.save();

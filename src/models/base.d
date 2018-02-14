@@ -54,7 +54,7 @@ struct DisplayCompound {
 /// Defines the rotation of an element.
 struct ElementRotation {
     /// Sets the center of the rotation according to the scheme [x, y, z], defaults to [8, 8, 8].
-    int[] origin;
+    float[] origin;
 
     /// Specifies the direction of rotation, can be "x", "y" or "z".
     string axis;
@@ -102,7 +102,7 @@ struct ElementFace {
         The default is not using the tint, and any number causes it to use tint. Note that only
         certain blocks have a tint index, all others will be unaffected.
     */
-    int tintindex = -1;
+    int tintindex = int.min;
 }
 
 /// Contains the properties of the specified face.
@@ -114,10 +114,10 @@ struct ElementFaces {
 /// An element
 struct Element {
     /// Start point of a cube according to the scheme [x, y, z]. Values must be between -16 and 32.
-    int[] from;
+    float[] from;
 
     /// Stop point of a cube according to the scheme [x, y, z]. Values must be between -16 and 32.
-    int[] to;
+    float[] to;
 
     /// Defines the rotation of an element.
     ElementRotation rotation;
@@ -146,10 +146,10 @@ struct JSONModel {
     string parent;
 
     /// Whether to use ambient occlusion (true - default), or not (false).
-    bool ambientocclusion;
+    bool ambientocclusion = true;
 
     /// Holds the different places where item models are displayed.
-    Display display;
+    DisplayCompound display;
 
     /**
         Contains all the elements of the model. they can only have cubic forms.
@@ -162,17 +162,10 @@ struct JSONModel {
         Holds the textures of the model. Each texture starts in resources/minecraft/textures
         or can be another texture variable.
     */
-    JsonValue[string] textures;
+    string[string] textures;
 
     /// Load and parse a JSON Model
-    static JSONModel opDispatch(string source) {
+    static JSONModel load(string source) {
         return jsonDecode!JSONModel(source);
-    }
-}
-
-/// Internal representation of Minecraft Model ready for render
-class Model {
-    this() {
-
     }
 }

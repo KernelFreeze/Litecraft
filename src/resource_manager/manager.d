@@ -100,7 +100,7 @@ void preLoadResource(AsyncLoadable resource) {
         resource.loadResource;
     }
     catch (Exception e) {
-        infof("Fatal error in worker thread: %s\n%s", e.toString, e.info);
+        fatalf("Fatal error in worker thread: %s\n%s", e.toString, e.info);
     }
 }
 
