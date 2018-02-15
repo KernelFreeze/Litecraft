@@ -19,18 +19,23 @@
 
 module models.block_model;
 
-import resource_manager : AsyncLoadable, loadResource, Texture, texture;
+import resource_manager;
 import models.base;
+import dlib.math : vec2, vec3, translationMatrix;
+import gl;
+import litecraft;
 import std.experimental.logger;
-import std.string : chomp;
-import dlib.math : vec2;
+import std.string : chomp, format;
 import std.algorithm.searching : countUntil, canFind, startsWith;
 import std.array : replaceFirst;
 
 private static BlockModel[string] blockmodels;
 
 /// Internal representation of Minecraft Model ready for render
-class BlockModel : AsyncLoadable {
+final class BlockModel : AsyncLoadable {
+    private VAO vao; // Status
+    private VBO vbo; // Vertex
+
     private float[] vertices;
     private Texture[] textures;
 
@@ -49,7 +54,7 @@ class BlockModel : AsyncLoadable {
         // Create FSM and parse JSON
         auto j = JSONModel.load(source);
 
-        if (j.parent && j.parent != string.init && j.parent != "builtin/generated") {
+        if (j.parent && j.parent != "builtin/generated") {
             auto p = loadModelTree(j.parent, ns);
 
             // Check if we should override data
@@ -103,16 +108,39 @@ class BlockModel : AsyncLoadable {
         return cast(float[]) uv;
     }
 
-    private float findTexture(Texture[string] textureMap, string texture) {
+    private float findTexture(Texture[string] textureMap, string texture) @trusted {
         if (auto tx = texture in textureMap) {
             // Add only if not added yet
             if (!textures.canFind(*tx))
                 textures ~= *tx;
 
+            if (textures.length > 10)
+                throw new Exception("Too many textures for a single model!");
+
             return countUntil(textures, *tx);
         }
         else {
             throw new Exception("I can't find a texture in a model! " ~ texture);
+        }
+    }
+
+    /// Get cullface for fragment shader
+    private float parseCullface(string cullface) @safe {
+        switch (cullface) {
+        case "down":
+            return 0;
+        case "up":
+            return 1;
+        case "north":
+            return 2;
+        case "south":
+            return 3;
+        case "west":
+            return 4;
+        case "east":
+            return 5;
+        default:
+            return -1;
         }
     }
 
@@ -134,6 +162,7 @@ class BlockModel : AsyncLoadable {
 
             if (f.length < 3)
                 throw new Exception("Invalid model data, 'from' must have 3 values");
+
             if (t.length < 3)
                 throw new Exception("Invalid model data, 'to' must have 3 values");
 
@@ -146,32 +175,38 @@ class BlockModel : AsyncLoadable {
             if (element.faces.south != ElementFace.init) {
                 auto face = element.faces.south;
                 auto uv = rotateUV(face.uv, face.rotation);
-                float txn = findTexture(textureMap, face.texture);
+                auto txn = findTexture(textureMap, face.texture);
+                auto cullface = parseCullface(face.cullface ? face.cullface : "south");
+                auto tint = face.tintindex != int.min ? 1 : 0;
 
                 if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
-                    f[0], f[1],  t[2],  uv[0], uv[1], txn,
-                    t[0], f[1],  t[2],  uv[2], uv[1], txn,
-                    t[0], t[1],  t[2],  uv[2], uv[3], txn,
-                    t[0], t[1],  t[2],  uv[2], uv[3], txn,
-                    f[0], t[1],  t[2],  uv[0], uv[3], txn,
-                    f[0], f[1],  t[2],  uv[0], uv[1], txn
+                    f[0], f[1],  t[2],  uv[0], uv[1], txn, cullface, tint,
+                    t[0], f[1],  t[2],  uv[2], uv[1], txn, cullface, tint,
+                    t[0], t[1],  t[2],  uv[2], uv[3], txn, cullface, tint,
+                    t[0], t[1],  t[2],  uv[2], uv[3], txn, cullface, tint,
+                    f[0], t[1],  t[2],  uv[0], uv[3], txn, cullface, tint,
+                    f[0], f[1],  t[2],  uv[0], uv[1], txn, cullface, tint
                 ];
             }
             // North
             if (element.faces.north != ElementFace.init) {
                 auto face = element.faces.north;
                 auto uv = rotateUV(face.uv, face.rotation);
-                float txn = findTexture(textureMap, face.texture);
+                auto txn = findTexture(textureMap, face.texture);
+                auto cullface = parseCullface(face.cullface ? face.cullface : "north");
+                auto tint = face.tintindex != int.min ? 1 : 0;
+
+                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
-                    f[0], f[1], f[2],  uv[0], uv[1], txn,
-                    t[0], f[1], f[2],  uv[2], uv[1], txn,
-                    t[0], t[1], f[2],  uv[2], uv[3], txn,
-                    t[0], t[1], f[2],  uv[2], uv[3], txn,
-                    f[0], t[1], f[2],  uv[0], uv[3], txn,
-                    f[0], f[1], f[2],  uv[0], uv[1], txn
+                    f[0], f[1], f[2],  uv[0], uv[1], txn, cullface, tint,
+                    t[0], f[1], f[2],  uv[2], uv[1], txn, cullface, tint,
+                    t[0], t[1], f[2],  uv[2], uv[3], txn, cullface, tint,
+                    t[0], t[1], f[2],  uv[2], uv[3], txn, cullface, tint,
+                    f[0], t[1], f[2],  uv[0], uv[3], txn, cullface, tint,
+                    f[0], f[1], f[2],  uv[0], uv[1], txn, cullface, tint
                 ];
             }
             
@@ -179,15 +214,19 @@ class BlockModel : AsyncLoadable {
             if (element.faces.up != ElementFace.init) {
                 auto face = element.faces.up;
                 auto uv = rotateUV(face.uv, face.rotation);
-                float txn = findTexture(textureMap, face.texture);
+                auto txn = findTexture(textureMap, face.texture);
+                auto cullface = parseCullface(face.cullface ? face.cullface : "up");
+                auto tint = face.tintindex != int.min ? 1 : 0;
+
+                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
-                    f[0],  t[1], f[2],  uv[0], uv[3], txn,
-                    t[0],  t[1], f[2],  uv[2], uv[3], txn,
-                    t[0],  t[1], t[2],  uv[2], uv[1], txn,
-                    t[0],  t[1], t[2],  uv[2], uv[1], txn,
-                    f[0],  t[1], t[2],  uv[0], uv[1], txn,
-                    f[0],  t[1], f[2],  uv[0], uv[3], txn
+                    f[0],  t[1], f[2],  uv[0], uv[3], txn, cullface, tint,
+                    t[0],  t[1], f[2],  uv[2], uv[3], txn, cullface, tint,
+                    t[0],  t[1], t[2],  uv[2], uv[1], txn, cullface, tint,
+                    t[0],  t[1], t[2],  uv[2], uv[1], txn, cullface, tint,
+                    f[0],  t[1], t[2],  uv[0], uv[1], txn, cullface, tint,
+                    f[0],  t[1], f[2],  uv[0], uv[3], txn, cullface, tint
                 ];
             }
             
@@ -195,15 +234,19 @@ class BlockModel : AsyncLoadable {
             if (element.faces.down != ElementFace.init) {
                 auto face = element.faces.down;
                 auto uv = rotateUV(face.uv, face.rotation);
-                float txn = findTexture(textureMap, face.texture);
+                auto txn = findTexture(textureMap, face.texture);
+                auto cullface = parseCullface(face.cullface ? face.cullface : "down");
+                auto tint = face.tintindex != int.min ? 1 : 0;
+
+                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
-                    f[0], f[1], f[2],  uv[0], uv[3], txn,
-                    t[0], f[1], f[2],  uv[2], uv[3], txn,
-                    t[0], f[1], t[2],  uv[2], uv[1], txn,
-                    t[0], f[1], t[2],  uv[2], uv[1], txn,
-                    f[0], f[1], t[2],  uv[0], uv[1], txn,
-                    f[0], f[1], f[2],  uv[0], uv[3], txn
+                    f[0], f[1], f[2],  uv[0], uv[3], txn, cullface, tint,
+                    t[0], f[1], f[2],  uv[2], uv[3], txn, cullface, tint,
+                    t[0], f[1], t[2],  uv[2], uv[1], txn, cullface, tint,
+                    t[0], f[1], t[2],  uv[2], uv[1], txn, cullface, tint,
+                    f[0], f[1], t[2],  uv[0], uv[1], txn, cullface, tint,
+                    f[0], f[1], f[2],  uv[0], uv[3], txn, cullface, tint
                 ];
             }
             
@@ -211,15 +254,19 @@ class BlockModel : AsyncLoadable {
             if (element.faces.east != ElementFace.init) {
                 auto face = element.faces.east;
                 auto uv = rotateUV(face.uv, face.rotation);
-                float txn = findTexture(textureMap, face.texture);
+                auto txn = findTexture(textureMap, face.texture);
+                auto cullface = parseCullface(face.cullface ? face.cullface : "east");
+                auto tint = face.tintindex != int.min ? 1 : 0;
+
+                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
-                    t[0], t[1], t[2],  uv[2], uv[1], txn,
-                    t[0], t[1], f[2],  uv[2], uv[3], txn,
-                    t[0], f[1], f[2],  uv[0], uv[3], txn,
-                    t[0], f[1], f[2],  uv[0], uv[3], txn,
-                    t[0], f[1], t[2],  uv[0], uv[1], txn,
-                    t[0], t[1], t[2],  uv[2], uv[1], txn
+                    t[0], t[1], t[2],  uv[2], uv[1], txn, cullface, tint,
+                    t[0], t[1], f[2],  uv[2], uv[3], txn, cullface, tint,
+                    t[0], f[1], f[2],  uv[0], uv[3], txn, cullface, tint,
+                    t[0], f[1], f[2],  uv[0], uv[3], txn, cullface, tint,
+                    t[0], f[1], t[2],  uv[0], uv[1], txn, cullface, tint,
+                    t[0], t[1], t[2],  uv[2], uv[1], txn, cullface, tint
                 ];
             }
             
@@ -227,15 +274,19 @@ class BlockModel : AsyncLoadable {
             if (element.faces.west != ElementFace.init) {
                 auto face = element.faces.west;
                 auto uv = rotateUV(face.uv, face.rotation);
-                float txn = findTexture(textureMap, face.texture);
+                auto txn = findTexture(textureMap, face.texture);
+                auto cullface = parseCullface(face.cullface ? face.cullface : "west");
+                auto tint = face.tintindex != int.min ? 1 : 0;
+
+                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
-                    f[0], t[1], t[2],  uv[2], uv[1], txn,
-                    f[0], t[1], f[2],  uv[2], uv[3], txn,
-                    f[0], f[1], f[2],  uv[0], uv[3], txn,
-                    f[0], f[1], f[2],  uv[0], uv[3], txn,
-                    f[0], f[1], t[2],  uv[0], uv[1], txn,
-                    f[0], t[1], t[2],  uv[2], uv[1], txn
+                    f[0], t[1], t[2],  uv[2], uv[1], txn, cullface, tint,
+                    f[0], t[1], f[2],  uv[2], uv[3], txn, cullface, tint,
+                    f[0], f[1], f[2],  uv[0], uv[3], txn, cullface, tint,
+                    f[0], f[1], f[2],  uv[0], uv[3], txn, cullface, tint,
+                    f[0], f[1], t[2],  uv[0], uv[1], txn, cullface, tint,
+                    f[0], t[1], t[2],  uv[2], uv[1], txn, cullface, tint
                 ];
             }
             // dfmt on
@@ -245,13 +296,73 @@ class BlockModel : AsyncLoadable {
 
     override void unload(bool force = false) {
         if (isLoaded || force) {
+            infof("Unloading model '%s'", name);
 
+            vao.destroy;
+            vbo.destroy;
         }
     }
 
     override void load() {
         if (!isPreLoaded) {
             throw new Exception("The resource is not pre-loaded!");
+        }
+
+        // Generate and bind VAO
+        vao = new VAO;
+
+        // Generate Vertex Buffer Object
+        vbo = new VBO(vertices);
+
+        // Now, tell OpenGL how to handle our data
+
+        // Vertex positions
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * float.sizeof, cast(void*) 0);
+        glEnableVertexAttribArray(0);
+
+        // UVs
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * float.sizeof,
+                cast(void*)(3 * float.sizeof));
+        glEnableVertexAttribArray(1);
+
+        // Texture to use
+        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 8 * float.sizeof,
+                cast(void*)(5 * float.sizeof));
+        glEnableVertexAttribArray(2);
+
+        // Cullface
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 8 * float.sizeof,
+                cast(void*)(6 * float.sizeof));
+        glEnableVertexAttribArray(3);
+
+        // Tint
+        glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 8 * float.sizeof,
+                cast(void*)(7 * float.sizeof));
+        glEnableVertexAttribArray(4);
+    }
+
+    /// Draw model at some location
+    void draw(vec3 position, Shader shader = shader("block")) {
+        if (!isLoaded)
+            return;
+
+        if (!shader.isLoaded)
+            return;
+
+        foreach (i, texture; textures) {
+            texture.bind(cast(ushort) i);
+        }
+
+        shader.use;
+        vao.bind;
+
+        shader.set("uTransform", translationMatrix(position));
+        shader.set("uProjection", orthoProjection);
+        shader.set("uTime", time);
+        shader.set("uResolution", vec2(Litecraft.width, Litecraft.height));
+
+        foreach (tx; 0 .. textures.length) {
+            shader.set("uTextures[%d]".format(tx), tx);
         }
     }
 }

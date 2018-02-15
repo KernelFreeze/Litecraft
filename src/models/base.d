@@ -54,10 +54,10 @@ struct DisplayCompound {
 /// Defines the rotation of an element.
 struct ElementRotation {
     /// Sets the center of the rotation according to the scheme [x, y, z], defaults to [8, 8, 8].
-    float[] origin;
+    float[] origin = [8, 8, 8];
 
     /// Specifies the direction of rotation, can be "x", "y" or "z".
-    string axis;
+    string axis = "z";
 
     /// Specifies the angle of rotation. Can be 45 through -45 degrees in 22.5 degree increments. Defaults to 0.
     float angle;

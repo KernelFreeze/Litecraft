@@ -4,8 +4,12 @@ out vec4 FragColor;
 
 in vec2 vTexCoord;
 in float vTexture;
+in float vCullface;
+in float vTint;
 
 uniform sampler2D uTextures[10];
+uniform float uCullface = -1;
+uniform vec3 uTintColor;
 
 // Get appropiate texture requested by OpenGL
 vec4 getSampleFromArray(int ndx) {
@@ -35,4 +39,15 @@ vec4 getSampleFromArray(int ndx) {
   return color;
 }
 
-void main() { FragColor = getSampleFromArray(int(vTexture)); }
+void main() {
+  if (uCullface == vCullface)
+    return;
+
+  vec4 color = getSampleFromArray(int(vTexture));
+
+  if (vTint != 0) {
+    color *= vec4(uTintColor, 1.0);
+  }
+
+  FragColor = color;
+}

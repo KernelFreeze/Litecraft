@@ -109,6 +109,12 @@ public final class Texture : AsyncLoadable {
         glBindTexture(GL_TEXTURE_2D, _id);
     }
 
+    /// Make texture current
+    void bind(ushort location) {
+        glActiveTexture(GL_TEXTURE0 + location);
+        glBindTexture(GL_TEXTURE_2D, _id);
+    }
+
     mixin(GenerateFieldAccessors);
 }
 
