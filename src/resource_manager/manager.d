@@ -86,6 +86,8 @@ void loadResource(Loadable resource) {
 
 /// Pre-load a resource, you should call loadResource instead...
 void preLoadResource(AsyncLoadable resource) {
+    import core.exception : Error;
+
     stdThreadLocalLog = new LitecraftLogger(LogLevel.all);
 
     auto type = typeid(resource).toString.split(".")[$ - 1];
@@ -100,7 +102,10 @@ void preLoadResource(AsyncLoadable resource) {
         resource.loadResource;
     }
     catch (Exception e) {
-        fatalf("Fatal error in worker thread: %s\n%s", e.toString, e.info);
+        warningf("Error in worker thread: %s\n%s", e.toString, e.info);
+    }
+    catch (Error e) {
+        warningf("Out of bounds at thread: %s\n%s", e.toString, e.info);
     }
 }
 

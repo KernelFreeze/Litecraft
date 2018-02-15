@@ -69,6 +69,10 @@ class BlockModel : AsyncLoadable {
     private float[] rotateUV(int[] uv, int rotation) @safe {
         import std.algorithm.mutation : swap;
 
+        if (uv.length == 0) {
+            uv = [0, 0, 16, 16];
+        }
+
         uv[] /= 16;
 
         switch (rotation) {
@@ -103,6 +107,9 @@ class BlockModel : AsyncLoadable {
             float[] f = element.from;
             float[] t = element.to;
 
+            if (f.length < 3) throw new Exception("Invalid model data, 'from' must have 3 values");
+            if (t.length < 3) throw new Exception("Invalid model data, 'to' must have 3 values");
+
             t[] /= 16.0f;
             f[] /= 16.0f;
 
@@ -111,6 +118,7 @@ class BlockModel : AsyncLoadable {
             // South
             if (element.faces.south != ElementFace.init) {
                 auto uv = rotateUV(element.faces.south.uv, element.faces.south.rotation);
+                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
                     f[0], f[1],  t[2],  uv[0], uv[1],
@@ -121,10 +129,10 @@ class BlockModel : AsyncLoadable {
                     f[0], f[1],  t[2],  uv[0], uv[1]
                 ];
             }
-            
             // North
             if (element.faces.north != ElementFace.init) {
                 auto uv = rotateUV(element.faces.north.uv, element.faces.north.rotation);
+                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
                     f[0], f[1], f[2],  uv[0], uv[1],
@@ -139,6 +147,7 @@ class BlockModel : AsyncLoadable {
             // Top face
             if (element.faces.up != ElementFace.init) {
                 auto uv = rotateUV(element.faces.up.uv, element.faces.up.rotation);
+                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
                     f[0],  t[1], f[2],  uv[0], uv[3],
@@ -153,6 +162,7 @@ class BlockModel : AsyncLoadable {
             // Bottom face
             if (element.faces.down != ElementFace.init) {
                 auto uv = rotateUV(element.faces.down.uv, element.faces.down.rotation);
+                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
                     f[0], f[1], f[2],  uv[0], uv[3],
@@ -167,6 +177,7 @@ class BlockModel : AsyncLoadable {
             // East face
             if (element.faces.east != ElementFace.init) {
                 auto uv = rotateUV(element.faces.east.uv, element.faces.east.rotation);
+                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
                     t[0], t[1], t[2],  uv[2], uv[1],
@@ -181,6 +192,7 @@ class BlockModel : AsyncLoadable {
             // West face
             if (element.faces.west != ElementFace.init) {
                 auto uv = rotateUV(element.faces.west.uv, element.faces.west.rotation);
+                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
                     f[0], t[1], t[2],  uv[2], uv[1],
