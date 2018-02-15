@@ -40,8 +40,8 @@ public final class Quad : Drawable!Quad {
     }
 
     /// Draw primitive on screen
-    static void draw(vec2 position, Texture texture = texture("litecraft:logo"),
-            Shader s = shader("litecraft:quad"), vec2 size = vec2(10.0, 10.0), float rotation = 0.0f) {
+    static void draw(vec2 position, Texture texture = texture("logo"),
+            Shader s = shader("quad"), vec2 size = vec2(10.0, 10.0), float rotation = 0.0f) {
 
         if (instance is null) {
             warning("Tried to draw unloaded primitive");

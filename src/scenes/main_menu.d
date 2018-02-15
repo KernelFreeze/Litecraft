@@ -35,25 +35,25 @@ public class MainMenu : Scene {
     protected void drawBackground() {
         switch (cast(uint) (time() / 10 % 7)) {
             case 0:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_1"), shader("litecraft:blur"));
+                TexturedFullScreenQuad.draw(texture("menu_1"), shader("blur"));
                 break;
             case 1:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_2"), shader("litecraft:blur"));
+                TexturedFullScreenQuad.draw(texture("menu_2"), shader("blur"));
                 break;
             case 2:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_3"), shader("litecraft:blur"));
+                TexturedFullScreenQuad.draw(texture("menu_3"), shader("blur"));
                 break;
             case 3:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_4"), shader("litecraft:blur"));
+                TexturedFullScreenQuad.draw(texture("menu_4"), shader("blur"));
                 break;
             case 4:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_5"), shader("litecraft:blur"));
+                TexturedFullScreenQuad.draw(texture("menu_5"), shader("blur"));
                 break;
             case 5:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_6"), shader("litecraft:blur"));
+                TexturedFullScreenQuad.draw(texture("menu_6"), shader("blur"));
                 break;
             default:
-                TexturedFullScreenQuad.draw(texture("litecraft:menu_7"), shader("litecraft:blur"));
+                TexturedFullScreenQuad.draw(texture("menu_7"), shader("blur"));
                 break;
         }
     }
@@ -63,7 +63,7 @@ public class MainMenu : Scene {
 
         auto w = Window("Litecraft", 330, 390, Litecraft.width / 2, Litecraft.height / 2);
 
-        w.centeredImage(texture("litecraft:logo"), 80, 80);
+        w.centeredImage(texture("logo"), 80, 80);
 
         // TODO: Translations
 

@@ -113,10 +113,14 @@ public final class Texture : AsyncLoadable {
 }
 
 /// Get or load a texture by name
-Texture texture(string name) {
-    if (!(name in textures)) {
-        return new Texture(name);
+Texture texture(string name, string namespace = "litecraft", bool load = true) {
+    if (auto texture = (namespace ~ ":" ~ name) in textures) {
+        return *texture;
     }
 
-    return textures[name];
+    auto t = new Texture(name, namespace);
+    if (load) {
+        t.loadResource;
+    }
+    return t;
 }

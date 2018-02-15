@@ -17,11 +17,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-module util;
+module util.find_index;
 
-public {
-    import util.queue;
-    import util.datetimeformat;
-    import util.jsonx;
-    import util.find_index;
+auto findIndexes(alias pred, R)(R items) if (isInputRange!R) {
+    import std.functional : unaryFun;
+
+    struct FindIndexes(alias pred2) {
+        private size_t _front;
+
+        void opDispatch() {
+            while (!items.empty) {
+                if (pred2(items.front))
+                    break;
+
+                _front++;
+                items.popFront;
+            }
+        }
+
+        @property bool empty() const {
+            return items.empty;
+        }
+
+        @property size_t front() const {
+            return _front;
+        }
+
+        void popFront() {
+            _front++;
+            items.popFront;
+            while (!items.empty) {
+                if (pred2(items.front))
+                    break;
+
+                _front++;
+                items.popFront;
+            }
+        }
+    }
+
+    return FindIndexes!(unaryFun!pred)();
 }

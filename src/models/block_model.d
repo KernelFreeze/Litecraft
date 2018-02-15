@@ -19,17 +19,20 @@
 
 module models.block_model;
 
-import resource_manager : AsyncLoadable, loadResource;
+import resource_manager : AsyncLoadable, loadResource, Texture, texture;
 import models.base;
 import std.experimental.logger;
 import std.string : chomp;
 import dlib.math : vec2;
+import std.algorithm.searching : countUntil, canFind, startsWith;
+import std.array : replaceFirst;
 
 private static BlockModel[string] blockmodels;
 
 /// Internal representation of Minecraft Model ready for render
 class BlockModel : AsyncLoadable {
     private float[] vertices;
+    private Texture[] textures;
 
     /// Create a Model loader, name should include "block/"
     this(string name, string namespace = "minecraft") {
@@ -100,15 +103,39 @@ class BlockModel : AsyncLoadable {
         return cast(float[]) uv;
     }
 
+    private float findTexture(Texture[string] textureMap, string texture) {
+        if (auto tx = texture in textureMap) {
+            // Add only if not added yet
+            if (!textures.canFind(*tx))
+                textures ~= *tx;
+
+            return countUntil(textures, *tx);
+        }
+        else {
+            throw new Exception("I can't find a texture in a model! " ~ texture);
+        }
+    }
+
     override void asyncLoad() {
-        auto j = loadModelTree(name, namespace);
+        Texture[string] textureMap;
+        JSONModel j = loadModelTree(name, namespace);
+
+        foreach (key, value; j.textures) {
+            if (value.startsWith("#")) {
+                value = j.textures[value.replaceFirst("#", "")];
+            }
+
+            textureMap["#" ~ key] = texture(value, namespace);
+        }
 
         foreach (element; j.elements) {
             float[] f = element.from;
             float[] t = element.to;
 
-            if (f.length < 3) throw new Exception("Invalid model data, 'from' must have 3 values");
-            if (t.length < 3) throw new Exception("Invalid model data, 'to' must have 3 values");
+            if (f.length < 3)
+                throw new Exception("Invalid model data, 'from' must have 3 values");
+            if (t.length < 3)
+                throw new Exception("Invalid model data, 'to' must have 3 values");
 
             t[] /= 16.0f;
             f[] /= 16.0f;
@@ -117,93 +144,102 @@ class BlockModel : AsyncLoadable {
             
             // South
             if (element.faces.south != ElementFace.init) {
-                auto uv = rotateUV(element.faces.south.uv, element.faces.south.rotation);
+                auto face = element.faces.south;
+                auto uv = rotateUV(face.uv, face.rotation);
+                float txn = findTexture(textureMap, face.texture);
+
                 if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
 
                 vertices ~= [
-                    f[0], f[1],  t[2],  uv[0], uv[1],
-                    t[0], f[1],  t[2],  uv[2], uv[1],
-                    t[0], t[1],  t[2],  uv[2], uv[3],
-                    t[0], t[1],  t[2],  uv[2], uv[3],
-                    f[0], t[1],  t[2],  uv[0], uv[3],
-                    f[0], f[1],  t[2],  uv[0], uv[1]
+                    f[0], f[1],  t[2],  uv[0], uv[1], txn,
+                    t[0], f[1],  t[2],  uv[2], uv[1], txn,
+                    t[0], t[1],  t[2],  uv[2], uv[3], txn,
+                    t[0], t[1],  t[2],  uv[2], uv[3], txn,
+                    f[0], t[1],  t[2],  uv[0], uv[3], txn,
+                    f[0], f[1],  t[2],  uv[0], uv[1], txn
                 ];
             }
             // North
             if (element.faces.north != ElementFace.init) {
-                auto uv = rotateUV(element.faces.north.uv, element.faces.north.rotation);
-                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
+                auto face = element.faces.north;
+                auto uv = rotateUV(face.uv, face.rotation);
+                float txn = findTexture(textureMap, face.texture);
 
                 vertices ~= [
-                    f[0], f[1], f[2],  uv[0], uv[1],
-                    t[0], f[1], f[2],  uv[2], uv[1],
-                    t[0], t[1], f[2],  uv[2], uv[3],
-                    t[0], t[1], f[2],  uv[2], uv[3],
-                    f[0], t[1], f[2],  uv[0], uv[3],
-                    f[0], f[1], f[2],  uv[0], uv[1]
+                    f[0], f[1], f[2],  uv[0], uv[1], txn,
+                    t[0], f[1], f[2],  uv[2], uv[1], txn,
+                    t[0], t[1], f[2],  uv[2], uv[3], txn,
+                    t[0], t[1], f[2],  uv[2], uv[3], txn,
+                    f[0], t[1], f[2],  uv[0], uv[3], txn,
+                    f[0], f[1], f[2],  uv[0], uv[1], txn
                 ];
             }
             
             // Top face
             if (element.faces.up != ElementFace.init) {
-                auto uv = rotateUV(element.faces.up.uv, element.faces.up.rotation);
-                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
+                auto face = element.faces.up;
+                auto uv = rotateUV(face.uv, face.rotation);
+                float txn = findTexture(textureMap, face.texture);
 
                 vertices ~= [
-                    f[0],  t[1], f[2],  uv[0], uv[3],
-                    t[0],  t[1], f[2],  uv[2], uv[3],
-                    t[0],  t[1], t[2],  uv[2], uv[1],
-                    t[0],  t[1], t[2],  uv[2], uv[1],
-                    f[0],  t[1], t[2],  uv[0], uv[1],
-                    f[0],  t[1], f[2],  uv[0], uv[3]
+                    f[0],  t[1], f[2],  uv[0], uv[3], txn,
+                    t[0],  t[1], f[2],  uv[2], uv[3], txn,
+                    t[0],  t[1], t[2],  uv[2], uv[1], txn,
+                    t[0],  t[1], t[2],  uv[2], uv[1], txn,
+                    f[0],  t[1], t[2],  uv[0], uv[1], txn,
+                    f[0],  t[1], f[2],  uv[0], uv[3], txn
                 ];
             }
             
             // Bottom face
             if (element.faces.down != ElementFace.init) {
-                auto uv = rotateUV(element.faces.down.uv, element.faces.down.rotation);
-                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
+                auto face = element.faces.down;
+                auto uv = rotateUV(face.uv, face.rotation);
+                float txn = findTexture(textureMap, face.texture);
 
                 vertices ~= [
-                    f[0], f[1], f[2],  uv[0], uv[3],
-                    t[0], f[1], f[2],  uv[2], uv[3],
-                    t[0], f[1], t[2],  uv[2], uv[1],
-                    t[0], f[1], t[2],  uv[2], uv[1],
-                    f[0], f[1], t[2],  uv[0], uv[1],
-                    f[0], f[1], f[2],  uv[0], uv[3]
+                    f[0], f[1], f[2],  uv[0], uv[3], txn,
+                    t[0], f[1], f[2],  uv[2], uv[3], txn,
+                    t[0], f[1], t[2],  uv[2], uv[1], txn,
+                    t[0], f[1], t[2],  uv[2], uv[1], txn,
+                    f[0], f[1], t[2],  uv[0], uv[1], txn,
+                    f[0], f[1], f[2],  uv[0], uv[3], txn
                 ];
             }
             
             // East face
             if (element.faces.east != ElementFace.init) {
-                auto uv = rotateUV(element.faces.east.uv, element.faces.east.rotation);
-                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
+                auto face = element.faces.east;
+                auto uv = rotateUV(face.uv, face.rotation);
+                float txn = findTexture(textureMap, face.texture);
 
                 vertices ~= [
-                    t[0], t[1], t[2],  uv[2], uv[1],
-                    t[0], t[1], f[2],  uv[2], uv[3],
-                    t[0], f[1], f[2],  uv[0], uv[3],
-                    t[0], f[1], f[2],  uv[0], uv[3],
-                    t[0], f[1], t[2],  uv[0], uv[1],
-                    t[0], t[1], t[2],  uv[2], uv[1]
+                    t[0], t[1], t[2],  uv[2], uv[1], txn,
+                    t[0], t[1], f[2],  uv[2], uv[3], txn,
+                    t[0], f[1], f[2],  uv[0], uv[3], txn,
+                    t[0], f[1], f[2],  uv[0], uv[3], txn,
+                    t[0], f[1], t[2],  uv[0], uv[1], txn,
+                    t[0], t[1], t[2],  uv[2], uv[1], txn
                 ];
             }
             
             // West face
             if (element.faces.west != ElementFace.init) {
-                auto uv = rotateUV(element.faces.west.uv, element.faces.west.rotation);
-                if (uv.length < 4) throw new Exception("Invalid model data, 'uv' must have 4 values");
+                auto face = element.faces.west;
+                auto uv = rotateUV(face.uv, face.rotation);
+                float txn = findTexture(textureMap, face.texture);
 
                 vertices ~= [
-                    f[0], t[1], t[2],  uv[2], uv[1],
-                    f[0], t[1], f[2],  uv[2], uv[3],
-                    f[0], f[1], f[2],  uv[0], uv[3],
-                    f[0], f[1], f[2],  uv[0], uv[3],
-                    f[0], f[1], t[2],  uv[0], uv[1],
-                    f[0], t[1], t[2],  uv[2], uv[1]
+                    f[0], t[1], t[2],  uv[2], uv[1], txn,
+                    f[0], t[1], f[2],  uv[2], uv[3], txn,
+                    f[0], f[1], f[2],  uv[0], uv[3], txn,
+                    f[0], f[1], f[2],  uv[0], uv[3], txn,
+                    f[0], f[1], t[2],  uv[0], uv[1], txn,
+                    f[0], t[1], t[2],  uv[2], uv[1], txn
                 ];
             }
-             // dfmt on
+            // dfmt on
+            infof("Using %d textures for model %s", textures.length, name);
         }
     }
 

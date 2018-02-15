@@ -1,19 +1,18 @@
-#version 120
+#version 330 core
 
-// Input vertex data, different for all executions of this shader.
-attribute vec3 position;
-attribute vec2 vertexUV;
+layout(location = 0) in vec2 aPos;
+layout(location = 1) in vec2 aTexCoord;
+layout(location = 2) in float aTexture;
 
-// Output data ; will be interpolated for each fragment.
-varying vec2 UV;
+uniform mat4 uTransform;
+uniform mat4 uProjection;
 
-// Values that stay constant for the whole mesh.
-uniform mat4 MVP;
+out vec2 vTexCoord;
+out float vTexture;
 
 void main() {
-	// Output position of the vertex, in clip space : MVP * position
-	gl_Position =  MVP * vec4(position, 1);
-	
-	// UV of the vertex. No special space for this one.
-	UV = vertexUV;
+  gl_Position = uTransform * uProjection * vec4(aPos, 0.0, 1.0);
+
+  vTexCoord = vec2(aTexCoord.x, aTexCoord.y);
+  vTexture = aTexture;
 }

@@ -110,7 +110,7 @@ public final class TexturedFullScreenQuad : Drawable!TexturedFullScreenQuad {
     }
 
     /// Draw primitive on screen
-    static void draw(Texture texture, Shader s = shader("litecraft:fullquad")) {
+    static void draw(Texture texture, Shader s = shader("fullquad")) {
         if (instance is null) {
             warning("Tried to draw unloaded primitive");
             return;

@@ -34,9 +34,9 @@ public final class Shader : Loadable {
     @Read private uint _program;
 
     /// Create vertex and fragment shaders
-    this(string name) {
+    this(string name, string namespace = "litecraft") {
         this.name = name;
-        this.namespace = "litecraft";
+        this.namespace = namespace;
 
         shaders[namespace ~ ":" ~ name] = this;
     }
@@ -189,10 +189,12 @@ public final class Shader : Loadable {
 }
 
 /// Get or load a shader program by name
-Shader shader(string name) {
-    if ((name in shaders) is null) {
-        return new Shader(name);
+Shader shader(string name, string namespace = "litecraft") {
+    if (auto shader = (namespace ~ ":" ~ name) in shaders) {
+        return *shader;
     }
 
-    return shaders[name];
+    auto t = new Shader(name, namespace);
+    t.loadResource;
+    return t;
 }

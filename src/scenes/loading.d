@@ -36,12 +36,12 @@ public final class LoadingScene : Scene {
             Litecraft.instance.scene = new MainMenu;
         }
 
-        FullScreenQuad.draw(shader("litecraft:noise"));
+        FullScreenQuad.draw(shader("noise"));
 
         // Render our fancy logo
         auto location = vec2(Litecraft.width / 2.0, Litecraft.height / 2.0);
         static auto size = vec2(300.0f, 300.0f);
 
-        Quad.draw(location, texture("litecraft:logo"), shader("litecraft:litecraft"), size);
+        Quad.draw(location, texture("logo"), shader("litecraft"), size);
     }
 }
