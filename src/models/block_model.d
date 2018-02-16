@@ -31,6 +31,17 @@ import std.array : replaceFirst;
 
 private static BlockModel[string] blockmodels;
 
+/// Get BlockModel by name
+BlockModel blockmodel(string name, string namespace = "minecraft") {
+    if (auto model = (namespace ~ ":" ~ name) in blockmodels) {
+        return *model;
+    }
+
+    auto t = new BlockModel(name, namespace);
+    t.loadResource;
+    return t;
+}
+
 enum Face {
     North = 0x01,
     South = 0x02,
@@ -83,14 +94,14 @@ final class BlockModel : AsyncLoadable {
         return j;
     }
 
-    private float[] rotateUV(int[] uv, int rotation) @safe {
+    private float[] rotateUV(int[] _uv, int rotation) @safe {
         import std.algorithm.mutation : swap;
 
-        if (uv.length == 0) {
-            uv = [0, 0, 16, 16];
+        if (_uv.length == 0) {
+            _uv = [0, 0, 16, 16];
         }
 
-        uv[] /= 16;
+        float[] uv = [_uv[0] / 16.0f, _uv[1] / 16.0f, _uv[2] / 16.0f, _uv[3] / 16.0f];
 
         switch (rotation) {
         case 90:
@@ -366,9 +377,11 @@ final class BlockModel : AsyncLoadable {
         vao.bind;
 
         if (auto camera = Litecraft.instance.scene.camera) {
-            shader.set("uProjection", camera.viewMatrix);
-        } else {
-            shader.set("uProjection", orthoProjection);
+            shader.set("uProjection", camera.projection);
+            shader.set("uView", camera.viewMatrix);
+        }
+        else {
+            throw new Exception("No 3D camera found!");
         }
 
         shader.set("uTransform", translationMatrix(position));
@@ -377,7 +390,9 @@ final class BlockModel : AsyncLoadable {
         shader.set("uResolution", vec2(Litecraft.width, Litecraft.height));
 
         foreach (tx; 0 .. textures.length) {
-            shader.set("uTextures[%d]".format(tx), tx);
+            shader.set("uTextures[%d]".format(tx), cast(int) tx);
         }
+
+        glDrawArrays(GL_TRIANGLES, 0, vbo.size / 8);
     }
 }

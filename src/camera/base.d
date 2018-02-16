@@ -23,10 +23,9 @@ import dlib.math;
 import accessors;
 import gl : time;
 import std.math;
+import litecraft;
 
 private {
-    const float yaw = -90.0f;
-    const float pitch = 0.0f;
     const float speed = 2.5f;
     const float sensitity = 0.1f;
     const float zoom = 45.0f;
@@ -54,8 +53,8 @@ class Camera {
         vec3 _worldUp;
 
         // Eular Angles
-        @Read float _yaw;
-        @Read float _pitch;
+        @Read float _yaw = -90.0f;
+        @Read float _pitch = 0.0f;
 
         // Camera options
         @Read float _movementSpeed;
@@ -64,23 +63,17 @@ class Camera {
     }
 
     /// Create a camera using vectors
-    this(vec3 position = vec3(0.0f, 0.0f, 0.0f), vec3 up = vec3(0.0f, 1.0f, 0.0f),
-            float yaw = yaw, float pitch = pitch) {
+    this(vec3 position = vec3(0.0f, 0.0f, 0.0f), vec3 up = vec3(0.0f, 1.0f, 0.0f)) {
         this._position = position;
         this._worldUp = up;
-        this._yaw = yaw;
-        this._pitch = pitch;
 
         updateCameraVectors();
     }
 
     /// Create a camera using float values
-    this(float posX, float posY, float posZ, float upX = 0.0f, float upY = 1.0f,
-            float upZ = 0.0f, float yaw = yaw, float pitch = pitch) {
+    this(float posX, float posY, float posZ, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f) {
         this._position = vec3(posX, posY, posZ);
         this._worldUp = vec3(upX, upY, upZ);
-        this._yaw = yaw;
-        this._pitch = pitch;
 
         updateCameraVectors();
     }
@@ -88,6 +81,11 @@ class Camera {
     /// Get view matrix
     mat4 viewMatrix() {
         return lookAtMatrix(_position, _position + _front, _up);
+    }
+
+    /// Get camera projection
+    mat4 projection() {
+        return perspectiveMatrix(zoom, Litecraft.width / Litecraft.height, 0.1f, 100.0f);
     }
 
     /// Processes input received from any keyboard-like input system

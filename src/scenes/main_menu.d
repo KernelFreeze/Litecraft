@@ -26,13 +26,11 @@ import litecraft;
 import gui;
 import draw;
 import gl : closeGame, time;
+import camera;
+import models.block_model : blockmodel;
 
 /// Show a fancy loading screen...
 public class MainMenu : Scene {
-    override void render3D() {
-
-    }
-
     protected void drawBackground() {
         switch (cast(uint) (time() / 10 % 7)) {
             case 0:
@@ -62,7 +60,7 @@ public class MainMenu : Scene {
     override void render2D() {
         drawBackground();
 
-        auto w = Window("Litecraft", 330, 390, Litecraft.width / 2, Litecraft.height / 2);
+        auto w = Window("Litecraft", 0, 0, Litecraft.width / 2, Litecraft.height / 2);
 
         w.centeredImage(texture("logo"), 80, 80);
 

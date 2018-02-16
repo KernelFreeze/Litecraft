@@ -31,11 +31,14 @@ import gl.render;
 */
 final class VBO {
     @Read private uint _id;
+    @Read private uint _size;
 
     /// Ask the GPU to generate a new VBO
     this(float[] vertex_buffer_data) {
         glGenBuffers(1, &_id);
         bind();
+
+        _size = cast(uint) vertex_buffer_data.length;
 
         // Send buffer data to GPU
         glBufferData(GL_ARRAY_BUFFER, float.sizeof * vertex_buffer_data.length,
