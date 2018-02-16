@@ -105,7 +105,7 @@ void preLoadResource(AsyncLoadable resource) {
         warningf("Error in worker thread: %s\n%s", e.toString, e.info);
     }
     catch (Error e) {
-        warningf("Out of bounds at thread: %s\n%s", e.toString, e.info);
+        warningf("Fatal error in worker thread: %s\n%s", e.toString, e.info);
     }
 }
 

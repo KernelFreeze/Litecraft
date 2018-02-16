@@ -1,7 +1,7 @@
 # Litecraft
 [![Discord](https://img.shields.io/discord/371055566480605184.svg)](https://discord.gg/qKjuDxx)
 
-<img src="https://i.imgur.com/jVISi6u.png" width="600">
+<img src="https://i.imgur.com/JwRuNEl.gif" width="600">
 
 [Open source](https://en.wikipedia.org/wiki/Free_and_open-source_software), [clean room](https://en.wikipedia.org/wiki/Clean_room_design) implementation of [Minecraft](https://minecraft.net) Client. Although this implementation does not use any Mojang source code, you must have a valid Minecraft account to play. We do not support piracy in any way.
 
@@ -19,7 +19,6 @@
 - [ ] More soon™ We have some crazy ideas... ;)
 
 # Screenshots
-<img src="https://i.imgur.com/7u4Zyy1.png" width="600">
 <img src="https://cdn.discordapp.com/attachments/377277794595635210/377296799892766720/unknown.png" width="600">
 <img src="https://cdn.discordapp.com/attachments/377277794595635210/377277937902419968/687474703a2f2f692e696d6775722e636f6d2f68465967334a752e706e67.png" width="600">
 
