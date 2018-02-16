@@ -152,6 +152,11 @@ public final class Shader : Loadable {
     }
 
     /// Set uniform with value
+    void set(string u, uint value) {
+        glUniform1ui(uniform(u), value);
+    }
+
+    /// Set uniform with value
     void set(string u, float value) {
         glUniform1f(uniform(u), value);
     }

@@ -17,24 +17,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-module scenes.multiplayer_menu;
+module camera.first_person;
 
-import scenes;
-import gui;
-import litecraft;
-import draw;
-
-/// Multi-Player Main Menu
-public class MultiPlayerMenu : MainMenu {
-    private bool show = true;
-    
-    override void render2D() {
-        drawBackground();
-
-        auto w = Window("Multiplayer", &show, 330, 390, Litecraft.width / 2, Litecraft.height / 2);
-
-        if (!show) {
-            Litecraft.instance.scene = new MainMenu;
-        }
-    }
-}
+import camera.base;

@@ -31,6 +31,15 @@ import std.array : replaceFirst;
 
 private static BlockModel[string] blockmodels;
 
+enum Face {
+    North = 0x01,
+    South = 0x02,
+    East = 0x04,
+    West = 0x08,
+    Up = 0x10,
+    Down = 0x20
+}
+
 /// Internal representation of Minecraft Model ready for render
 final class BlockModel : AsyncLoadable {
     private VAO vao; // Status
@@ -128,19 +137,19 @@ final class BlockModel : AsyncLoadable {
     private float parseCullface(string cullface) @safe {
         switch (cullface) {
         case "down":
-            return 0;
+            return Face.Down;
         case "up":
-            return 1;
+            return Face.Up;
         case "north":
-            return 2;
+            return Face.North;
         case "south":
-            return 3;
+            return Face.South;
         case "west":
-            return 4;
+            return Face.West;
         case "east":
-            return 5;
+            return Face.East;
         default:
-            return -1;
+            return 0;
         }
     }
 
@@ -342,7 +351,7 @@ final class BlockModel : AsyncLoadable {
     }
 
     /// Draw model at some location
-    void draw(vec3 position, Shader shader = shader("block")) {
+    void draw(vec3 position, ubyte cullfaces = 0, Shader shader = shader("block")) {
         if (!isLoaded)
             return;
 
@@ -356,9 +365,15 @@ final class BlockModel : AsyncLoadable {
         shader.use;
         vao.bind;
 
+        if (auto camera = Litecraft.instance.scene.camera) {
+            shader.set("uProjection", camera.viewMatrix);
+        } else {
+            shader.set("uProjection", orthoProjection);
+        }
+
         shader.set("uTransform", translationMatrix(position));
-        shader.set("uProjection", orthoProjection);
         shader.set("uTime", time);
+        shader.set("uCullface", cast(int) cullfaces);
         shader.set("uResolution", vec2(Litecraft.width, Litecraft.height));
 
         foreach (tx; 0 .. textures.length) {

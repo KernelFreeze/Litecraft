@@ -8,8 +8,8 @@ in float vCullface;
 in float vTint;
 
 uniform sampler2D uTextures[10];
-uniform float uCullface = -1;
 uniform vec3 uTintColor;
+uniform int uCullface;
 
 // Get appropiate texture requested by OpenGL
 vec4 getSampleFromArray(int ndx) {
@@ -40,9 +40,11 @@ vec4 getSampleFromArray(int ndx) {
 }
 
 void main() {
-  if (uCullface == vCullface)
+  // Skip face if is touching another block
+  if ((uCullface & int(vCullface)) != 0)
     return;
 
+  // Find what texture we need to use
   vec4 color = getSampleFromArray(int(vTexture));
 
   if (vTint != 0) {

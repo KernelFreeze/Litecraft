@@ -24,6 +24,7 @@ import dlib.math;
 import resource_manager;
 import litecraft;
 import gui;
+import draw;
 
 /// Show a fancy loading screen...
 public final class LoadingScene : Scene {
