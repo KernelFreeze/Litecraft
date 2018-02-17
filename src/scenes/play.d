@@ -17,13 +17,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-module scenes;
+module scenes.play;
 
-public {
-    import scenes.scene;
-    import scenes.loading;
-    import scenes.main_menu;
-    import scenes.multiplayer_menu;
+import std.socket;
+import scenes;
 
-    import scenes.play;
+/**
+    The most important scene!
+    Represents a connection between Client and server side.
+
+    Attention: Server side maybe a local server.
+*/
+public final class PlayScene : Scene {
+    private {
+        /// Server side
+        TcpSocket connection;
+    }
+
+    override void render3D() {
+
+    }
+
+    override void render2D() {
+
+    }
 }

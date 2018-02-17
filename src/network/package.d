@@ -16,14 +16,8 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
-module scenes;
+module network;
 
 public {
-    import scenes.scene;
-    import scenes.loading;
-    import scenes.main_menu;
-    import scenes.multiplayer_menu;
-
-    import scenes.play;
+    import network.packet;
 }

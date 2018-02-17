@@ -31,6 +31,10 @@ import models.block_model : blockmodel;
 
 /// Show a fancy loading screen...
 public class MainMenu : Scene {
+    override void render3D() {
+
+    }
+    
     protected void drawBackground() {
         switch (cast(uint) (time() / 10 % 7)) {
             case 0:
