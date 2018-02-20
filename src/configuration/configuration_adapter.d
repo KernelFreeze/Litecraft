@@ -26,7 +26,7 @@ public abstract class ConfigurationAdapter {
     @Read @Write protected int _configVersion;
     @Read @Write protected int _renderDistance = 12;
     @Read @Write protected int _difficulty = 2;
-    @Read @Write protected int _quality = 2; // Low, Normal, Higth
+    @Read @Write protected int _quality = 2; // Low, Normal, Hight
 
     @Read @Write protected int _width = 800;
     @Read @Write protected int _height = 600;
@@ -36,7 +36,7 @@ public abstract class ConfigurationAdapter {
     @Read @Write protected float _brightness = 0.5f;
 
     @Read @Write protected int _guiScale; // Auto, Smaller, Small, Normal, Big, Bigger
-    @Read @Write protected int _particles; // None, Low, Medium, Higth
+    @Read @Write protected int _particles = 3; // None, Low, Medium, Hight
 
     @Read @Write protected string _lastServer = "";
 
@@ -44,6 +44,9 @@ public abstract class ConfigurationAdapter {
     @Read @Write protected int _antiAliasingLevel = 4;
 
     @Read @Write protected bool _oldCombat = false;
+    @Read @Write protected bool _fullscreen = false;
+    @Read @Write protected bool _clouds = true;
+    @Read @Write protected bool _vsync = true;
 
     mixin(GenerateFieldAccessors);
 }

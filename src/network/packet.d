@@ -18,81 +18,91 @@
 */
 module network.packet;
 
-import std.bitmanip : peek, nativeToBigEndian;
+import std.bitmanip : read, append, nativeToBigEndian;
 import std.utf;
 import std.socket;
+import accessors;
 
-/// Read a defined amount of bytes
-ubyte[] readUBytes(TcpSocket connection, int amount = 1) {
-    ubyte[] o = new ubyte[amount];
-    connection.receive(o);
+/// Read an incoming byte
+byte readUByte(ubyte[] buf) {
+    return buf.read!ubyte;
+}
+
+/// Read an incoming signed byte
+byte readByte(ubyte[] buf) {
+    return buf.read!byte;
+}
+
+/// Read `size` number of bytes from the buffer
+byte[] readBytes(ubyte[] buf, ulong size) {
+    byte[] o = new byte[size];
+
+    foreach (i; 0 .. size) {
+        o ~= buf.readByte;
+    }
 
     return o;
 }
 
-/// Read incoming signed bytes
-byte[] readBytes(TcpSocket connection, int amount = 1) {
-    return cast(byte[]) connection.readUBytes(amount);
-}
+/// Read `size` number of bytes from the buffer
+ubyte[] readUBytes(ubyte[] buf, ulong size) {
+    ubyte[] o = new ubyte[size];
 
-/// Read an incoming byte
-byte readUByte(TcpSocket connection) {
-    return connection.readUBytes[0];
-}
+    foreach (i; 0 .. size) {
+        o ~= buf.readUByte;
+    }
 
-/// Read an incoming signed byte
-byte readByte(TcpSocket connection) {
-    return connection.readBytes[0];
+    return o;
 }
 
 /// Read an incoming boolean
-bool readBoolean(TcpSocket connection) {
-    return connection.readUBytes.peek!bool;
+bool readBoolean(ubyte[] buf) {
+    return buf.read!bool;
 }
 
 /// Read an incoming short
-short readShort(TcpSocket connection) {
-    return connection.readUBytes(2).peek!short;
+short readShort(ubyte[] buf) {
+    return buf.read!short;
 }
 
 /// Read an incoming unsigned short
-ushort readUShort(TcpSocket connection) {
-    return connection.readUBytes(2).peek!ushort;
+ushort readUShort(ubyte[] buf) {
+    return buf.read!ushort;
 }
 
 /// Read an incoming integer
-int readInt(TcpSocket connection) {
-    return connection.readUBytes(4).peek!int;
+int readInt(ubyte[] buf) {
+    return buf.read!int;
 }
 
 /// Read an incoming unsigned integer
-uint readUInt(TcpSocket connection) {
-    return connection.readUBytes(4).peek!uint;
+uint readUInt(ubyte[] buf) {
+    return buf.read!uint;
 }
 
 /// Read an incoming long
-long readLong(TcpSocket connection) {
-    return connection.readUBytes(8).peek!long;
+long readLong(ubyte[] buf) {
+    return buf.read!long;
 }
 
 /// Read an incoming single-precision 32-bit floating point number
-float readFloat(TcpSocket connection) {
-    return connection.readUBytes(4).peek!float;
+float readFloat(ubyte[] buf) {
+    return buf.read!float;
 }
 
 /// Read an incoming double-precision 64-bit floating point number
-double readDouble(TcpSocket connection) {
-    return connection.readUBytes(8).peek!double;
+double readDouble(ubyte[] buf) {
+    return buf.read!double;
 }
 
 /// Read an incoming variable size integer
-int readVarInt(TcpSocket connection) {
+int readVarInt(ubyte[] buf) {
     int numRead;
     int result;
     byte read;
 
     do {
-        read = connection.readByte;
+        read = buf.readByte;
         const int value = (read & 0b01111111);
         result |= (value << (7 * numRead));
 
@@ -107,13 +117,13 @@ int readVarInt(TcpSocket connection) {
 }
 
 /// Read an incoming variable size integer
-long readVarLong(TcpSocket connection) {
+long readVarLong(ubyte[] buf) {
     int numRead;
     long result;
     byte read;
 
     do {
-        read = connection.readByte;
+        read = buf.readByte;
         const int value = (read & 0b01111111);
         result |= (value << (7 * numRead));
 
@@ -128,67 +138,79 @@ long readVarLong(TcpSocket connection) {
 }
 
 /// Read a incoming string
-string readString(TcpSocket connection, int max = 32_767) {
-    const int size = connection.readVarInt;
+string readString(ubyte[] buf, int max = 32_767) {
+    const int size = buf.readVarInt;
 
     if (size > (max * 4) + 3) {
         throw new Exception("String is too big");
     }
-    const auto output = cast(string) connection.readBytes(size);
+    const auto output = cast(string) buf.readBytes(size);
     validate(output);
 
     return output;
 }
 
-/// Write byte to outgoing connection
-void writeByte(TcpSocket connection, byte b) {
-    ubyte[1] o = [cast(ubyte) b];
-    connection.send(o);
+/// Write byte to outgoing buf
+void writeByte(ubyte[] buf, const byte input) {
+    buf.append!byte(input);
 }
 
-/// Write unsigned byte to outgoing connection
-void writeUByte(TcpSocket connection, ubyte b) {
-    ubyte[1] o = [b];
-    connection.send(o);
+/// Write unsigned byte to outgoing buf
+void writeUByte(ubyte[] buf, const ubyte input) {
+    buf.append!ubyte(input);
 }
 
-/// Write boolean to outgoing connection
-void writeBool(TcpSocket connection, bool input) {
-    connection.send(nativeToBigEndian(input));
+/// Write bytes to the buffer
+void writeBytes(ubyte[] buf, const byte[] input) {
+    foreach (i; input) {
+        buf.writeByte(i);
+    }
 }
 
-/// Write short to outgoing connection
-void writeShort(TcpSocket connection, short input) {
-    connection.send(nativeToBigEndian(input));
+/// Write bytes to the buffer
+void writeUBytes(ubyte[] buf, const ubyte[] input) {
+    foreach (i; input) {
+        buf.writeUByte(i);
+    }
 }
 
-/// Write unsigned short to outgoing connection
-void writeUShort(TcpSocket connection, ushort input) {
-    connection.send(nativeToBigEndian(input));
+/// Write boolean to outgoing buf
+void writeBool(ubyte[] buf, const bool input) {
+    buf.append!bool(input);
 }
 
-/// Write int to outgoing connection
-void writeInt(TcpSocket connection, int input) {
-    connection.send(nativeToBigEndian(input));
+/// Write short to outgoing buf
+void writeShort(ubyte[] buf, const short input) {
+    buf.append!short(input);
 }
 
-/// Write float to outgoing connection
-void writeLong(TcpSocket connection, long input) {
-    connection.send(nativeToBigEndian(input));
+/// Write unsigned short to outgoing buf
+void writeUShort(ubyte[] buf, const ushort input) {
+    buf.append!ushort(input);
 }
 
-/// Write float to outgoing connection
-void writeFloat(TcpSocket connection, float input) {
-    connection.send(nativeToBigEndian(input));
+/// Write int to outgoing buf
+void writeInt(ubyte[] buf, const int input) {
+    buf.append!int(input);
 }
 
-/// Write double to outgoing connection
-void writeDouble(TcpSocket connection, double input) {
-    connection.send(nativeToBigEndian(input));
+/// Write float to outgoing buf
+void writeLong(ubyte[] buf, const long input) {
+    buf.append!long(input);
 }
 
-/// Write varint to outgoing connection
-void writeVarInt(TcpSocket connection, int value) {
+/// Write float to outgoing buf
+void writeFloat(ubyte[] buf, const float input) {
+    buf.append!float(input);
+}
+
+/// Write double to outgoing buf
+void writeDouble(ubyte[] buf, const double input) {
+    buf.append!double(input);
+}
+
+/// Write varint to outgoing buf
+void writeVarInt(ubyte[] buf, int value) {
     do {
         byte temp = cast(byte)(value & 0b01111111);
 
@@ -196,13 +218,13 @@ void writeVarInt(TcpSocket connection, int value) {
         if (value != 0) {
             temp |= 0b10000000;
         }
-        connection.writeByte(temp);
+        buf.writeByte(temp);
     }
     while (value != 0);
 }
 
-/// Write string to outgoing connection
-void writeString(TcpSocket connection, string input, int max = 32_767) {
+/// Write string to outgoing buf
+void writeString(ubyte[] buf, string input, int max = 32_767) {
     const ubyte[] bytes = cast(ubyte[]) input;
     const long size = bytes.length;
 
@@ -210,22 +232,30 @@ void writeString(TcpSocket connection, string input, int max = 32_767) {
         throw new Exception("String is too big");
     }
 
-    connection.writeVarInt(cast(int) size);
-    connection.send(bytes);
+    buf.writeVarInt(cast(int) size);
+    buf.writeUBytes(bytes);
 }
 
 /// Packet base
 public abstract class Packet {
-    private TcpSocket connection;
+    private ubyte[] buffer;
+    @Read @Write private int _id;
 
-    /// Create a new Packet using an open connection
-    this(TcpSocket connection) {
-        this.connection = connection;
+    /// Get a remote packet
+    this(ubyte[] buffer) {
+        this.buffer = buffer;
+    }
+
+    /// Create an empty packet
+    this() {
+        
     }
 
     /// Decode an incoming Packet
     public void decode();
 
-    /// Encode an outgoing Packet, you must write your packet ID to the byte stream
-    public void encode() nothrow;
+    /// Encode an outgoing Packet
+    public byte[] encode() nothrow;
+
+    mixin(GenerateFieldAccessors);
 }

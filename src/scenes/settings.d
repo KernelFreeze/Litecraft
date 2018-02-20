@@ -67,7 +67,7 @@ public class SettingsMenu : MainMenu {
         }
 
         if (video) {
-            auto w = Window("Video Settings...", &video, 300, 400,
+            auto w = Window("Video Settings...", &video, 500, 400,
                     Litecraft.width / 2 + 20, Litecraft.height / 2 + 20);
 
             int quality = config.quality;
@@ -84,11 +84,31 @@ public class SettingsMenu : MainMenu {
             if (w.slider("Brightness", &brightness)) {
                 config.brightness = brightness / 100.0f;
             }
-            // Particles
-            // Fullscreen
-            // Render distance
-            // Clouds
-            // Vsync
+
+            int particles = config.particles;
+            if (w.combo("Particles", &particles, ["None", "Decreased", "Medium", "All"])) {
+                config.particles = particles;
+            }
+
+            bool fullscreen = config.fullscreen;
+            if (w.checkbox("Fullscreen", &fullscreen)) {
+                config.fullscreen = fullscreen;
+            }
+
+            int renderDistance = config.renderDistance;
+            if (w.slider("Render distance", &renderDistance, 4, 64)) {
+                config.renderDistance = renderDistance;
+            }
+
+            bool clouds = config.clouds;
+            if (w.checkbox("Clouds", &clouds)) {
+                config.clouds = clouds;
+            }
+
+            bool vsync = config.vsync;
+            if (w.checkbox("VSync", &vsync)) {
+                config.vsync = vsync;
+            }
         }
     }
 }

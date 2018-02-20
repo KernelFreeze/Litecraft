@@ -140,8 +140,13 @@ struct Window {
     }
 
     /// Show and get a slider
-    bool slider(string text, float* value) {
-        return igSliderFloat(text.toStringz, value, 0.0f, 100.0f, "%.1f");
+    bool slider(string text, float* value, float from = 0.0f, float to = 100.0f, const char* format = "%.1f") {
+        return igSliderFloat(text.toStringz, value, from, to, format);
+    }
+
+    /// Show and get a slider
+    bool slider(string text, int* value, int from = 0, int to = 100, const char* format = "%.0f") {
+        return igSliderInt(text.toStringz, value, from, to, format);
     }
 }
 

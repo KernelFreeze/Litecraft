@@ -52,6 +52,8 @@ public final class SDLConfigurationAdapter : ConfigurationAdapter {
             _antiAliasingLevel = data.getTagAttribute!int("anti-aliasing", "level", antiAliasingLevel);
 
             _oldCombat = data.getTagValue!bool("old-combat", oldCombat);
+            _fullscreen = data.getTagValue!bool("fullscreen", fullscreen);
+            _vsync = data.getTagValue!bool("vsync", vsync);
         }
         catch (FileException e) {
             warning("Generating new configuration...");
@@ -77,7 +79,9 @@ public final class SDLConfigurationAdapter : ConfigurationAdapter {
         new Tag(data, null, "particles", [Value(particles)]);
         new Tag(data, null, "last-server", [Value(lastServer)]);
         new Tag(data, null, "old-combat", [Value(oldCombat)]);
+        new Tag(data, null, "fullscreen", [Value(fullscreen)]);
         new Tag(data, null, "brightness", [Value(brightness)]);
+        new Tag(data, null, "vsync", [Value(vsync)]);
 
         auto AALevelAttribute = new Attribute(null, "level", Value(antiAliasingLevel));
         new Tag(data, null, "anti-aliasing", [Value(antiAliasing)], [AALevelAttribute]);
