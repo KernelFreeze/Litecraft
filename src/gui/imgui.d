@@ -92,11 +92,7 @@ void imguiInit(GLFWwindow* window, bool install_callbacks = true) {
     igGetStyle().WindowPadding = ImVec2(20.0f, 20.0f);
     igGetStyle().FramePadding = ImVec2(20.0f, 6.0f);
     igGetStyle().ItemSpacing = ImVec2(20.0f, 10.0f);
-
-    version (Windows) {
-        io.ImeWindowHandle = glfwGetWin32Window(g_Window);
-    }
-
+    
     if (install_callbacks) {
         glfwSetMouseButtonCallback(window, &igImplGlfwGL3_MouseButtonCallback);
         glfwSetScrollCallback(window, &igImplGlfwGL3_ScrollCallback);

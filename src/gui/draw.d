@@ -124,6 +124,25 @@ struct Window {
         centerElement(w);
         igImage(cast(void*) texture.id, ImVec2(w, h));
     }
+
+    /// Show and get checkbox
+    bool checkbox(string text, bool* value) {
+        return igCheckbox(text.toStringz, value);
+    }
+
+    /// Show and get combo box
+    bool combo(string text, int* value, string[] list) {
+        import std.array;
+        import std.algorithm.iteration : map;
+
+        auto res = list.map!(x => x.toStringz).array;
+        return igCombo(text.toStringz, value, res.ptr, cast(int) res.length);
+    }
+
+    /// Show and get a slider
+    bool slider(string text, float* value) {
+        return igSliderFloat(text.toStringz, value, 0.0f, 100.0f, "%.1f");
+    }
 }
 
 /// Invisible Window for draw elements

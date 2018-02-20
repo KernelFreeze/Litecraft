@@ -31,7 +31,7 @@ public class MultiPlayerMenu : MainMenu {
     override void render2D() {
         drawBackground();
 
-        auto w = Window("Multiplayer", &show, 330, 390, Litecraft.width / 2, Litecraft.height / 2);
+        auto w = Window("Multiplayer", &show, 300, 400, Litecraft.width / 2, Litecraft.height / 2);
 
         if (!show) {
             Litecraft.instance.scene = new MainMenu;

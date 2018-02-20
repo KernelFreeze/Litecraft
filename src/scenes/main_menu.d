@@ -64,7 +64,7 @@ public class MainMenu : Scene {
     override void render2D() {
         drawBackground();
 
-        auto w = Window("Litecraft", 0, 0, Litecraft.width / 2, Litecraft.height / 2);
+        auto w = Window("Litecraft", 300, 400, Litecraft.width / 2, Litecraft.height / 2);
 
         w.centeredImage(texture("logo"), 80, 80);
 
@@ -76,7 +76,11 @@ public class MainMenu : Scene {
             Litecraft.instance.scene = new MultiPlayerMenu;
         }
 
-        w.bigButton("Options...");
+        if (w.bigButton("Options...")) {
+            Litecraft.instance.scene = new SettingsMenu;
+        }
+
+        w.bigButton("Minecraft Realms");
 
         if (w.bigButton("Quit Game")) {
             closeGame();

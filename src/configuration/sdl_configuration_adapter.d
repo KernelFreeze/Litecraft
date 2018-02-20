@@ -42,6 +42,7 @@ public final class SDLConfigurationAdapter : ConfigurationAdapter {
 
             _mouseSensitivity = data.getTagValue!float("mouse-sensitivity", mouseSensitivity);
             _fov = data.getTagValue!float("fov", fov);
+            _brightness = data.getTagValue!float("brightness", brightness);
 
             _guiScale = data.getTagValue!int("gui-scale", guiScale);
             _particles = data.getTagValue!int("particles", particles);
@@ -49,6 +50,8 @@ public final class SDLConfigurationAdapter : ConfigurationAdapter {
 
             _antiAliasing = data.getTagValue!bool("anti-aliasing", antiAliasing);
             _antiAliasingLevel = data.getTagAttribute!int("anti-aliasing", "level", antiAliasingLevel);
+
+            _oldCombat = data.getTagValue!bool("old-combat", oldCombat);
         }
         catch (FileException e) {
             warning("Generating new configuration...");
@@ -73,6 +76,8 @@ public final class SDLConfigurationAdapter : ConfigurationAdapter {
         new Tag(data, null, "gui-scale", [Value(guiScale)]);
         new Tag(data, null, "particles", [Value(particles)]);
         new Tag(data, null, "last-server", [Value(lastServer)]);
+        new Tag(data, null, "old-combat", [Value(oldCombat)]);
+        new Tag(data, null, "brightness", [Value(brightness)]);
 
         auto AALevelAttribute = new Attribute(null, "level", Value(antiAliasingLevel));
         new Tag(data, null, "anti-aliasing", [Value(antiAliasing)], [AALevelAttribute]);

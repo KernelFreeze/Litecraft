@@ -26,13 +26,14 @@ public abstract class ConfigurationAdapter {
     @Read @Write protected int _configVersion;
     @Read @Write protected int _renderDistance = 12;
     @Read @Write protected int _difficulty = 2;
-    @Read @Write protected int _quality = 3; // Low, Normal, Higth
+    @Read @Write protected int _quality = 2; // Low, Normal, Higth
 
     @Read @Write protected int _width = 800;
     @Read @Write protected int _height = 600;
 
     @Read @Write protected float _mouseSensitivity = 0.5f;
     @Read @Write protected float _fov = 0.5f;
+    @Read @Write protected float _brightness = 0.5f;
 
     @Read @Write protected int _guiScale; // Auto, Smaller, Small, Normal, Big, Bigger
     @Read @Write protected int _particles; // None, Low, Medium, Higth
@@ -41,6 +42,8 @@ public abstract class ConfigurationAdapter {
 
     @Read @Write protected bool _antiAliasing = true;
     @Read @Write protected int _antiAliasingLevel = 4;
+
+    @Read @Write protected bool _oldCombat = false;
 
     mixin(GenerateFieldAccessors);
 }

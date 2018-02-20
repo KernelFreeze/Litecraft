@@ -24,6 +24,7 @@ public {
     import scenes.loading;
     import scenes.main_menu;
     import scenes.multiplayer_menu;
+    import scenes.settings;
 
     import scenes.play;
 }
