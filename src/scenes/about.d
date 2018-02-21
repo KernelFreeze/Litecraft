@@ -64,10 +64,17 @@ public class AboutMenu : MainMenu {
         }
 
         if (license) {
-            auto w = Window("License", &license, 500, 400,
+            auto w = Window("License", &license, 600, 400,
                     Litecraft.width / 2 + 20, Litecraft.height / 2 + 20);
 
             w.text(import("LICENSE"));
+        }
+
+        if (libraries) {
+            auto w = Window("Open Source Libraries", &libraries, 500, 400,
+                    Litecraft.width / 2 + 20, Litecraft.height / 2 + 20);
+
+            w.text(import("LIBRARIES.md"));
         }
     }
 }
