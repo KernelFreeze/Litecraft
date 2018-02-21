@@ -80,7 +80,9 @@ public class MainMenu : Scene {
             Litecraft.instance.scene = new SettingsMenu;
         }
 
-        w.bigButton("Minecraft Realms");
+        if (w.bigButton("About")) {
+            Litecraft.instance.scene = new AboutMenu;
+        }
 
         if (w.bigButton("Quit Game")) {
             closeGame();

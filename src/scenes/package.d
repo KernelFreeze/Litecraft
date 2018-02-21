@@ -25,6 +25,6 @@ public {
     import scenes.main_menu;
     import scenes.multiplayer_menu;
     import scenes.settings;
-
+    import scenes.about;
     import scenes.play;
 }

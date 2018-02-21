@@ -4,6 +4,9 @@ authors "KernelFreeze"
 copyright "Copyright © 2018, KernelFreeze"
 license "MIT"
 
+// Import documentation as strings
+stringImportPaths "docs"
+
 dependency "derelict-glfw3" version="~>4.0.0-beta"
 dependency "derelict-gl3" version="~>2.0.0-beta"
 dependency "derelict-imgui" version="~>0.9.4"
