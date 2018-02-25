@@ -16,3 +16,4 @@ __dummy.html
 *.ini
 configs/
 resources/minecraft/
+.DS_Store
