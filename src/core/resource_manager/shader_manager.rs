@@ -25,7 +25,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 pub struct ShaderManager {
-    shaders: HashMap<&'static str, Program>
+    shaders: HashMap<&'static str, Program>,
 }
 
 impl ShaderManager {
