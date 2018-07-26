@@ -10,7 +10,7 @@ For more information, see the `CONTRIBUTING` guide.
 
 <!-- Summary of the PR -->
 
-This PR fixes/implements the following **bugs/features**
+This PR fixes/implements the following **bug/features**
 
 * [ ] Bug 1
 * [ ] Bug 2
@@ -27,10 +27,6 @@ Explain the **motivation** for making this change. What existing problem does th
 **Test plan (required) 😏**
 
 Demonstrate the code is solid. Example: The exact commands you ran and their output, screenshots / videos if the pull request changes UI.
-
-**Code formatting 😅**
-
-<!-- We use "stroustrup" brace style, and "The D Style" -->
 
 **Closing issues 😉**
 

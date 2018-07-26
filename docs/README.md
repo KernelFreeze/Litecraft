@@ -3,19 +3,20 @@
 
 <img src="https://i.imgur.com/JwRuNEl.gif" width="600">
 
-[Open source](https://en.wikipedia.org/wiki/Free_and_open-source_software), [clean room](https://en.wikipedia.org/wiki/Clean_room_design) implementation of [Minecraft](https://minecraft.net) Client. Although this implementation does not use any Mojang source code, you must have a valid Minecraft account to play. We do not support piracy in any way.
+[Open source](https://en.wikipedia.org/wiki/Free_and_open-source_software), [clean room](https://en.wikipedia.org/wiki/Clean_room_design) implementation of [Minecraft](https://minecraft.net) Client.
 
-# Features
-- [X] Native perfomance and better memory management. (Thanks to D Programming Language).
-- [X] Better rendering system.
-- [X] Multi-thread and low Heap allocations.
+# Features and differences from vanilla:
+- [X] Litecraft does not require or use Java.
+- [X] Native perfomance and better memory management.
+- [X] Faster and better rendering system.
+- [X] Multi-threaded and low Heap allocations.
 - [X] Rendering using shaders. [Shaders are faster than old OpenGL](https://thebookofshaders.com/00/).
-- [X] Safe by design.
+- [X] Less crashes! Safe by design.
 - [X] Supported by an awesome community.
-- [X] Modern design (Design patterns and use of VAOs, VBOs, EBOs, etc), use of new interfaces and libraries (like OpenGL >= 3.0).
+- [X] Modern design (Design patterns and use of VAOs, VBOs, EBOs, etc).
 - [ ] All vanilla client features.
-- [ ] Launcher with assets downloader [(WIP!)](https://github.com/Litecrafty/Launcher)
-- [ ] Server side plugin (mod) API (Send resources from server to client)
+- [ ] [Launcher with assets downloader](https://github.com/Litecrafty/Launcher)
+- [ ] Support for server side plugin/mod API.
 - [ ] More soon™ We have some crazy ideas... ;)
 
 # Screenshots
@@ -24,28 +25,16 @@
 
 # Clone and Compile
 
- - Install and enable Git LFS for assets and libraries download.
  - Clone the repository.
- - Download D Programming Language: `dub`, `ldc2` or any D compiler, and `gcc` as linker.
- - Install libraries: `glfw3`.
- - Open any Minecraft jar and copy `assets/minecraft` to Litecraft `resources` folder.
- - Build with dub.
- - Run with our [Launcher](https://github.com/Litecrafty/Launcher) or manually with any client token:
-```bash
-dub build && ./litecraft TESTTOKEN
-```
+ - Download and install [Rust](https://rustup.rs/).
+ - Open Minecraft 1.13 jar file using any zip extractor, and copy `assets/minecraft` to Litecraft `resources` folder, or use our Launcher in developer's mode.
+ - Build and run with `cargo run`.
  - Profit!
 
 # F.A.Q
 
-### I want to help! Where can I learn D?
-Here: https://tour.dlang.org
-
 ### How long will it take you to program a usable version?
 Although we have thousands of hours of work, we probably have many thousands more.
-
-### Litecraft is supposed to be faster, why does not it support old computers with OpenGL 2.1?
-OpenGL 3.X has been launched for more than 10 years, besides facilitating the development, it allows us to do things in a more efficient way that otherwise would not be possible. If you really want to use OpenGL 2.1 or 1.1, we recommend using Minecraft Vanilla, sorry :(
 
 # Contributing
 [Bug reports](https://github.com/Litecrafty/Litecraft/issues) and [pull requests](https://github.com/Litecrafty/Litecraft/pulls) are welcome on our GitHub. This project is intended to be a safe, welcoming space for collaboration and discussion, and contributors are expected to adhere to the [Contributor Covenant code of conduct](https://github.com/Litecrafty/Litecraft/blob/master/CONTRIBUTING.md), you can read it on your Language [here](https://www.contributor-covenant.org/translations.html).
