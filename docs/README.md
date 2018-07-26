@@ -1,6 +1,7 @@
 # 👾 Litecraft
 [![Discord](https://img.shields.io/discord/371055566480605184.svg)](https://discord.gg/qKjuDxx)
-[![Build Status](https://travis-ci.org/Litecrafty/Litecraft.svg?branch=master)](https://travis-ci.org/Litecrafty/Litecraft)
+[![Travis Build Status](https://travis-ci.org/Litecrafty/Litecraft.svg?branch=master)](https://travis-ci.org/Litecrafty/Litecraft)
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/8w3v571dpu2a84y6?svg=true)](https://ci.appveyor.com/project/Litecrafty/litecraft)
 
 <img src="https://i.imgur.com/JwRuNEl.gif" width="600">
 
