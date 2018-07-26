@@ -20,7 +20,6 @@ use core::settings::Settings;
 use gfx::scene::{Scene, SceneAction::ChangeScene};
 use scenes::loading::LoadingScene;
 
-use glium::glutin::dpi::LogicalSize;
 use glium::glutin::{ContextBuilder, ControlFlow, Event, EventsLoop, WindowBuilder, WindowEvent};
 use glium::Display;
 
@@ -45,18 +44,17 @@ impl Canvas {
 
     /// Create a custom Window
     fn create_window(&self, events_loop: &EventsLoop) -> WindowBuilder {
-        let screen = match self.settings.fullscreen() {
-            true => Some(events_loop.get_primary_monitor()),
-            false => None,
+        let screen = if self.settings.fullscreen() {
+            Some(events_loop.get_primary_monitor())
+        } else {
+            None
         };
 
-        let window = WindowBuilder::new()
+        WindowBuilder::new()
             .with_min_dimensions(self.resource_manager.size())
             .with_title(format!("Litecraft {}", LITECRAFT_VERSION))
             .with_maximized(self.settings.maximized())
-            .with_fullscreen(screen);
-
-        window
+            .with_fullscreen(screen)
     }
 
     /// Window events handler
@@ -118,9 +116,10 @@ impl Canvas {
             target.finish().expect("Couldn't render scene");
 
             // Check for events
-            events_loop.poll_events(|events| match events {
-                Event::WindowEvent { event, .. } => status = self.event_handler(event),
-                _ => (),
+            events_loop.poll_events(|events| {
+                if let Event::WindowEvent { event, .. } = events {
+                    status = self.event_handler(event);
+                }
             });
         }
 

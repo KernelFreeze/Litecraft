@@ -13,7 +13,7 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use core::{camera::Camera, settings::Settings};
+use core::camera::Camera;
 
 use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
@@ -23,11 +23,8 @@ use gfx::scene::{Scene, SceneAction};
 use gfx::shapes;
 use gfx::shapes::Vertex2D;
 
-use glium::glutin::dpi::LogicalSize;
 use glium::uniforms::EmptyUniforms;
 use glium::{Display, Frame, IndexBuffer, Surface, VertexBuffer};
-
-use std::sync::Arc;
 
 pub struct LoadingScene {
     vertex_buffer: VertexBuffer<Vertex2D>,

@@ -21,7 +21,6 @@ use std::fs::{create_dir_all, File};
 use std::io::Read;
 use std::io::{Error, ErrorKind, Result};
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 use zip::read::ZipArchive;
 
 #[derive(PartialEq, Eq, Hash)]
@@ -41,10 +40,10 @@ impl fmt::Display for Resource {
 impl Resource {
     pub fn new(namespace: &'static str, name: &'static str, resource_type: ResourceType) -> Resource {
         Resource {
-            namespace: namespace,
+            namespace,
             resource_type,
             resource_path: None,
-            name: name,
+            name,
         }
     }
 
@@ -60,10 +59,10 @@ impl Resource {
         namespace: &'static str, name: &'static str, path: &'static str, r_type: ResourceType,
     ) -> Resource {
         Resource {
-            namespace: namespace,
+            namespace,
             resource_type: r_type,
             resource_path: Some(path),
-            name: name,
+            name,
         }
     }
 
@@ -103,7 +102,7 @@ impl Resource {
     }
 
     /// Get most priority file to load
-    fn find(&self, settings: Arc<Settings>) -> Result<Vec<u8>> {
+    fn find(&self, settings: &Settings) -> Result<Vec<u8>> {
         if !Path::new("resourcepacks").exists() {
             create_dir_all("resourcepacks")?;
         }
@@ -154,16 +153,14 @@ impl Resource {
     }
 
     /// Get a resource as plain test
-    pub fn load(&self, settings: Arc<Settings>) -> String {
-        String::from_utf8(self.load_binary(settings)).expect(&format!(
-            "Failed to decode required resource as UTF-8 text {}",
-            &self
-        ))
+    pub fn load(&self, settings: &Settings) -> String {
+        String::from_utf8(self.load_binary(settings))
+            .unwrap_or_else(|_| panic!("Failed to decode required resource as UTF-8 text {}", &self))
     }
 
     /// Get a resource as binary
-    pub fn load_binary(&self, settings: Arc<Settings>) -> Vec<u8> {
+    pub fn load_binary(&self, settings: &Settings) -> Vec<u8> {
         self.find(settings)
-            .expect(&format!("Failed to load required binary resource {}", &self))
+            .unwrap_or_else(|_| panic!("Failed to load required binary resource {}", &self))
     }
 }

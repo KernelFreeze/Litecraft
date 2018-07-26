@@ -15,6 +15,7 @@
 
 #![feature(box_syntax)]
 #![deny(unused_must_use)]
+#![deny(unused_imports)]
 
 #[macro_use]
 extern crate glium;

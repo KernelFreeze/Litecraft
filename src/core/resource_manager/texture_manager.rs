@@ -20,7 +20,6 @@ use threadpool::ThreadPool;
 use image;
 
 use glium::texture::{CompressedSrgbTexture2d, RawImage2d};
-use glium::uniforms::Sampler;
 use glium::Display;
 
 use std::collections::HashMap;
@@ -61,7 +60,7 @@ impl TextureManager {
         if let Ok(image) = self.receiver.try_recv() {
             let texture = RawImage2d::from_raw_rgba(image.data, image.dimensions);
             let texture = CompressedSrgbTexture2d::new(display, texture);
-            let texture = texture.expect(&format!("Failed to send texture to GPU."));
+            let texture = texture.expect("Failed to send texture to GPU.");
 
             debug!("Loaded texture {}", &image.resource);
 
@@ -72,7 +71,7 @@ impl TextureManager {
 
     /// Load texture async
     pub fn load(&mut self, resource: Resource, settings: Arc<Settings>, pool: &ThreadPool) {
-        if let Some(_) = self.get(&resource) {
+        if self.get(&resource).is_some() {
             warn!("Texture {} is already loaded!", resource);
             return;
         }
@@ -82,7 +81,7 @@ impl TextureManager {
         self.pending += 1;
 
         pool.execute(move || {
-            let data = resource.load_binary(settings);
+            let data = resource.load_binary(&settings);
             let image = image::load(Cursor::new(data), image::PNG).expect("Failed to decode a texture");
             let image = image.to_rgba();
 
@@ -94,7 +93,7 @@ impl TextureManager {
                 .chunks(dimensions.0 as usize * 4)
                 .rev()
                 .flat_map(|row| row.iter())
-                .map(|p| p.clone())
+                .cloned()
                 .collect();
 
             sender
@@ -108,7 +107,7 @@ impl TextureManager {
     }
 
     // Check if we need to load another texture
-    pub fn loaded(&self) -> bool { self.pending <= 0 }
+    pub fn loaded(&self) -> bool { self.pending == 0 }
 
     /// Get a texture
     pub fn get(&self, name: &Resource) -> Option<&CompressedSrgbTexture2d> { self.textures.get(name) }

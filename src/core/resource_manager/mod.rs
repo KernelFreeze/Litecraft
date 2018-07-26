@@ -99,8 +99,7 @@ impl ResourceManager {
 
     /// Load shader using a local asset
     pub fn load_shader(&mut self, name: &'static str, display: &Display) {
-        let settings = self.settings();
-        self.shader_manager.load(name, settings, display);
+        self.shader_manager.load(name, &self.settings, display);
     }
 
     /// Parameters to draw almost any shape
@@ -121,7 +120,7 @@ impl ResourceManager {
 
     /// Parameters to draw shapes without depth
     pub fn no_depth(&self) -> DrawParameters {
-        use glium::draw_parameters::{Blend, DepthTest};
+        use glium::draw_parameters::Blend;
 
         DrawParameters {
             blend: Blend::alpha_blending(),

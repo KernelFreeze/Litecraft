@@ -17,12 +17,9 @@ use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
 use core::settings::Settings;
 
-use image;
-
 use glium::{Display, Program};
 
 use std::collections::HashMap;
-use std::sync::Arc;
 
 pub struct ShaderManager {
     shaders: HashMap<&'static str, Program>,
@@ -39,13 +36,11 @@ impl ShaderManager {
     }
 
     /// Load and build a shader
-    pub fn load(&mut self, name: &'static str, settings: Arc<Settings>, display: &Display) {
-        if let Some(_) = self.get(name) {
+    pub fn load(&mut self, name: &'static str, settings: &Settings, display: &Display) {
+        if self.get(name).is_some() {
             warn!("Shader '{}' is already loaded!", name);
             return;
         }
-
-        let v_settings = Arc::clone(&settings);
 
         let v_140 = Resource::litecraft_path(name, "140", ResourceType::VertexShader);
         let f_140 = Resource::litecraft_path(name, "140", ResourceType::FragmentShader);
@@ -56,13 +51,13 @@ impl ShaderManager {
         let program =
             program!(display,
         140 => {
-            vertex: &v_140.load(v_settings),
-            fragment: &f_140.load(settings)
+            vertex: &v_140.load(&settings),
+            fragment: &f_140.load(&settings)
         },
 
         100 => {
-            vertex: &v_100.load(v_settings),
-            fragment: &f_100.load(settings)
+            vertex: &v_100.load(&settings),
+            fragment: &f_100.load(&settings)
         }).expect("Failed to build a required shader program. Do you have updated GPU drivers?");
 
         self.shaders.insert(name, program);
