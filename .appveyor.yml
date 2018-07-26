@@ -65,6 +65,8 @@ install:
   - set PATH=%PATH%;%USERPROFILE%\.cargo\bin
   - rustc -vV
   - cargo -vV
+  - rustup component add rustfmt-preview
+  - rustup component add clippy-preview
 
 ## Build Script ##
 
