@@ -14,7 +14,7 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::resource_manager::resource_type::ResourceType;
-use core::settings::Settings;
+use core::resource_manager::SETTINGS;
 
 use std::fmt;
 use std::fs::{create_dir_all, File};
@@ -102,10 +102,12 @@ impl Resource {
     }
 
     /// Get most priority file to load
-    fn find(&self, settings: &Settings) -> Result<Vec<u8>> {
+    fn find(&self) -> Result<Vec<u8>> {
         if !Path::new("resourcepacks").exists() {
             create_dir_all("resourcepacks")?;
         }
+
+        let settings = SETTINGS.lock().expect("Could not lock mutex");
 
         // Read from resource packs first
         let resourcepacks = settings
@@ -153,14 +155,14 @@ impl Resource {
     }
 
     /// Get a resource as plain test
-    pub fn load(&self, settings: &Settings) -> String {
-        String::from_utf8(self.load_binary(settings))
+    pub fn load(&self) -> String {
+        String::from_utf8(self.load_binary())
             .unwrap_or_else(|_| panic!("Failed to decode required resource as UTF-8 text {}", &self))
     }
 
     /// Get a resource as binary
-    pub fn load_binary(&self, settings: &Settings) -> Vec<u8> {
-        self.find(settings)
+    pub fn load_binary(&self) -> Vec<u8> {
+        self.find()
             .unwrap_or_else(|_| panic!("Failed to load required binary resource {}", &self))
     }
 }

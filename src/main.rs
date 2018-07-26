@@ -26,6 +26,9 @@ extern crate serde_derive;
 #[macro_use]
 extern crate log;
 
+#[macro_use]
+extern crate lazy_static;
+
 extern crate cgmath;
 extern crate image;
 extern crate pretty_env_logger;
@@ -40,61 +43,25 @@ mod scenes;
 mod tests;
 
 use core::constants::*;
-use core::settings::Settings;
 use gfx::canvas::Canvas;
 
-use std::fs::{copy, File};
 use std::path::Path;
 
 fn main() {
+    println!("{}", ASCII_ART);
     println!(
-        "Starting Litecraft {} for Minecraft {}...\n{}",
-        LITECRAFT_VERSION, MINECRAFT_VERSION, ASCII_ART
+        "Starting Litecraft {} for Minecraft {}...",
+        LITECRAFT_VERSION, MINECRAFT_VERSION
     );
 
     pretty_env_logger::init();
 
     if !Path::new("resources").exists() {
-        warn!("Resources path doesn't exist, please check that you have all required resources.");
+        panic!(
+            "Resources path doesn't exist, please check that you have all required resources. Check \
+             Litecraft's README.md for more details."
+        );
     }
 
-    Canvas::new(load_settings()).draw();
-}
-
-fn load_settings() -> Settings {
-    match File::open(CONFIG_FILE) {
-        Err(why) => {
-            warn!("Can't read configuration file: {}", why);
-            generate_config()
-        },
-        Ok(file) => match serde_yaml::from_reader(file) {
-            Err(why) => {
-                warn!("Can't parse configuration file: {}", why);
-                warn!("Regenerating, old configuration placed at {}.bak", CONFIG_FILE);
-
-                if let Err(error) = copy(CONFIG_FILE, format!("{}.bak", CONFIG_FILE)) {
-                    warn!("Failed to copy old configuration to .bak file. {}", error);
-                }
-
-                generate_config()
-            },
-            Ok(settings) => settings,
-        },
-    }
-}
-
-fn generate_config() -> Settings {
-    use std::io::prelude::*;
-
-    let config = Settings::new();
-    let path = Path::new(CONFIG_FILE);
-
-    let serialized = serde_yaml::to_string(&config).expect("Couldn't serialize configuration");
-
-    File::create(&path)
-        .expect("Couldn't create configuration file")
-        .write_all(serialized.as_bytes())
-        .expect("Couldn't write to configuration file");
-
-    config
+    Canvas::start();
 }

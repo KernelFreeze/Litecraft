@@ -26,6 +26,7 @@ use gfx::shapes::Vertex2D;
 use glium::uniforms::EmptyUniforms;
 use glium::{Display, Frame, IndexBuffer, Surface, VertexBuffer};
 
+/// Show Litecraft logo and start resource loading
 pub struct LoadingScene {
     vertex_buffer: VertexBuffer<Vertex2D>,
     index_buffer: IndexBuffer<u16>,
@@ -34,8 +35,14 @@ pub struct LoadingScene {
 }
 
 impl LoadingScene {
-    pub fn new(display: &Display) -> LoadingScene {
+    pub fn new(res: &mut ResourceManager, display: &Display) -> LoadingScene {
         let (vertex_buffer, index_buffer) = shapes::quad(display);
+
+        res.load_texture(Resource::litecraft("logo", ResourceType::Texture));
+
+        res.load_shader("noise", display);
+        res.load_shader("quad", display);
+        res.load_shader("logo", display);
 
         LoadingScene {
             camera: Camera::new(),
@@ -46,14 +53,6 @@ impl LoadingScene {
 }
 
 impl Scene for LoadingScene {
-    fn init(&mut self, res: &mut ResourceManager, display: &Display) {
-        res.load_texture(Resource::litecraft("logo", ResourceType::Texture));
-
-        res.load_shader("noise", display);
-        res.load_shader("quad", display);
-        res.load_shader("logo", display);
-    }
-
     fn draw(&mut self, res: &mut ResourceManager, frame: &mut Frame, display: &Display) -> SceneAction {
         // Update camera aspect ratio
         self.camera.aspect_ratio(res.size());
@@ -78,23 +77,28 @@ impl Scene for LoadingScene {
             .textures()
             .get(&Resource::litecraft("logo", ResourceType::Texture));
 
+        // Check if logo is now loaded
         if let Some(logo) = logo {
             use glium::uniforms::SamplerWrapFunction;
 
+            // Get updated camera matrices
             let persp_matrix: [[f32; 4]; 4] = self.camera.perspective().into();
             let view_matrix: [[f32; 4]; 4] = self.camera.view().into();
 
+            // Change logo sampler
             let logo = logo.sampled().wrap_function(SamplerWrapFunction::BorderClamp);
 
+            // Generate uniforms
             let uniforms = uniform! {
                 persp_matrix: persp_matrix,
                 view_matrix: view_matrix,
-                time: res.time(),
+                time: ResourceManager::time(),
                 tex: logo,
             };
 
             let logo_program = res.shaders().get("logo").expect("Required shader not found");
 
+            // Draw using logo program
             frame
                 .draw(
                     &self.vertex_buffer,

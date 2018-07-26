@@ -15,7 +15,6 @@
 
 use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
-use core::settings::Settings;
 
 use glium::{Display, Program};
 
@@ -36,7 +35,7 @@ impl ShaderManager {
     }
 
     /// Load and build a shader
-    pub fn load(&mut self, name: &'static str, settings: &Settings, display: &Display) {
+    pub fn load(&mut self, name: &'static str, display: &Display) {
         if self.get(name).is_some() {
             warn!("Shader '{}' is already loaded!", name);
             return;
@@ -51,13 +50,13 @@ impl ShaderManager {
         let program =
             program!(display,
         140 => {
-            vertex: &v_140.load(&settings),
-            fragment: &f_140.load(&settings)
+            vertex: &v_140.load(),
+            fragment: &f_140.load()
         },
 
         100 => {
-            vertex: &v_100.load(&settings),
-            fragment: &f_100.load(&settings)
+            vertex: &v_100.load(),
+            fragment: &f_100.load()
         }).expect("Failed to build a required shader program. Do you have updated GPU drivers?");
 
         self.shaders.insert(name, program);

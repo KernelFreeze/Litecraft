@@ -14,7 +14,6 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::resource_manager::resource::Resource;
-use core::settings::Settings;
 use threadpool::ThreadPool;
 
 use image;
@@ -25,7 +24,6 @@ use glium::Display;
 use std::collections::HashMap;
 use std::io::Cursor;
 use std::sync::mpsc::{channel, Receiver, Sender};
-use std::sync::Arc;
 
 pub struct RGBAImageData {
     pub resource: Resource,
@@ -70,7 +68,7 @@ impl TextureManager {
     }
 
     /// Load texture async
-    pub fn load(&mut self, resource: Resource, settings: Arc<Settings>, pool: &ThreadPool) {
+    pub fn load(&mut self, resource: Resource, pool: &ThreadPool) {
         if self.get(&resource).is_some() {
             warn!("Texture {} is already loaded!", resource);
             return;
@@ -81,7 +79,7 @@ impl TextureManager {
         self.pending += 1;
 
         pool.execute(move || {
-            let data = resource.load_binary(&settings);
+            let data = resource.load_binary();
             let image = image::load(Cursor::new(data), image::PNG).expect("Failed to decode a texture");
             let image = image.to_rgba();
 

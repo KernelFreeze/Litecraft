@@ -13,15 +13,35 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+use core::camera::Camera;
 use core::resource_manager::ResourceManager;
 
-use glium::{Display, Frame};
+use glium::Program;
 
-pub enum SceneAction {
-    None,
-    ChangeScene(Box<Scene>),
+/// Geometry type
+pub enum Geometry {
+    /// 2D Quad, using: X, Y, Size
+    Quad(f32, f32, f32),
+
+    /// Fullscreen quad
+    Fullscreen,
 }
 
-pub trait Scene {
-    fn draw(&mut self, resources: &mut ResourceManager, &mut Frame, display: &Display) -> SceneAction;
+pub fn draw(shader: &Program, camera: &Camera, geometry: &Geometry) {
+    // Get updated camera matrices
+    let persp_matrix: [[f32; 4]; 4] = camera.perspective().into();
+    let view_matrix: [[f32; 4]; 4] = camera.view().into();
+
+    // Generate uniforms
+    let uniforms = uniform! {
+        persp_matrix: persp_matrix,
+        view_matrix: view_matrix,
+        time: ResourceManager::time(),
+        //tex: logo,
+    };
+
+    match geometry {
+        Geometry::Quad(x, y, z) => {},
+        Geometry::Fullscreen => {},
+    }
 }

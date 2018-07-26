@@ -20,21 +20,68 @@ pub mod texture_manager;
 
 use glium::glutin::dpi::LogicalSize;
 use glium::{Display, DrawParameters};
+use serde_yaml;
 use threadpool::ThreadPool;
 
+use core::constants::CONFIG_FILE;
 use core::resource_manager::resource::Resource;
 use core::resource_manager::shader_manager::ShaderManager;
 use core::resource_manager::texture_manager::TextureManager;
 use core::settings::Settings;
 
-use std::sync::Arc;
+use std::fs::File;
+use std::path::Path;
+use std::sync::Mutex;
 use std::time::Instant;
 
+lazy_static! {
+    pub static ref SETTINGS: Mutex<Settings> = Mutex::new(load_config());
+    static ref STARTED: Instant = Instant::now();
+}
+
+fn load_config() -> Settings {
+    use std::fs::copy;
+
+    match File::open(CONFIG_FILE) {
+        Err(why) => {
+            warn!("Can't read configuration file: {}", why);
+            generate_config()
+        },
+        Ok(file) => match serde_yaml::from_reader(file) {
+            Err(why) => {
+                warn!("Can't parse configuration file: {}", why);
+                warn!("Regenerating, old configuration placed at {}.bak", CONFIG_FILE);
+
+                if let Err(error) = copy(CONFIG_FILE, format!("{}.bak", CONFIG_FILE)) {
+                    warn!("Failed to copy old configuration to .bak file. {}", error);
+                }
+
+                generate_config()
+            },
+            Ok(settings) => settings,
+        },
+    }
+}
+
+fn generate_config() -> Settings {
+    use std::io::prelude::*;
+
+    let config = Settings::new();
+    let path = Path::new(CONFIG_FILE);
+
+    let serialized = serde_yaml::to_string(&config).expect("Couldn't serialize configuration");
+
+    File::create(&path)
+        .expect("Couldn't create configuration file")
+        .write_all(serialized.as_bytes())
+        .expect("Couldn't write to configuration file");
+
+    config
+}
+
 pub struct ResourceManager {
-    settings: Arc<Settings>,
     pool: ThreadPool,
     window_size: LogicalSize,
-    started: Instant,
 
     texture_manager: TextureManager,
     shader_manager: ShaderManager,
@@ -42,21 +89,24 @@ pub struct ResourceManager {
 
 impl ResourceManager {
     /// Create Litecraft's resource manager
-    pub fn new(settings: Arc<Settings>) -> ResourceManager {
+    pub fn new() -> ResourceManager {
+        let settings = SETTINGS.lock().expect("Could not lock mutex");
         let pool = ThreadPool::new(settings.loader_threads());
         let window_size = LogicalSize::new(settings.width().into(), settings.height().into());
 
         ResourceManager {
             pool,
-            settings,
             window_size,
-            started: Instant::now(),
             texture_manager: TextureManager::new(),
             shader_manager: ShaderManager::new(),
         }
     }
 
-    pub fn settings(&self) -> Arc<Settings> { Arc::clone(&self.settings) }
+    /// Get time since application start
+    pub fn time() -> f32 {
+        let dur = STARTED.elapsed();
+        dur.as_secs() as f32 + dur.subsec_nanos() as f32 / 1_000_000_000.0
+    }
 
     /// Tick all resource managers
     pub fn tick(&mut self, display: &Display) { self.texture_manager.tick(display); }
@@ -85,21 +135,12 @@ impl ResourceManager {
     /// Get shader manager
     pub fn shaders(&self) -> &ShaderManager { &self.shader_manager }
 
-    /// Get time since application start
-    pub fn time(&self) -> f32 {
-        let dur = self.started.elapsed();
-        dur.as_secs() as f32 + dur.subsec_nanos() as f32 / 1_000_000_000.0
-    }
-
     /// Load texture using a local asset
-    pub fn load_texture(&mut self, name: Resource) {
-        let settings = self.settings();
-        self.texture_manager.load(name, settings, &self.pool);
-    }
+    pub fn load_texture(&mut self, name: Resource) { self.texture_manager.load(name, &self.pool); }
 
     /// Load shader using a local asset
     pub fn load_shader(&mut self, name: &'static str, display: &Display) {
-        self.shader_manager.load(name, &self.settings, display);
+        self.shader_manager.load(name, display);
     }
 
     /// Parameters to draw almost any shape

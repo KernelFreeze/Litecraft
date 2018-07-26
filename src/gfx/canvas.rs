@@ -15,7 +15,7 @@
 
 use core::constants::LITECRAFT_VERSION;
 use core::resource_manager::ResourceManager;
-use core::settings::Settings;
+use core::resource_manager::SETTINGS;
 
 use gfx::scene::{Scene, SceneAction::ChangeScene};
 use scenes::loading::LoadingScene;
@@ -23,28 +23,26 @@ use scenes::loading::LoadingScene;
 use glium::glutin::{ContextBuilder, ControlFlow, Event, EventsLoop, WindowBuilder, WindowEvent};
 use glium::Display;
 
-use std::sync::Arc;
-
 /// Main game struct, its role is draw and manage everything in existence
 pub struct Canvas {
     resource_manager: ResourceManager,
-    settings: Arc<Settings>,
 }
 
 impl Canvas {
     /// Create Canvas
-    pub fn new(settings: Settings) -> Canvas {
-        let settings = Arc::new(settings);
+    pub fn start() {
+        let mut canvas = Canvas {
+            resource_manager: ResourceManager::new(),
+        };
 
-        Canvas {
-            resource_manager: ResourceManager::new(Arc::clone(&settings)),
-            settings,
-        }
+        canvas.draw();
     }
 
     /// Create a custom Window
     fn create_window(&self, events_loop: &EventsLoop) -> WindowBuilder {
-        let screen = if self.settings.fullscreen() {
+        let settings = SETTINGS.lock().expect("Could not lock mutex");
+
+        let screen = if settings.fullscreen() {
             Some(events_loop.get_primary_monitor())
         } else {
             None
@@ -53,7 +51,7 @@ impl Canvas {
         WindowBuilder::new()
             .with_min_dimensions(self.resource_manager.size())
             .with_title(format!("Litecraft {}", LITECRAFT_VERSION))
-            .with_maximized(self.settings.maximized())
+            .with_maximized(settings.maximized())
             .with_fullscreen(screen)
     }
 
@@ -77,14 +75,16 @@ impl Canvas {
     }
 
     /// Start main game loop
-    pub fn draw(&mut self) {
+    fn draw(&mut self) {
         let mut events_loop = EventsLoop::new();
         let mut status = ControlFlow::Continue;
 
-        // Create game window and OpenGL context
+        // Create game window
         let window = self.create_window(&events_loop);
+
+        // Create OpenGL context
         let context = ContextBuilder::new()
-            .with_vsync(self.settings.vsync())
+            .with_vsync(SETTINGS.lock().expect("Could not lock mutex").vsync())
             .with_depth_buffer(24);
 
         // Create glium display
@@ -92,9 +92,7 @@ impl Canvas {
         let display = display.expect("Failed to initialize display");
 
         // Create default scene
-        let mut scene: Box<Scene> = box LoadingScene::new(&display);
-
-        scene.init(&mut self.resource_manager, &display);
+        let mut scene: Box<Scene> = box LoadingScene::new(&mut self.resource_manager, &display);
 
         // Main game loop
         while status == ControlFlow::Continue {
@@ -109,7 +107,6 @@ impl Canvas {
             // Change scene if requested
             if let ChangeScene(_scene) = draw {
                 scene = _scene;
-                scene.init(&mut self.resource_manager, &display);
             }
 
             // Draw to window
@@ -123,6 +120,7 @@ impl Canvas {
             });
         }
 
+        // Main loop end, now dispose resources...
         info!("Stopping Litecraft...");
     }
 }
