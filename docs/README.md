@@ -1,5 +1,6 @@
 # Litecraft
 [![Discord](https://img.shields.io/discord/371055566480605184.svg)](https://discord.gg/qKjuDxx)
+[![Build Status](https://travis-ci.org/Litecrafty/Litecraft.svg?branch=master)](https://travis-ci.org/Litecrafty/Litecraft)
 
 <img src="https://i.imgur.com/JwRuNEl.gif" width="600">
 
