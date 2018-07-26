@@ -16,11 +16,32 @@
 use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
 
-use core::settings::Settings;
-
 #[test]
 fn resource_path_litecraft() {
     let resource = Resource::litecraft("logo", ResourceType::Texture);
+
+    assert_eq!(
+        resource.folder("resources"),
+        "resources/litecraft/textures/logo.png"
+    );
+}
+
+#[test]
+fn resource_load_logo() {
+    let resource = Resource::litecraft("logo", ResourceType::Texture);
+    resource.load_binary();
+
+    assert_eq!(
+        resource.folder("resources"),
+        "resources/litecraft/textures/logo.png"
+    );
+}
+
+#[test]
+#[should_panic]
+fn resource_load_as_text_logo() {
+    let resource = Resource::litecraft("logo", ResourceType::Texture);
+    resource.load();
 
     assert_eq!(
         resource.folder("resources"),
@@ -41,13 +62,13 @@ fn resource_path_minecraft() {
 #[test]
 #[should_panic]
 fn resource_not_found() {
-    let settings = Settings::new();
-    let resource = Resource::litecraft("panic", ResourceType::Text).load(&settings);
+    let resource = Resource::litecraft("panic", ResourceType::Text);
+    resource.load();
 }
 
 #[test]
 #[should_panic]
 fn resource_binary_not_found() {
-    let settings = Settings::new();
-    let resource = Resource::litecraft("panic", ResourceType::Text).load_binary(&settings);
+    let resource = Resource::litecraft("panic", ResourceType::Text);
+    resource.load_binary();
 }
