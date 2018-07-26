@@ -26,23 +26,24 @@ use glium::Display;
 
 use std::sync::Arc;
 
+/// Main game struct, its role is draw and manage everything in existence
 pub struct Canvas {
     resource_manager: ResourceManager,
-    scene: Box<Scene>,
     settings: Arc<Settings>,
 }
 
 impl Canvas {
+    /// Create Canvas
     pub fn new(settings: Settings) -> Canvas {
         let settings = Arc::new(settings);
 
         Canvas {
-            scene: box LoadingScene::new(),
             resource_manager: ResourceManager::new(Arc::clone(&settings)),
             settings,
         }
     }
 
+    /// Create a custom Window
     fn create_window(&self, events_loop: &EventsLoop) -> WindowBuilder {
         let screen = match self.settings.fullscreen() {
             true => Some(events_loop.get_primary_monitor()),
@@ -58,49 +59,65 @@ impl Canvas {
         window
     }
 
+    /// Window events handler
     fn event_handler(&mut self, event: WindowEvent) -> ControlFlow {
         match event {
+            // Window close
             WindowEvent::CloseRequested => ControlFlow::Break,
 
+            // Window resize
             WindowEvent::Resized(size) => {
                 self.resource_manager.set_size(size);
                 ControlFlow::Continue
             },
 
+            // Dropped file
             WindowEvent::DroppedFile(_) => ControlFlow::Continue,
 
             _ => ControlFlow::Continue,
         }
     }
 
+    /// Start main game loop
     pub fn draw(&mut self) {
         let mut events_loop = EventsLoop::new();
         let mut status = ControlFlow::Continue;
 
+        // Create game window and OpenGL context
         let window = self.create_window(&events_loop);
         let context = ContextBuilder::new()
             .with_vsync(self.settings.vsync())
             .with_depth_buffer(24);
 
+        // Create glium display
         let display = Display::new(window, context, &events_loop);
         let display = display.expect("Failed to initialize display");
 
-        self.scene.init(&mut self.resource_manager, &display);
+        // Create default scene
+        let mut scene: Box<Scene> = box LoadingScene::new(&display);
 
+        scene.init(&mut self.resource_manager, &display);
+
+        // Main game loop
         while status == ControlFlow::Continue {
             let mut target = display.draw();
 
+            // Tick resource manager
             self.resource_manager.tick(&display);
 
-            let draw = self.scene.draw(&mut self.resource_manager, &mut target, &display);
+            // Draw current scene
+            let draw = scene.draw(&mut self.resource_manager, &mut target, &display);
 
-            if let ChangeScene(scene) = draw {
-                self.scene = scene;
-                self.scene.init(&mut self.resource_manager, &display);
+            // Change scene if requested
+            if let ChangeScene(_scene) = draw {
+                scene = _scene;
+                scene.init(&mut self.resource_manager, &display);
             }
 
+            // Draw to window
             target.finish().expect("Couldn't render scene");
 
+            // Check for events
             events_loop.poll_events(|events| match events {
                 Event::WindowEvent { event, .. } => status = self.event_handler(event),
                 _ => (),

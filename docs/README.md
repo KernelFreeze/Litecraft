@@ -11,7 +11,7 @@
 - [X] Native perfomance and better memory management.
 - [X] Faster and better rendering system.
 - [X] Multi-threaded and low Heap allocations.
-- [X] Rendering using shaders. [Shaders are faster than old calls OpenGL](https://thebookofshaders.com/00/).
+- [X] Rendering using shaders. [Shaders are faster than old OpenGL calls](https://thebookofshaders.com/00/).
 - [X] Less crashes! Safe by design.
 - [X] Supported by an awesome community.
 - [X] Modern design (Design patterns and use of VAOs, VBOs, EBOs, etc).

@@ -21,20 +21,29 @@ use core::resource_manager::ResourceManager;
 
 use gfx::scene::{Scene, SceneAction};
 use gfx::shapes;
+use gfx::shapes::Vertex2D;
 
+use glium::glutin::dpi::LogicalSize;
 use glium::uniforms::EmptyUniforms;
-use glium::{glutin::dpi::LogicalSize, Display, Frame, Surface};
+use glium::{Display, Frame, IndexBuffer, Surface, VertexBuffer};
 
 use std::sync::Arc;
 
 pub struct LoadingScene {
+    vertex_buffer: VertexBuffer<Vertex2D>,
+    index_buffer: IndexBuffer<u16>,
+
     camera: Camera,
 }
 
 impl LoadingScene {
-    pub fn new() -> LoadingScene {
+    pub fn new(display: &Display) -> LoadingScene {
+        let (vertex_buffer, index_buffer) = shapes::quad(display);
+
         LoadingScene {
             camera: Camera::new(),
+            vertex_buffer,
+            index_buffer,
         }
     }
 }
@@ -49,17 +58,18 @@ impl Scene for LoadingScene {
     }
 
     fn draw(&mut self, res: &mut ResourceManager, frame: &mut Frame, display: &Display) -> SceneAction {
+        // Update camera aspect ratio
         self.camera.aspect_ratio(res.size());
 
+        // Clear to black
         frame.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 
-        let (vertex_buffer, index_buffer) = shapes::quad(display);
         let noise_program = res.shaders().get("noise").expect("Required shader not found");
 
         frame
             .draw(
-                &vertex_buffer,
-                &index_buffer,
+                &self.vertex_buffer,
+                &self.index_buffer,
                 &noise_program,
                 &EmptyUniforms,
                 &res.no_depth(),
@@ -90,8 +100,8 @@ impl Scene for LoadingScene {
 
             frame
                 .draw(
-                    &vertex_buffer,
-                    &index_buffer,
+                    &self.vertex_buffer,
+                    &self.index_buffer,
                     &logo_program,
                     &uniforms,
                     &res.no_depth(),
