@@ -15,11 +15,8 @@
 
 use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
-use core::resource_manager::ResourceManager;
 
 use core::settings::Settings;
-
-use std::sync::Arc;
 
 #[test]
 fn resource_path_litecraft() {
@@ -44,13 +41,13 @@ fn resource_path_minecraft() {
 #[test]
 #[should_panic]
 fn resource_not_found() {
-    let settings = Arc::new(Settings::new());
-    let resource = Resource::litecraft("panic", ResourceType::Text).load(settings);
+    let settings = Settings::new();
+    let resource = Resource::litecraft("panic", ResourceType::Text).load(&settings);
 }
 
 #[test]
 #[should_panic]
 fn resource_binary_not_found() {
-    let settings = Arc::new(Settings::new());
-    let resource = Resource::litecraft("panic", ResourceType::Text).load_binary(settings);
+    let settings = Settings::new();
+    let resource = Resource::litecraft("panic", ResourceType::Text).load_binary(&settings);
 }
