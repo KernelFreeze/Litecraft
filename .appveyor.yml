@@ -65,8 +65,6 @@ install:
   - set PATH=%PATH%;%USERPROFILE%\.cargo\bin
   - rustc -vV
   - cargo -vV
-  - rustup component add rustfmt-preview
-  - rustup component add clippy-preview
 
 ## Build Script ##
 
@@ -78,9 +76,7 @@ build: false
 #directly or perform other testing commands. Rust will automatically be placed in the PATH
 # environment variable.
 test_script:
-  - cargo fmt --all -- --check
-  - cargo build %cargoflags%
-  - cargo clippy
+  - cargo build --verbose %cargoflags%
   - cargo test --verbose %cargoflags%
   
 ## Discord Webhook ##
