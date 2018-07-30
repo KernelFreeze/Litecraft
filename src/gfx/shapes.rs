@@ -31,31 +31,46 @@ pub struct Vertex2D {
 implement_vertex!(Vertex3D, position, tex_coords);
 implement_vertex!(Vertex2D, position, tex_coords);
 
-pub fn quad(display: &Display) -> (VertexBuffer<Vertex2D>, IndexBuffer<u16>) {
-    let vertex = VertexBuffer::new(
-        display,
-        &[
-            Vertex2D {
-                position: [-1.0, -1.0],
-                tex_coords: [0.0, 0.0],
-            },
-            Vertex2D {
-                position: [-1.0, 1.0],
-                tex_coords: [0.0, 1.0],
-            },
-            Vertex2D {
-                position: [1.0, 1.0],
-                tex_coords: [1.0, 1.0],
-            },
-            Vertex2D {
-                position: [1.0, -1.0],
-                tex_coords: [1.0, 0.0],
-            },
-        ],
-    ).expect("Failed to generate VertexBuffer for quad");
+pub type VertexData = (VertexBuffer<Vertex2D>, IndexBuffer<u16>);
 
-    let index = IndexBuffer::new(display, PrimitiveType::TriangleStrip, &[1 as u16, 2, 0, 3])
-        .expect("Failed to generate IndexBuffer for quad");
+pub struct Shapes {
+    quad: VertexData,
+}
 
-    (vertex, index)
+impl Shapes {
+    pub fn new(display: &Display) -> Shapes {
+        let quad = {
+            let vertex = VertexBuffer::new(
+                display,
+                &[
+                    Vertex2D {
+                        position: [-1.0, -1.0],
+                        tex_coords: [0.0, 0.0],
+                    },
+                    Vertex2D {
+                        position: [-1.0, 1.0],
+                        tex_coords: [0.0, 1.0],
+                    },
+                    Vertex2D {
+                        position: [1.0, 1.0],
+                        tex_coords: [1.0, 1.0],
+                    },
+                    Vertex2D {
+                        position: [1.0, -1.0],
+                        tex_coords: [1.0, 0.0],
+                    },
+                ],
+            ).expect("Failed to generate VertexBuffer for quad");
+
+            let index = IndexBuffer::new(display, PrimitiveType::TriangleStrip, &[1u16, 2, 0, 3])
+                .expect("Failed to generate IndexBuffer for quad");
+
+            (vertex, index)
+        };
+
+        Shapes { quad }
+    }
+
+    /// Get quad VAO and VBO
+    pub fn quad(&self) -> &VertexData { &self.quad }
 }

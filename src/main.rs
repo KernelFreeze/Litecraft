@@ -37,6 +37,7 @@ extern crate serde_yaml;
 extern crate threadpool;
 extern crate zip;
 
+#[macro_use]
 mod core;
 mod gfx;
 mod scenes;

@@ -14,7 +14,6 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::resource_manager::resource_type::ResourceType;
-use core::resource_manager::SETTINGS;
 
 use std::fmt;
 use std::fs::{create_dir_all, File};
@@ -107,32 +106,37 @@ impl Resource {
             create_dir_all("resourcepacks")?;
         }
 
-        let settings = SETTINGS.lock().expect("Could not lock mutex");
-
         // Read from resource packs first
-        let resourcepacks = settings
-            .resourcepacks()
-            .into_iter()
-            .map(|entry| {
-                let mut path = PathBuf::from("resourcepacks");
-                path.push(entry);
-                path
-            })
-            .filter(|entry| entry.exists())
-            .filter(|entry| entry.is_file());
+        {
+            // Adquire settings
+            let settings = settings!();
 
-        for entry in resourcepacks {
-            // Read resourcepack ZIP file
-            let zipfile = File::open(entry)?;
-            let mut zipfile = ZipArchive::new(zipfile)?;
+            // Get all enabled resource packs
+            let resourcepacks = settings
+                .resourcepacks()
+                .into_iter()
+                .map(|entry| {
+                    let mut path = PathBuf::from("resourcepacks");
+                    path.push(entry);
+                    path
+                })
+                .filter(|entry| entry.exists())
+                .filter(|entry| entry.is_file());
 
-            // Read resource from ZIP
-            let mut file = zipfile.by_name(&self.folder("assets"));
-            if let Ok(mut file) = file {
-                let mut buffer = Vec::new();
-                file.read_to_end(&mut buffer)?;
+            // Check every resourcepack
+            for entry in resourcepacks {
+                // Read resourcepack ZIP file
+                let zipfile = File::open(entry)?;
+                let mut zipfile = ZipArchive::new(zipfile)?;
 
-                return Ok(buffer);
+                // Read resource from ZIP
+                let mut file = zipfile.by_name(&self.folder("assets"));
+                if let Ok(mut file) = file {
+                    let mut buffer = Vec::new();
+                    file.read_to_end(&mut buffer)?;
+
+                    return Ok(buffer);
+                }
             }
         }
 

@@ -19,25 +19,19 @@ use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
 use core::resource_manager::ResourceManager;
 
+use gfx::canvas::Canvas;
+use gfx::pencil::Geometry;
 use gfx::scene::{Scene, SceneAction};
-use gfx::shapes;
-use gfx::shapes::Vertex2D;
 
-use glium::uniforms::EmptyUniforms;
-use glium::{Display, Frame, IndexBuffer, Surface, VertexBuffer};
+use glium::{Display, Frame, Surface};
 
 /// Show Litecraft logo and start resource loading
 pub struct LoadingScene {
-    vertex_buffer: VertexBuffer<Vertex2D>,
-    index_buffer: IndexBuffer<u16>,
-
     camera: Camera,
 }
 
 impl LoadingScene {
     pub fn new(res: &mut ResourceManager, display: &Display) -> LoadingScene {
-        let (vertex_buffer, index_buffer) = shapes::quad(display);
-
         res.load_texture(Resource::litecraft("logo", ResourceType::Texture));
 
         res.load_shader("noise", display);
@@ -46,68 +40,34 @@ impl LoadingScene {
 
         LoadingScene {
             camera: Camera::new(),
-            vertex_buffer,
-            index_buffer,
         }
     }
 }
 
 impl Scene for LoadingScene {
-    fn draw(&mut self, res: &mut ResourceManager, frame: &mut Frame, display: &Display) -> SceneAction {
+    fn draw(&mut self, canvas: &mut Canvas, frame: &mut Frame) -> SceneAction {
+        use cgmath::Matrix4;
+
         // Update camera aspect ratio
-        self.camera.aspect_ratio(res.size());
+        self.camera.aspect_ratio(canvas.size());
 
         // Clear to black
-        frame.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
+        frame.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
-        let noise_program = res.shaders().get("noise").expect("Required shader not found");
-
-        frame
-            .draw(
-                &self.vertex_buffer,
-                &self.index_buffer,
-                &noise_program,
-                &EmptyUniforms,
-                &res.no_depth(),
-            )
-            .expect("Failed to draw geometry to screen");
+        // Draw background
+        canvas.dummy_draw(frame, "noise");
 
         // Draw litecraft logo
-        let logo = res
+        let logo = canvas
+            .resources()
             .textures()
             .get(&Resource::litecraft("logo", ResourceType::Texture));
 
         // Check if logo is now loaded
         if let Some(logo) = logo {
-            use glium::uniforms::SamplerWrapFunction;
+            let position = Matrix4::from_scale(1.0);
 
-            // Get updated camera matrices
-            let persp_matrix: [[f32; 4]; 4] = self.camera.perspective().into();
-            let view_matrix: [[f32; 4]; 4] = self.camera.view().into();
-
-            // Change logo sampler
-            let logo = logo.sampled().wrap_function(SamplerWrapFunction::BorderClamp);
-
-            // Generate uniforms
-            let uniforms = uniform! {
-                persp_matrix: persp_matrix,
-                view_matrix: view_matrix,
-                time: ResourceManager::time(),
-                tex: logo,
-            };
-
-            let logo_program = res.shaders().get("logo").expect("Required shader not found");
-
-            // Draw using logo program
-            frame
-                .draw(
-                    &self.vertex_buffer,
-                    &self.index_buffer,
-                    &logo_program,
-                    &uniforms,
-                    &res.no_depth(),
-                )
-                .expect("Failed to draw geometry to screen");
+            canvas.draw(frame, "logo", logo, &self.camera, Geometry::Quad, position);
         }
 
         SceneAction::None

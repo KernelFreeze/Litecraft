@@ -30,7 +30,7 @@
  - Clone the repository.
  - Download and install [Rust](https://rustup.rs/).
  - Open Minecraft 1.13 jar file using any zip extractor, and copy `assets/minecraft` to Litecraft `resources` folder, or use our Launcher in developer's mode.
- - Build and run with `cargo run`.
+ - Build and run with `cargo run`
  - Profit!
 
 # 🎉 F.A.Q

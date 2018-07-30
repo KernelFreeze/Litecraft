@@ -13,96 +13,66 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use core::constants::LITECRAFT_VERSION;
 use core::resource_manager::ResourceManager;
-use core::resource_manager::SETTINGS;
 
 use gfx::scene::{Scene, SceneAction::ChangeScene};
 use scenes::loading::LoadingScene;
 
+use glium::glutin::dpi::LogicalSize;
 use glium::glutin::{ContextBuilder, ControlFlow, Event, EventsLoop, WindowBuilder, WindowEvent};
 use glium::Display;
 
 /// Main game struct, its role is draw and manage everything in existence
 pub struct Canvas {
+    window_size: LogicalSize,
     resource_manager: ResourceManager,
+    display: Display,
 }
 
 impl Canvas {
-    /// Create Canvas
-    pub fn start() {
-        let mut canvas = Canvas {
-            resource_manager: ResourceManager::new(),
-        };
-
-        canvas.draw();
-    }
-
-    /// Create a custom Window
-    fn create_window(&self, events_loop: &EventsLoop) -> WindowBuilder {
-        let settings = SETTINGS.lock().expect("Could not lock mutex");
-
-        let screen = if settings.fullscreen() {
-            Some(events_loop.get_primary_monitor())
-        } else {
-            None
-        };
-
-        WindowBuilder::new()
-            .with_min_dimensions(self.resource_manager.size())
-            .with_title(format!("Litecraft {}", LITECRAFT_VERSION))
-            .with_maximized(settings.maximized())
-            .with_fullscreen(screen)
-    }
-
-    /// Window events handler
-    fn event_handler(&mut self, event: WindowEvent) -> ControlFlow {
-        match event {
-            // Window close
-            WindowEvent::CloseRequested => ControlFlow::Break,
-
-            // Window resize
-            WindowEvent::Resized(size) => {
-                self.resource_manager.set_size(size);
-                ControlFlow::Continue
-            },
-
-            // Dropped file
-            WindowEvent::DroppedFile(_) => ControlFlow::Continue,
-
-            _ => ControlFlow::Continue,
-        }
-    }
-
-    /// Start main game loop
-    fn draw(&mut self) {
+    /// Create and start drawing Canvas
+    pub fn start() -> Canvas {
         let mut events_loop = EventsLoop::new();
         let mut status = ControlFlow::Continue;
 
+        // Get window size from user preferences
+        let window_size = {
+            let settings = settings!();
+            LogicalSize::new(settings.width().into(), settings.height().into())
+        };
+
         // Create game window
-        let window = self.create_window(&events_loop);
+        let window = Canvas::create_window(&events_loop, window_size);
 
         // Create OpenGL context
         let context = ContextBuilder::new()
-            .with_vsync(SETTINGS.lock().expect("Could not lock mutex").vsync())
+            .with_vsync(settings!().vsync())
             .with_depth_buffer(24);
 
         // Create glium display
         let display = Display::new(window, context, &events_loop);
         let display = display.expect("Failed to initialize display");
 
+        let mut resource_manager = ResourceManager::new(&display);
+
         // Create default scene
-        let mut scene: Box<Scene> = box LoadingScene::new(&mut self.resource_manager, &display);
+        let mut scene: Box<Scene> = box LoadingScene::new(&mut resource_manager, &display);
+
+        let mut canvas = Canvas {
+            window_size,
+            resource_manager,
+            display,
+        };
 
         // Main game loop
-        while status == ControlFlow::Continue {
-            let mut target = display.draw();
+        while status != ControlFlow::Break {
+            let mut target = canvas.display.draw();
 
             // Tick resource manager
-            self.resource_manager.tick(&display);
+            canvas.resource_manager.tick(&canvas.display);
 
             // Draw current scene
-            let draw = scene.draw(&mut self.resource_manager, &mut target, &display);
+            let draw = scene.draw(&mut canvas, &mut target);
 
             // Change scene if requested
             if let ChangeScene(_scene) = draw {
@@ -115,12 +85,57 @@ impl Canvas {
             // Check for events
             events_loop.poll_events(|events| {
                 if let Event::WindowEvent { event, .. } = events {
-                    status = self.event_handler(event);
+                    status = canvas.event_handler(event);
                 }
             });
         }
 
         // Main loop end, now dispose resources...
         info!("Stopping Litecraft...");
+        canvas
     }
+
+    /// Create a custom Window
+    fn create_window(events_loop: &EventsLoop, window_size: LogicalSize) -> WindowBuilder {
+        use core::constants::{LITECRAFT_VERSION, MINECRAFT_VERSION};
+
+        let settings = settings!();
+
+        let screen = if settings.fullscreen() {
+            Some(events_loop.get_primary_monitor())
+        } else {
+            None
+        };
+
+        WindowBuilder::new()
+            .with_min_dimensions(window_size)
+            .with_title(format!("Litecraft {} {}", MINECRAFT_VERSION, LITECRAFT_VERSION))
+            .with_maximized(settings.maximized())
+            .with_fullscreen(screen)
+    }
+
+    /// Window events handler
+    fn event_handler(&mut self, event: WindowEvent) -> ControlFlow {
+        match event {
+            // Window close
+            WindowEvent::CloseRequested => ControlFlow::Break,
+
+            // Window resize
+            WindowEvent::Resized(size) => {
+                self.window_size = size;
+                ControlFlow::Continue
+            },
+
+            // Dropped file
+            WindowEvent::DroppedFile(_) => ControlFlow::Continue,
+
+            _ => ControlFlow::Continue,
+        }
+    }
+
+    /// Get current window size
+    pub fn size(&self) -> LogicalSize { self.window_size }
+
+    /// Get resource manager
+    pub fn resources(&self) -> &ResourceManager { &self.resource_manager }
 }

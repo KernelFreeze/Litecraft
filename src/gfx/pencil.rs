@@ -16,32 +16,92 @@
 use core::camera::Camera;
 use core::resource_manager::ResourceManager;
 
-use glium::Program;
+use gfx::canvas::Canvas;
+
+use glium::draw_parameters::Blend;
+use glium::texture::CompressedSrgbTexture2d;
+use glium::{DrawParameters, Frame, Surface};
+
+use cgmath::Matrix4;
 
 /// Geometry type
 pub enum Geometry {
-    /// 2D Quad, using: X, Y, Size
-    Quad(f32, f32, f32),
-
-    /// Fullscreen quad
-    Fullscreen,
+    /// 2D Quad
+    Quad,
 }
 
-pub fn draw(shader: &Program, camera: &Camera, geometry: &Geometry) {
-    // Get updated camera matrices
-    let persp_matrix: [[f32; 4]; 4] = camera.perspective().into();
-    let view_matrix: [[f32; 4]; 4] = camera.view().into();
+impl Canvas {
+    /// Draw using program to fullscreen
+    pub fn dummy_draw(&self, frame: &mut Frame, program: &str) {
+        let uniforms = uniform! {
+            time: ResourceManager::time(),
+        };
 
-    // Generate uniforms
-    let uniforms = uniform! {
-        persp_matrix: persp_matrix,
-        view_matrix: view_matrix,
-        time: ResourceManager::time(),
-        //tex: logo,
-    };
+        let (vertex_buffer, index_buffer) = self.resources().shapes().quad();
+        let program = self
+            .resources()
+            .shaders()
+            .get(program)
+            .expect("Required shader not found");
 
-    match geometry {
-        Geometry::Quad(x, y, z) => {},
-        Geometry::Fullscreen => {},
+        let parameters = DrawParameters {
+            blend: Blend::alpha_blending(),
+            ..Default::default()
+        };
+
+        frame
+            .draw(vertex_buffer, index_buffer, program, &uniforms, &parameters)
+            .expect("Failed to draw geometry to screen");
+    }
+
+    /// Draw shape to 3D space
+    pub fn draw(
+        &self, frame: &mut Frame, program: &str, texture: &CompressedSrgbTexture2d, camera: &Camera,
+        geometry: Geometry, transform: Matrix4<f32>,
+    ) {
+        use glium::draw_parameters::DepthTest;
+        use glium::uniforms::{MagnifySamplerFilter, SamplerWrapFunction};
+        use glium::Depth;
+
+        // Get updated camera matrices
+        let persp_matrix: [[f32; 4]; 4] = camera.perspective().into();
+        let view_matrix: [[f32; 4]; 4] = camera.view().into();
+        let transform: [[f32; 4]; 4] = transform.into();
+        let texture = texture
+            .sampled()
+            .wrap_function(SamplerWrapFunction::BorderClamp)
+            .magnify_filter(MagnifySamplerFilter::Nearest);
+
+        // Generate uniforms
+        let uniforms = uniform! {
+            persp_matrix: persp_matrix,
+            view_matrix: view_matrix,
+            time: ResourceManager::time(),
+            transform: transform,
+            tex: texture,
+        };
+
+        let (vertex_buffer, index_buffer) = match geometry {
+            Geometry::Quad => self.resources().shapes().quad(),
+        };
+        let program = self
+            .resources()
+            .shaders()
+            .get(program)
+            .expect("Required shader not found");
+
+        let parameters = DrawParameters {
+            depth: Depth {
+                test: DepthTest::IfLess,
+                write: true,
+                ..Default::default()
+            },
+            blend: Blend::alpha_blending(),
+            ..Default::default()
+        };
+
+        frame
+            .draw(vertex_buffer, index_buffer, program, &uniforms, &parameters)
+            .expect("Failed to draw geometry to screen");
     }
 }

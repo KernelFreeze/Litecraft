@@ -83,8 +83,8 @@ impl Camera {
 
     /// Get perspective matrix
     pub fn perspective(&self) -> Matrix4<f32> {
-        let zfar = 64.0 * 64.0;
-        let znear = 0.1;
+        let zfar = 1024.0;
+        let znear = 1.0;
 
         let aspect_ratio = self.width / self.height;
 

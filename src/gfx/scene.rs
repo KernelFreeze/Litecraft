@@ -13,9 +13,9 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use core::resource_manager::ResourceManager;
+use gfx::canvas::Canvas;
 
-use glium::{Display, Frame};
+use glium::Frame;
 
 pub enum SceneAction {
     None,
@@ -23,5 +23,5 @@ pub enum SceneAction {
 }
 
 pub trait Scene {
-    fn draw(&mut self, resources: &mut ResourceManager, &mut Frame, display: &Display) -> SceneAction;
+    fn draw(&mut self, &mut Canvas, &mut Frame) -> SceneAction;
 }
