@@ -47,8 +47,7 @@ impl ShaderManager {
         let v_100 = Resource::litecraft_path(name, "100", ResourceType::VertexShader);
         let f_100 = Resource::litecraft_path(name, "100", ResourceType::FragmentShader);
 
-        let program =
-            program!(display,
+        let program = program!(display,
         140 => {
             vertex: &v_140.load(),
             fragment: &f_140.load()

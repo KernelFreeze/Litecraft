@@ -119,8 +119,7 @@ impl Resource {
                     let mut path = PathBuf::from("resourcepacks");
                     path.push(entry);
                     path
-                })
-                .filter(|entry| entry.exists())
+                }).filter(|entry| entry.exists())
                 .filter(|entry| entry.is_file());
 
             // Check every resourcepack

@@ -99,8 +99,7 @@ impl TextureManager {
                     data,
                     dimensions,
                     resource,
-                })
-                .expect("Failed to send decoded texture to main thread");
+                }).expect("Failed to send decoded texture to main thread");
         });
     }
 
