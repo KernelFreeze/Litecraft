@@ -56,7 +56,7 @@ impl Canvas {
         let mut resource_manager = ResourceManager::new(&display);
 
         // Create default scene
-        let mut scene: Box<Scene> = box LoadingScene::new(&mut resource_manager, &display);
+        let mut scene: Box<Scene> = Box::new(LoadingScene::new(&mut resource_manager, &display));
 
         let mut canvas = Canvas {
             window_size,

@@ -5,4 +5,5 @@
 /resources/minecraft
 /assets
 *.zip
+*.lock
 **/*.rs.bk
