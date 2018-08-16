@@ -14,6 +14,7 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::resource_manager::ResourceManager;
+use core::settings::Settings;
 
 use gfx::scene::{Scene, SceneAction::ChangeScene};
 use scenes::loading::LoadingScene;
@@ -24,45 +25,47 @@ use glium::Display;
 
 /// Main game struct, its role is draw and manage everything in existence
 pub struct Canvas {
-    window_size: LogicalSize,
     resource_manager: ResourceManager,
     display: Display,
+    settings: Settings,
 }
 
 impl Canvas {
     /// Create and start drawing Canvas
     pub fn start() -> Canvas {
+        use core::settings_manager::load_config;
+
         let mut events_loop = EventsLoop::new();
         let mut status = ControlFlow::Continue;
 
-        // Get window size from user preferences
-        let window_size = {
-            let settings = settings!();
-            LogicalSize::new(settings.width().into(), settings.height().into())
-        };
+        // Load settings file
+        let settings = load_config();
 
         // Create game window
-        let window = Canvas::create_window(&events_loop, window_size);
+        let window = Canvas::create_window(&settings, &events_loop);
 
         // Create OpenGL context
         let context = ContextBuilder::new()
-            .with_vsync(settings!().vsync())
+            .with_vsync(settings.vsync())
             .with_depth_buffer(24);
 
         // Create glium display
         let display = Display::new(window, context, &events_loop);
         let display = display.expect("Failed to initialize display");
 
-        let mut resource_manager = ResourceManager::new(&display);
+        let resource_manager = ResourceManager::new(&display, &settings);
 
         // Create default scene
-        let mut scene: Box<Scene> = Box::new(LoadingScene::new(&mut resource_manager, &display));
+        let mut scene: Box<Scene> = Box::new(LoadingScene::new());
 
         let mut canvas = Canvas {
-            window_size,
             resource_manager,
             display,
+            settings,
         };
+
+        /// Load initial scene resources
+        scene.load(&mut canvas);
 
         // Main game loop
         while status != ControlFlow::Break {
@@ -76,6 +79,7 @@ impl Canvas {
 
             // Change scene if requested
             if let ChangeScene(_scene) = draw {
+                scene.load(&mut canvas);
                 scene = _scene;
             }
 
@@ -96,10 +100,11 @@ impl Canvas {
     }
 
     /// Create a custom Window
-    fn create_window(events_loop: &EventsLoop, window_size: LogicalSize) -> WindowBuilder {
+    fn create_window(settings: &Settings, events_loop: &EventsLoop) -> WindowBuilder {
         use core::constants::{LITECRAFT_VERSION, MINECRAFT_VERSION};
 
-        let settings = settings!();
+        // Get window size from user preferences
+        let window_size = LogicalSize::new(settings.width().into(), settings.height().into());
 
         let screen = if settings.fullscreen() {
             Some(events_loop.get_primary_monitor())
@@ -122,7 +127,9 @@ impl Canvas {
 
             // Window resize
             WindowEvent::Resized(size) => {
-                self.window_size = size;
+                self.settings.set_width(size.width as u32);
+                self.settings.set_height(size.height as u32);
+
                 ControlFlow::Continue
             },
 
@@ -133,9 +140,15 @@ impl Canvas {
         }
     }
 
-    /// Get current window size
-    pub fn size(&self) -> LogicalSize { self.window_size }
-
     /// Get resource manager
     pub fn resources(&self) -> &ResourceManager { &self.resource_manager }
+
+    /// Get resource manager
+    pub fn resources_mut(&mut self) -> &mut ResourceManager { &mut self.resource_manager }
+
+    /// Get display manager
+    pub fn display(&self) -> &Display { &self.display }
+
+    /// Get settings
+    pub fn settings(&self) -> &Settings { &self.settings }
 }

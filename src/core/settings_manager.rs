@@ -20,15 +20,9 @@ use core::settings::Settings;
 
 use std::fs::File;
 use std::path::Path;
-use std::sync::Mutex;
-
-lazy_static! {
-    /// Mutable shared settings object
-    pub static ref SETTINGS: Mutex<Settings> = Mutex::new(load_config());
-}
 
 /// Load and parse yaml configuarion file
-fn load_config() -> Settings {
+pub fn load_config() -> Settings {
     use std::fs::copy;
 
     match File::open(CONFIG_FILE) {
@@ -67,13 +61,4 @@ fn generate_config() -> Settings {
         .expect("Couldn't write to configuration file");
 
     config
-}
-
-/// Adquire and lock settings
-macro_rules! settings {
-    () => {
-        $crate::core::settings_manager::SETTINGS
-            .lock()
-            .expect("Could not lock mutex")
-    };
 }

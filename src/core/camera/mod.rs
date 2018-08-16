@@ -16,8 +16,6 @@
 use cgmath::prelude::*;
 use cgmath::{ortho, perspective, Deg, Euler, Matrix4, Point3, Quaternion, Vector3};
 
-use glium::glutin::dpi::LogicalSize;
-
 use std::f32;
 
 const YAW: f32 = -90.0;
@@ -39,8 +37,8 @@ pub struct Camera {
     pitch: f32,
 
     // Window size
-    width: f32,
-    height: f32,
+    width: u32,
+    height: u32,
 }
 
 impl Camera {
@@ -52,15 +50,15 @@ impl Camera {
             yaw: YAW,
             pitch: PITCH,
 
-            width: 800.0,
-            height: 600.0,
+            width: 800,
+            height: 600,
         }
     }
 
     /// Set current window size to match aspect ratio
-    pub fn aspect_ratio(&mut self, window_size: LogicalSize) {
-        self.width = window_size.width as f32;
-        self.height = window_size.height as f32;
+    pub fn aspect_ratio(&mut self, width: u32, height: u32) {
+        self.width = width.into();
+        self.height = height.into();
     }
 
     /// Get current camera position
@@ -86,13 +84,15 @@ impl Camera {
         let zfar = 1024.0;
         let znear = 1.0;
 
-        let aspect_ratio = self.width / self.height;
+        let aspect_ratio = self.width as f32 / self.height as f32;
 
         perspective(Deg(90.0), aspect_ratio, znear, zfar)
     }
 
     /// Get orthographic matrix
-    pub fn ortho(&self) -> Matrix4<f32> { ortho(0.0, self.width, self.height, 0.0, 0.0, 1024.0) }
+    pub fn ortho(&self) -> Matrix4<f32> {
+        ortho(0.0, self.width as f32, self.height as f32, 0.0, 0.0, 1024.0)
+    }
 
     /// Get view matrix
     pub fn view(&self) -> Matrix4<f32> {

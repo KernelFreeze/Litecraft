@@ -17,13 +17,12 @@ use core::camera::Camera;
 
 use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
-use core::resource_manager::ResourceManager;
 
 use gfx::canvas::Canvas;
 use gfx::pencil::Geometry;
 use gfx::scene::{Scene, SceneAction};
 
-use glium::{Display, Frame, Surface};
+use glium::{Frame, Surface};
 
 /// Show Litecraft logo and start resource loading
 pub struct LoadingScene {
@@ -31,13 +30,7 @@ pub struct LoadingScene {
 }
 
 impl LoadingScene {
-    pub fn new(res: &mut ResourceManager, display: &Display) -> LoadingScene {
-        res.load_texture(Resource::litecraft("logo", ResourceType::Texture));
-
-        res.load_shader("noise", display);
-        res.load_shader("quad", display);
-        res.load_shader("logo", display);
-
+    pub fn new() -> LoadingScene {
         LoadingScene {
             camera: Camera::new(),
         }
@@ -45,11 +38,25 @@ impl LoadingScene {
 }
 
 impl Scene for LoadingScene {
+    fn load(&mut self, canvas: &mut Canvas) {
+        canvas
+            .resources_mut()
+            .textures_mut()
+            .load(Resource::litecraft("logo", ResourceType::Texture));
+
+        let display = canvas.display().clone();
+
+        canvas.resources_mut().shaders_mut().load("noise", &display);
+        canvas.resources_mut().shaders_mut().load("quad", &display);
+        canvas.resources_mut().shaders_mut().load("logo", &display);
+    }
+
     fn draw(&mut self, canvas: &mut Canvas, frame: &mut Frame) -> SceneAction {
         use cgmath::Matrix4;
 
         // Update camera aspect ratio
-        self.camera.aspect_ratio(canvas.size());
+        self.camera
+            .aspect_ratio(canvas.settings().width(), canvas.settings().height());
 
         // Clear to black
         frame.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);

@@ -20,11 +20,9 @@ pub mod texture_manager;
 
 use glium::Display;
 
-use threadpool::ThreadPool;
-
-use core::resource_manager::resource::Resource;
 use core::resource_manager::shader_manager::ShaderManager;
 use core::resource_manager::texture_manager::TextureManager;
+use core::settings::Settings;
 
 use gfx::shapes::Shapes;
 
@@ -37,8 +35,6 @@ lazy_static! {
 
 /// Assets and resources manager
 pub struct ResourceManager {
-    pool: ThreadPool,
-
     texture_manager: TextureManager,
     shader_manager: ShaderManager,
     shapes: Shapes,
@@ -46,14 +42,11 @@ pub struct ResourceManager {
 
 impl ResourceManager {
     /// Create Litecraft's resource manager
-    pub fn new(display: &Display) -> ResourceManager {
-        let settings = settings!();
-
+    pub fn new(display: &Display, settings: &Settings) -> ResourceManager {
         ResourceManager {
-            pool: ThreadPool::new(settings.loader_threads()),
             shapes: Shapes::new(display),
-            texture_manager: TextureManager::new(),
-            shader_manager: ShaderManager::new(),
+            texture_manager: TextureManager::new(settings),
+            shader_manager: ShaderManager::new(settings),
         }
     }
 
@@ -75,11 +68,9 @@ impl ResourceManager {
     /// Get shader manager
     pub fn shaders(&self) -> &ShaderManager { &self.shader_manager }
 
-    /// Load texture using a local asset
-    pub fn load_texture(&mut self, name: Resource) { self.texture_manager.load(name, &self.pool); }
+    /// Get texture manager
+    pub fn textures_mut(&mut self) -> &mut TextureManager { &mut self.texture_manager }
 
-    /// Load shader using a local asset
-    pub fn load_shader(&mut self, name: &'static str, display: &Display) {
-        self.shader_manager.load(name, display);
-    }
+    /// Get shader manager
+    pub fn shaders_mut(&mut self) -> &mut ShaderManager { &mut self.shader_manager }
 }

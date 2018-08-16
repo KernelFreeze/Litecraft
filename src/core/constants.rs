@@ -13,12 +13,19 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+/// Fancy logo
 pub const ASCII_ART: &str = r"
   _    _ _                    __ _   
  | |  (_) |_ ___ __ _ _ __ _ / _| |_ 
  | |__| |  _/ -_) _| '_/ _` |  _|  _|
  |____|_|\__\___\__|_| \__,_|_|  \__|
-                                     ";
+";
+
+/// Config file to lookup
 pub const CONFIG_FILE: &str = "litecraft.yml";
+
+/// Client version
 pub const LITECRAFT_VERSION: &str = "A1";
-pub const MINECRAFT_VERSION: &str = "1.13";
+
+/// Compatible Minecraft server version
+pub const MINECRAFT_VERSION: &str = "1.13.1";

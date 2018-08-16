@@ -14,9 +14,10 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::resource_manager::resource::Resource;
-use threadpool::ThreadPool;
+use core::settings::Settings;
 
 use image;
+use threadpool::ThreadPool;
 
 use glium::texture::{CompressedSrgbTexture2d, RawImage2d};
 use glium::Display;
@@ -25,22 +26,26 @@ use std::collections::HashMap;
 use std::io::Cursor;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
-pub struct RGBAImageData {
+/// RGBA image loaded async
+struct RGBAImageData {
     pub resource: Resource,
     pub data: Vec<u8>,
     pub dimensions: (u32, u32),
 }
 
+/// Texture tracker and loader
 pub struct TextureManager {
     pending: u16,
     textures: HashMap<Resource, CompressedSrgbTexture2d>,
     sender: Sender<RGBAImageData>,
     receiver: Receiver<RGBAImageData>,
+    resourcepacks: Vec<String>,
+    pool: ThreadPool,
 }
 
 impl TextureManager {
     /// Start texture manager
-    pub fn new() -> TextureManager {
+    pub fn new(settings: &Settings) -> TextureManager {
         info!("Starting texture manager...");
 
         let (sender, receiver) = channel();
@@ -48,6 +53,8 @@ impl TextureManager {
         TextureManager {
             pending: 0,
             textures: HashMap::new(),
+            pool: ThreadPool::new(settings.loader_threads()),
+            resourcepacks: settings.resourcepacks().clone(),
             sender,
             receiver,
         }
@@ -67,19 +74,26 @@ impl TextureManager {
         }
     }
 
+    // Check if we need to load another texture
+    pub fn loaded(&self) -> bool { self.pending == 0 }
+
+    /// Get a texture
+    pub fn get(&self, name: &Resource) -> Option<&CompressedSrgbTexture2d> { self.textures.get(name) }
+
     /// Load texture async
-    pub fn load(&mut self, resource: Resource, pool: &ThreadPool) {
+    pub fn load(&mut self, resource: Resource) {
         if self.get(&resource).is_some() {
             warn!("Texture {} is already loaded!", resource);
             return;
         }
 
         let sender = self.sender.clone();
+        let resourcepacks = self.resourcepacks.clone();
 
         self.pending += 1;
 
-        pool.execute(move || {
-            let data = resource.load_binary();
+        self.pool.execute(move || {
+            let data = resource.load_binary(resourcepacks);
             let image = image::load(Cursor::new(data), image::PNG).expect("Failed to decode a texture");
             let image = image.to_rgba();
 
@@ -102,10 +116,4 @@ impl TextureManager {
                 }).expect("Failed to send decoded texture to main thread");
         });
     }
-
-    // Check if we need to load another texture
-    pub fn loaded(&self) -> bool { self.pending == 0 }
-
-    /// Get a texture
-    pub fn get(&self, name: &Resource) -> Option<&CompressedSrgbTexture2d> { self.textures.get(name) }
 }

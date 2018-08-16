@@ -36,8 +36,10 @@ pub struct Settings {
 }
 
 impl Settings {
+    /// Create settings with default values
     pub fn new() -> Settings { Settings::new_with_size(800, 600) }
 
+    /// Create settings with width and height
     pub fn new_with_size(width: u32, height: u32) -> Settings {
         Settings {
             window: WindowSettings {
@@ -52,19 +54,33 @@ impl Settings {
         }
     }
 
+    /// Get window width
     pub fn width(&self) -> u32 { self.window.width }
 
+    /// Set window width
+    pub fn set_width(&mut self, value: u32) { self.window.width = value }
+
+    /// Get window height
     pub fn height(&self) -> u32 { self.window.height }
 
+    /// Set window height
+    pub fn set_height(&mut self, value: u32) { self.window.height = value }
+
+    /// Get if user wants fullscreen
     pub fn fullscreen(&self) -> bool { self.window.fullscreen }
 
+    /// Get if user wants maximized
     pub fn maximized(&self) -> bool { self.window.maximized }
 
+    /// Get if user wants vsync
     pub fn vsync(&self) -> bool { self.gameplay.vsync }
 
+    /// Get user FOV
     pub fn fov(&self) -> u8 { self.gameplay.fov }
 
+    /// Get enabled resourcepacks by filename
     pub fn resourcepacks(&self) -> &Vec<String> { &self.resourcepacks }
 
+    /// Get how many threads use to load
     pub fn loader_threads(&self) -> usize { self.loader_threads }
 }

@@ -23,5 +23,6 @@ pub enum SceneAction {
 }
 
 pub trait Scene {
+    fn load(&mut self, &mut Canvas);
     fn draw(&mut self, &mut Canvas, &mut Frame) -> SceneAction;
 }

@@ -101,41 +101,36 @@ impl Resource {
     }
 
     /// Get most priority file to load
-    fn find(&self) -> Result<Vec<u8>> {
+    fn find(&self, resourcepacks: Vec<String>) -> Result<Vec<u8>> {
         if !Path::new("resourcepacks").exists() {
             create_dir_all("resourcepacks")?;
         }
 
-        // Read from resource packs first
-        {
-            // Adquire settings
-            let settings = settings!();
+        // Get all enabled resource packs
+        let resourcepacks = resourcepacks
+            .into_iter()
+            .map(|entry| {
+                let mut path = PathBuf::from("resourcepacks");
+                path.push(entry);
+                path
+            }).filter(|entry| entry.exists())
+            .filter(|entry| entry.is_file());
 
-            // Get all enabled resource packs
-            let resourcepacks = settings
-                .resourcepacks()
-                .into_iter()
-                .map(|entry| {
-                    let mut path = PathBuf::from("resourcepacks");
-                    path.push(entry);
-                    path
-                }).filter(|entry| entry.exists())
-                .filter(|entry| entry.is_file());
+        // Check every resourcepack
+        for entry in resourcepacks {
+            // Read resourcepack ZIP file
+            let zipfile = File::open(entry)?;
+            let mut zipfile = ZipArchive::new(zipfile)?;
 
-            // Check every resourcepack
-            for entry in resourcepacks {
-                // Read resourcepack ZIP file
-                let zipfile = File::open(entry)?;
-                let mut zipfile = ZipArchive::new(zipfile)?;
+            // Read resource from ZIP
+            let mut file = zipfile.by_name(&self.folder("assets"));
 
-                // Read resource from ZIP
-                let mut file = zipfile.by_name(&self.folder("assets"));
-                if let Ok(mut file) = file {
-                    let mut buffer = Vec::new();
-                    file.read_to_end(&mut buffer)?;
+            // If file exist in zip
+            if let Ok(mut file) = file {
+                let mut buffer = Vec::new();
+                file.read_to_end(&mut buffer)?;
 
-                    return Ok(buffer);
-                }
+                return Ok(buffer);
             }
         }
 
@@ -158,14 +153,14 @@ impl Resource {
     }
 
     /// Get a resource as plain test
-    pub fn load(&self) -> String {
-        String::from_utf8(self.load_binary())
+    pub fn load(&self, resourcepacks: Vec<String>) -> String {
+        String::from_utf8(self.load_binary(resourcepacks))
             .unwrap_or_else(|_| panic!("Failed to decode required resource as UTF-8 text {}", &self))
     }
 
     /// Get a resource as binary
-    pub fn load_binary(&self) -> Vec<u8> {
-        self.find()
+    pub fn load_binary(&self, resourcepacks: Vec<String>) -> Vec<u8> {
+        self.find(resourcepacks)
             .unwrap_or_else(|_| panic!("Failed to load required binary resource {}", &self))
     }
 }

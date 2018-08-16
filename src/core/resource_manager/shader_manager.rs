@@ -15,24 +15,31 @@
 
 use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
+use core::settings::Settings;
 
-use glium::{Display, Program};
+use glium::Display;
+use glium::Program;
 
 use std::collections::HashMap;
 
 pub struct ShaderManager {
     shaders: HashMap<&'static str, Program>,
+    resourcepacks: Vec<String>,
 }
 
 impl ShaderManager {
     /// Start shader manager
-    pub fn new() -> ShaderManager {
+    pub fn new(settings: &Settings) -> ShaderManager {
         info!("Starting shader manager...");
 
         ShaderManager {
             shaders: HashMap::new(),
+            resourcepacks: settings.resourcepacks().clone(),
         }
     }
+
+    /// Get a compiled shader program
+    pub fn get(&self, name: &str) -> Option<&Program> { self.shaders.get(name) }
 
     /// Load and build a shader
     pub fn load(&mut self, name: &'static str, display: &Display) {
@@ -49,18 +56,17 @@ impl ShaderManager {
 
         let program = program!(display,
         140 => {
-            vertex: &v_140.load(),
-            fragment: &f_140.load()
+            vertex: &v_140.load(self.resourcepacks.clone()),
+            fragment: &f_140.load(self.resourcepacks.clone())
         },
 
         100 => {
-            vertex: &v_100.load(),
-            fragment: &f_100.load()
+            vertex: &v_100.load(self.resourcepacks.clone()),
+            fragment: &f_100.load(self.resourcepacks.clone())
         }).expect("Failed to build a required shader program. Do you have updated GPU drivers?");
+
+        info!("Loaded shader '{}'", name);
 
         self.shaders.insert(name, program);
     }
-
-    /// Get a compiled shader program
-    pub fn get(&self, name: &str) -> Option<&Program> { self.shaders.get(name) }
 }

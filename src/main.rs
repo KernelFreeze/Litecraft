@@ -30,9 +30,9 @@ extern crate lazy_static;
 
 extern crate cgmath;
 extern crate image;
-extern crate pretty_env_logger;
 extern crate serde;
 extern crate serde_yaml;
+extern crate simple_logger;
 extern crate threadpool;
 extern crate zip;
 
@@ -49,12 +49,13 @@ use std::path::Path;
 
 fn main() {
     println!("{}", ASCII_ART);
-    println!(
+
+    simple_logger::init().unwrap();
+
+    info!(
         "Starting Litecraft {} for Minecraft {}...",
         LITECRAFT_VERSION, MINECRAFT_VERSION
     );
-
-    pretty_env_logger::init();
 
     if !Path::new("resources").exists() {
         panic!(
