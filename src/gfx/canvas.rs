@@ -25,8 +25,8 @@ use gfx::scene::{Scene, SceneAction::ChangeScene};
 use glium::glutin::{ContextBuilder, ControlFlow, Event, EventsLoop, WindowBuilder, WindowEvent};
 use glium::Display;
 
-use conrod::UiBuilder;
-// use conrod::backend::glium::glium;
+use conrod::backend::glium::Renderer;
+use conrod::{Ui, UiBuilder};
 // use conrod::backend::glium::glium::Surface;
 
 use rhai::Engine;
@@ -37,6 +37,8 @@ pub struct Canvas {
     display: Display,
     settings: Settings,
     engine: Engine,
+    renderer: Renderer,
+    ui: Ui,
 }
 
 impl Canvas {
@@ -66,11 +68,17 @@ impl Canvas {
 
         // Create UI Manager
         let mut ui = UiBuilder::new([settings.width().into(), settings.height().into()]).build();
+
+        // Load default font
         let font = ResourceManager::font(&Resource::litecraft("default", ResourceType::Font))
             .expect("Failed to load default font file");
-
         ui.fonts.insert(font);
 
+        // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
+        // for drawing to the glium `Surface`.
+        let renderer = Renderer::new(&display).unwrap();
+
+        // Assets and resources manager
         let resource_manager = ResourceManager::new(&display, &settings);
 
         // Create default scene
@@ -86,6 +94,8 @@ impl Canvas {
             display,
             settings,
             engine,
+            renderer,
+            ui,
         };
 
         // Load initial scene resources
@@ -112,6 +122,12 @@ impl Canvas {
 
             // Check for events
             events_loop.poll_events(|events| {
+                use conrod::backend::winit::convert_event;
+
+                if let Some(event) = convert_event(events.clone(), &canvas.display) {
+                    canvas.ui.handle_event(event);
+                }
+
                 if let Event::WindowEvent { event, .. } = events {
                     status = canvas.event_handler(&event);
                 }
@@ -156,6 +172,7 @@ impl Canvas {
             },
 
             // Dropped file
+            // TODO: Allow drop resourcepacks
             WindowEvent::DroppedFile(_) => ControlFlow::Continue,
 
             _ => ControlFlow::Continue,

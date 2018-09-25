@@ -19,7 +19,7 @@ rhai = "0.9.0"
 smallvec = "0.6.5"
 
 [dependencies.conrod]
-version = "0.61.1"
+git = "https://github.com/Litecrafty/conrod"
 features = ["glium", "winit"]
 
 [dependencies.glium]
