@@ -17,9 +17,13 @@ use core::resource_manager::resource_type::ResourceType;
 use core::resource_manager::ResourceManager;
 
 use std::fmt;
+use std::fmt::{Formatter, Display};
+
 use std::fs::{create_dir_all, File};
+
 use std::io::Read;
 use std::io::{Error, ErrorKind, Result};
+
 use std::path::{Path, PathBuf};
 use zip::read::ZipArchive;
 
@@ -31,8 +35,8 @@ pub struct Resource {
     name: &'static str,
 }
 
-impl fmt::Display for Resource {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl Display for Resource {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "[{}:{}:{}]", self.namespace, self.resource_type, self.name)
     }
 }

@@ -27,7 +27,6 @@ use glium::Display;
 
 use conrod::backend::glium::Renderer;
 use conrod::{Ui, UiBuilder};
-// use conrod::backend::glium::glium::Surface;
 
 use rhai::Engine;
 
@@ -37,7 +36,6 @@ pub struct Canvas {
     display: Display,
     settings: Settings,
     engine: Engine,
-    renderer: Renderer,
     ui: Ui,
 }
 
@@ -69,14 +67,19 @@ impl Canvas {
         // Create UI Manager
         let mut ui = UiBuilder::new([settings.width().into(), settings.height().into()]).build();
 
-        // Load default font
-        let font = ResourceManager::font(&Resource::litecraft("default", ResourceType::Font))
-            .expect("Failed to load default font file");
-        ui.fonts.insert(font);
+        // Load default fonts
+        ui.fonts.insert(
+            ResourceManager::font(&Resource::litecraft("unicode", ResourceType::Font))
+                .expect("Failed to load default font file"),
+        );
 
-        // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
-        // for drawing to the glium `Surface`.
-        let renderer = Renderer::new(&display).unwrap();
+        ui.fonts.insert(
+            ResourceManager::font(&Resource::litecraft("default", ResourceType::Font))
+                .expect("Failed to load default font file"),
+        );
+
+        // Conrod surface renderer
+        let mut renderer = Renderer::new(&display).unwrap();
 
         // Assets and resources manager
         let resource_manager = ResourceManager::new(&display, &settings);
@@ -91,10 +94,9 @@ impl Canvas {
         // Create canvas manager
         let mut canvas = Canvas {
             resource_manager,
-            display,
             settings,
+            display,
             engine,
-            renderer,
             ui,
         };
 
@@ -103,23 +105,6 @@ impl Canvas {
 
         // Main game loop
         while status != ControlFlow::Break {
-            let mut target = canvas.display.draw();
-
-            // Tick resource manager
-            canvas.resource_manager.tick(&canvas.display);
-
-            // Draw current scene
-            let draw = scene.draw(&mut canvas, &mut target);
-
-            // Change scene if requested
-            if let ChangeScene(new_scene) = draw {
-                scene = new_scene;
-                scene.load(&mut canvas);
-            }
-
-            // Draw to window
-            target.finish().expect("Couldn't render scene");
-
             // Check for events
             events_loop.poll_events(|events| {
                 use conrod::backend::winit::convert_event;
@@ -132,6 +117,40 @@ impl Canvas {
                     status = canvas.event_handler(&event);
                 }
             });
+
+            let mut target = canvas.display.draw();
+
+            // Tick resource manager
+            canvas.resource_manager.tick(&canvas.display);
+
+            // Draw current scene
+            let draw = scene.draw(&mut canvas, &mut target);
+
+            // Draw user interface
+            if let Some(primitives) = canvas.ui.draw_if_changed() {
+                renderer.fill(
+                    &canvas.display,
+                    primitives,
+                    &canvas.resources().textures().image_map(),
+                );
+            }
+
+            // Render user interface surface
+            renderer
+                .draw(
+                    &canvas.display,
+                    &mut target,
+                    &canvas.resources().textures().image_map(),
+                ).expect("Couldn't draw UI");
+
+            // Change scene if requested
+            if let ChangeScene(new_scene) = draw {
+                scene = new_scene;
+                scene.load(&mut canvas);
+            }
+
+            // Draw to window
+            target.finish().expect("Couldn't render scene");
         }
 
         // Main loop end, now dispose resources...
@@ -190,4 +209,10 @@ impl Canvas {
 
     /// Get settings
     pub fn settings(&self) -> &Settings { &self.settings }
+
+    /// Get user interface manager
+    pub fn ui(&self) -> &Ui { &self.ui }
+
+    /// Get user interface manager
+    pub fn ui_mut(&mut self) -> &mut Ui { &mut self.ui }
 }

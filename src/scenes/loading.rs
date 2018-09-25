@@ -67,23 +67,25 @@ impl Scene for LoadingScene {
         Pencil::new(frame, "noise").draw(canvas);
 
         // Draw litecraft logo
-        let logo = canvas
-            .resources()
-            .textures()
-            .get(&Resource::litecraft("logo", ResourceType::Texture));
+        {
+            let logo = canvas
+                .resources()
+                .textures()
+                .get(&Resource::litecraft("logo", ResourceType::Texture));
 
-        // Check if logo is now loaded
-        if let Some(logo) = logo {
-            Pencil::new(frame, "logo")
-                .camera(&self.camera)
-                .texture(logo)
-                .draw(canvas);
+            // Check if logo is now loaded
+            if let Some(logo) = logo {
+                Pencil::new(frame, "logo")
+                    .camera(&self.camera)
+                    .texture(logo)
+                    .draw(canvas);
+            }
         }
 
         if canvas.resources().loaded() {
             info!("All resources are now loaded, opening main menu");
 
-            SceneAction::ChangeScene(box MainMenu::new())
+            SceneAction::ChangeScene(box MainMenu::new(canvas))
         } else {
             SceneAction::None
         }

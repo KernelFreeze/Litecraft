@@ -5,7 +5,7 @@
 
 <img src="https://i.imgur.com/JwRuNEl.gif" width="600">
 
-[Open source](https://en.wikipedia.org/wiki/Free_and_open-source_software), [clean room](https://en.wikipedia.org/wiki/Clean_room_design) implementation of [Minecraft](https://minecraft.net) Client.
+[Open source](https://en.wikipedia.org/wiki/Free_and_open-source_software), [clean room](https://en.wikipedia.org/wiki/Clean_room_design) implementation of [Minecraft](https://minecraft.net) Client. Currently work in progress, for now, you should expect it not to work as desired.
 
 # 💠 Features and differences with vanilla:
 - [X] Litecraft doesn't require or use Java.
@@ -15,10 +15,9 @@
 - [X] Rendering using shaders. [Shaders are faster than old OpenGL calls](https://thebookofshaders.com/00/).
 - [X] Less crashes! Safe by design.
 - [X] Supported by an awesome community.
-- [X] Modern design (Design patterns and use of VAOs, VBOs, EBOs, etc).
 - [ ] All vanilla client features.
 - [ ] [Launcher with assets downloader](https://github.com/Litecrafty/Launcher)
-- [ ] Support for server side plugin/mod API.
+- [ ] Awesome plugin / mod API.
 - [ ] More soon™ We have some crazy ideas... ;)
 
 # 🎬 Screenshots

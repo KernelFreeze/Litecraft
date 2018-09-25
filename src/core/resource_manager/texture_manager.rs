@@ -22,19 +22,23 @@ use std::collections::HashMap;
 use std::io::Cursor;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
+use conrod::image::{Id, Map};
 use image;
 use threadpool::ThreadPool;
 
 /// RGBA image loaded async
 struct RGBAImageData {
-    pub resource: Resource,
-    pub data: Vec<u8>,
-    pub dimensions: (u32, u32),
+    resource: Resource,
+    data: Vec<u8>,
+    dimensions: (u32, u32),
+    ui: bool,
 }
 
 /// Texture tracker and loader
 pub struct TextureManager {
     pending: u16,
+    ui_images: Map<CompressedSrgbTexture2d>,
+    ui_textures: HashMap<Resource, Id>,
     textures: HashMap<Resource, CompressedSrgbTexture2d>,
     sender: Sender<RGBAImageData>,
     receiver: Receiver<RGBAImageData>,
@@ -49,9 +53,11 @@ impl TextureManager {
         let (sender, receiver) = channel();
 
         TextureManager {
-            pending: 0,
             textures: HashMap::new(),
+            ui_textures: HashMap::new(),
             pool: ThreadPool::new(4),
+            ui_images: Map::<CompressedSrgbTexture2d>::new(),
+            pending: 0,
             sender,
             receiver,
         }
@@ -60,13 +66,25 @@ impl TextureManager {
     /// Upload pending textures to OpenGL
     pub fn tick(&mut self, display: &Display) {
         if let Ok(image) = self.receiver.try_recv() {
+            // Parse texture from raw data
             let texture = RawImage2d::from_raw_rgba(image.data, image.dimensions);
             let texture = CompressedSrgbTexture2d::new(display, texture);
             let texture = texture.expect("Failed to send texture to GPU.");
 
-            debug!("Loaded texture {}", &image.resource);
+            // Check if texture is needed for 3D or for user interface
+            if image.ui {
+                debug!("Loaded UI texture {}", &image.resource);
 
-            self.textures.insert(image.resource, texture);
+                // Get conrod texture Id
+                let id = self.ui_images.insert(texture);
+
+                self.ui_textures.insert(image.resource, id);
+            } else {
+                debug!("Loaded texture {}", &image.resource);
+
+                self.textures.insert(image.resource, texture);
+            }
+
             self.pending -= 1;
         }
     }
@@ -77,10 +95,23 @@ impl TextureManager {
     /// Get a texture
     pub fn get(&self, name: &Resource) -> Option<&CompressedSrgbTexture2d> { self.textures.get(name) }
 
+    /// Get a UI texture
+    pub fn get_ui(&self, name: &Resource) -> Option<Id> { self.ui_textures.get(name).map(|s| s.clone()) }
+
+    /// Request texture load
+    pub fn load(&mut self, resource: Resource) { self.do_load(resource, false); }
+
+    /// Request texture load for use in user interface
+    pub fn load_ui(&mut self, resource: Resource) { self.do_load(resource, true); }
+
     /// Load texture async
-    pub fn load(&mut self, resource: Resource) {
-        if self.get(&resource).is_some() {
+    fn do_load(&mut self, resource: Resource, ui: bool) {
+        if !ui && self.get(&resource).is_some() {
             warn!("Texture {} is already loaded!", resource);
+            return;
+        }
+        if ui && self.get_ui(&resource).is_some() {
+            warn!("UI texture {} is already loaded!", resource);
             return;
         }
 
@@ -109,7 +140,11 @@ impl TextureManager {
                     data,
                     dimensions,
                     resource,
+                    ui,
                 }).expect("Failed to send decoded texture to main thread");
         });
     }
+
+    /// Get user interface manager
+    pub fn image_map(&self) -> &Map<CompressedSrgbTexture2d> { &self.ui_images }
 }

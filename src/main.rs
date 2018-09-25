@@ -29,6 +29,7 @@ extern crate log;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
 extern crate conrod;
 extern crate rhai;
 extern crate serde_yaml;
