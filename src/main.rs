@@ -28,6 +28,7 @@ extern crate log;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate rhai;
 extern crate serde_yaml;
 extern crate simple_logger;
 extern crate threadpool;

@@ -15,6 +15,7 @@ cgmath = "0.16.1"
 lazy_static = "1.1"
 simple_logger = "0.5.0"
 threadpool = "1.0"
+rhai = "0.8.1"
 
 [dependencies.glium]
 git = "https://github.com/Litecrafty/glium"

@@ -43,7 +43,7 @@ impl<'a> Pencil<'a> {
     pub fn new(frame: &'a mut Frame, program: &str) -> Pencil<'a> {
         Pencil {
             program: program.into(),
-            frame: frame,
+            frame,
 
             vertices: None,
             texture: None,

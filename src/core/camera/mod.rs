@@ -56,8 +56,8 @@ impl Camera {
 
     /// Set current window size to match aspect ratio
     pub fn aspect_ratio(&mut self, width: u32, height: u32) {
-        self.width = width.into();
-        self.height = height.into();
+        self.width = width;
+        self.height = height;
     }
 
     /// Get current camera position
@@ -83,9 +83,8 @@ impl Camera {
         let zfar = 1024.0;
         let znear = 1.0;
 
-        let width: f32 = if self.width <= 0 { 800.0 } else { self.width as f32 };
-
-        let height: f32 = if self.height <= 0 {
+        let width: f32 = self.width as f32;
+        let height: f32 = if self.height == 0 {
             600.0
         } else {
             self.height as f32

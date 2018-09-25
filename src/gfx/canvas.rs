@@ -15,21 +15,27 @@
 
 use core::resource_manager::ResourceManager;
 use core::settings::Settings;
+
+use scenes::loading::LoadingScene;
+
 use gfx::scene::{Scene, SceneAction::ChangeScene};
+
 use glium::glutin::{ContextBuilder, ControlFlow, Event, EventsLoop, WindowBuilder, WindowEvent};
 use glium::Display;
-use scenes::loading::LoadingScene;
+
+use rhai::Engine;
 
 /// Main game struct, its role is draw and manage everything in existence
 pub struct Canvas {
     resource_manager: ResourceManager,
     display: Display,
     settings: Settings,
+    engine: Engine,
 }
 
 impl Canvas {
     /// Create and start drawing Canvas
-    pub fn start() -> Canvas {
+    pub fn start() {
         use core::settings_manager::load_config;
 
         let mut events_loop = EventsLoop::new();
@@ -57,11 +63,16 @@ impl Canvas {
         // Create default scene
         let mut scene: Box<Scene> = Box::new(LoadingScene::new());
 
+        info!("Starting script engine!");
+
+        let engine = Engine::new();
+
         // Create canvas manager
         let mut canvas = Canvas {
             resource_manager,
             display,
             settings,
+            engine,
         };
 
         // Load initial scene resources
@@ -89,14 +100,13 @@ impl Canvas {
             // Check for events
             events_loop.poll_events(|events| {
                 if let Event::WindowEvent { event, .. } = events {
-                    status = canvas.event_handler(event);
+                    status = canvas.event_handler(&event);
                 }
             });
         }
 
         // Main loop end, now dispose resources...
         info!("Stopping Litecraft...");
-        canvas
     }
 
     /// Create a custom Window
@@ -119,7 +129,7 @@ impl Canvas {
     }
 
     /// Window events handler
-    fn event_handler(&mut self, event: WindowEvent) -> ControlFlow {
+    fn event_handler(&mut self, event: &WindowEvent) -> ControlFlow {
         match event {
             // Window close
             WindowEvent::CloseRequested => ControlFlow::Break,
