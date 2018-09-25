@@ -82,8 +82,8 @@ impl ResourceManager {
 
     /// Get and load a font file
     pub fn font(resource: &Resource) -> Result<Font, Box<Error>> {
-        use std::io::{Error, ErrorKind};
         use conrod::text::FontCollection;
+        use std::io::{Error, ErrorKind};
 
         info!("Loading font file '{}'", resource);
 
