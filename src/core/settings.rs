@@ -32,7 +32,6 @@ pub struct Settings {
     window: WindowSettings,
     gameplay: GameplaySettings,
     resourcepacks: Vec<String>,
-    loader_threads: usize,
 }
 
 impl Settings {
@@ -50,7 +49,6 @@ impl Settings {
             },
             gameplay: GameplaySettings { fov: 90, vsync: true },
             resourcepacks: Vec::new(),
-            loader_threads: 6,
         }
     }
 
@@ -80,7 +78,4 @@ impl Settings {
 
     /// Get enabled resourcepacks by filename
     pub fn resourcepacks(&self) -> &Vec<String> { &self.resourcepacks }
-
-    /// Get how many threads use to load
-    pub fn loader_threads(&self) -> usize { self.loader_threads }
 }

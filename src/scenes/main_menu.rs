@@ -35,7 +35,7 @@ impl MainMenu {
 
 impl Scene for MainMenu {
     /// Do resource load
-    fn load(&mut self, canvas: &mut Canvas) {}
+    fn load(&mut self, _canvas: &mut Canvas) {}
 
     /// Draw scene
     fn draw(&mut self, canvas: &mut Canvas, frame: &mut Frame) -> SceneAction {

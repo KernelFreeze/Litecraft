@@ -81,6 +81,8 @@ impl Scene for LoadingScene {
         }
 
         if canvas.resources().loaded() {
+            info!("All resources are now loaded, opening main menu");
+
             SceneAction::ChangeScene(box MainMenu::new())
         } else {
             SceneAction::None

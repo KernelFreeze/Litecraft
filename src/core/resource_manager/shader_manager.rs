@@ -15,24 +15,21 @@
 
 use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
-use core::settings::Settings;
 use glium::Display;
 use glium::Program;
 use std::collections::HashMap;
 
 pub struct ShaderManager {
     shaders: HashMap<&'static str, Program>,
-    resourcepacks: Vec<String>,
 }
 
 impl ShaderManager {
     /// Start shader manager
-    pub fn new(settings: &Settings) -> ShaderManager {
+    pub fn new() -> ShaderManager {
         info!("Starting shader manager...");
 
         ShaderManager {
             shaders: HashMap::new(),
-            resourcepacks: settings.resourcepacks().clone(),
         }
     }
 
@@ -54,13 +51,13 @@ impl ShaderManager {
 
         let program = program!(display,
         140 => {
-            vertex: &v_140.load(self.resourcepacks.clone()),
-            fragment: &f_140.load(self.resourcepacks.clone())
+            vertex: &v_140.load(),
+            fragment: &f_140.load()
         },
 
         100 => {
-            vertex: &v_100.load(self.resourcepacks.clone()),
-            fragment: &f_100.load(self.resourcepacks.clone())
+            vertex: &v_100.load(),
+            fragment: &f_100.load()
         }).expect("Failed to build a required shader program. Do you have updated GPU drivers?");
 
         info!("Loaded shader '{}'", name);

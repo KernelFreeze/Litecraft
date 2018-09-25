@@ -14,6 +14,8 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::resource_manager::resource_type::ResourceType;
+use core::resource_manager::ResourceManager;
+
 use std::fmt;
 use std::fs::{create_dir_all, File};
 use std::io::Read;
@@ -31,7 +33,7 @@ pub struct Resource {
 
 impl fmt::Display for Resource {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{}:{}]", self.namespace, self.name)
+        write!(f, "[{}:{}:{}]", self.namespace, self.resource_type, self.name)
     }
 }
 
@@ -100,10 +102,12 @@ impl Resource {
     }
 
     /// Get most priority file to load
-    fn find(&self, resourcepacks: Vec<String>) -> Result<Vec<u8>> {
+    fn find(&self) -> Result<Vec<u8>> {
         if !Path::new("resourcepacks").exists() {
             create_dir_all("resourcepacks")?;
         }
+
+        let resourcepacks = ResourceManager::resourcepacks();
 
         // Get all enabled resource packs
         let resourcepacks = resourcepacks
@@ -152,14 +156,12 @@ impl Resource {
     }
 
     /// Get a resource as plain test
-    pub fn load(&self, resourcepacks: Vec<String>) -> String {
-        String::from_utf8(self.load_binary(resourcepacks))
-            .unwrap_or_else(|_| panic!("Failed to decode required resource as UTF-8 text {}", &self))
+    pub fn load(&self) -> String {
+        String::from_utf8(self.load_binary()).expect("Failed to decode required resource as UTF-8 text")
     }
 
     /// Get a resource as binary
-    pub fn load_binary(&self, resourcepacks: Vec<String>) -> Vec<u8> {
-        self.find(resourcepacks)
-            .unwrap_or_else(|_| panic!("Failed to load required binary resource {}", &self))
+    pub fn load_binary(&self) -> Vec<u8> {
+        self.find().expect("Failed to load required binary resource")
     }
 }

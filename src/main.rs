@@ -16,6 +16,7 @@
 #![feature(box_syntax)]
 #![deny(unused_must_use)]
 #![deny(unused_imports)]
+#![allow(dead_code)]
 
 extern crate cgmath;
 #[macro_use]
@@ -28,9 +29,11 @@ extern crate log;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate conrod;
 extern crate rhai;
 extern crate serde_yaml;
 extern crate simple_logger;
+extern crate smallvec;
 extern crate threadpool;
 extern crate zip;
 

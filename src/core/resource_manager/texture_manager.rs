@@ -14,13 +14,15 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::resource_manager::resource::Resource;
-use core::settings::Settings;
+
 use glium::texture::{CompressedSrgbTexture2d, RawImage2d};
 use glium::Display;
-use image;
+
 use std::collections::HashMap;
 use std::io::Cursor;
 use std::sync::mpsc::{channel, Receiver, Sender};
+
+use image;
 use threadpool::ThreadPool;
 
 /// RGBA image loaded async
@@ -36,13 +38,12 @@ pub struct TextureManager {
     textures: HashMap<Resource, CompressedSrgbTexture2d>,
     sender: Sender<RGBAImageData>,
     receiver: Receiver<RGBAImageData>,
-    resourcepacks: Vec<String>,
     pool: ThreadPool,
 }
 
 impl TextureManager {
     /// Start texture manager
-    pub fn new(settings: &Settings) -> TextureManager {
+    pub fn new() -> TextureManager {
         info!("Starting texture manager...");
 
         let (sender, receiver) = channel();
@@ -50,8 +51,7 @@ impl TextureManager {
         TextureManager {
             pending: 0,
             textures: HashMap::new(),
-            pool: ThreadPool::new(settings.loader_threads()),
-            resourcepacks: settings.resourcepacks().clone(),
+            pool: ThreadPool::new(4),
             sender,
             receiver,
         }
@@ -85,12 +85,11 @@ impl TextureManager {
         }
 
         let sender = self.sender.clone();
-        let resourcepacks = self.resourcepacks.clone();
 
         self.pending += 1;
 
         self.pool.execute(move || {
-            let data = resource.load_binary(resourcepacks);
+            let data = resource.load_binary();
             let image = image::load(Cursor::new(data), image::PNG).expect("Failed to decode a texture");
             let image = image.to_rgba();
 

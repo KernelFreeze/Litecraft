@@ -13,6 +13,8 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+use core::resource_manager::resource::Resource;
+use core::resource_manager::resource_type::ResourceType;
 use core::resource_manager::ResourceManager;
 use core::settings::Settings;
 
@@ -22,6 +24,10 @@ use gfx::scene::{Scene, SceneAction::ChangeScene};
 
 use glium::glutin::{ContextBuilder, ControlFlow, Event, EventsLoop, WindowBuilder, WindowEvent};
 use glium::Display;
+
+use conrod::UiBuilder;
+// use conrod::backend::glium::glium;
+// use conrod::backend::glium::glium::Surface;
 
 use rhai::Engine;
 
@@ -58,6 +64,13 @@ impl Canvas {
         let display = Display::new(window, context, &events_loop);
         let display = display.expect("Failed to initialize display");
 
+        // Create UI Manager
+        let mut ui = UiBuilder::new([settings.width().into(), settings.height().into()]).build();
+        let font = ResourceManager::font(&Resource::litecraft("default", ResourceType::Font))
+            .expect("Failed to load default font file");
+
+        ui.fonts.insert(font);
+
         let resource_manager = ResourceManager::new(&display, &settings);
 
         // Create default scene
@@ -89,9 +102,9 @@ impl Canvas {
             let draw = scene.draw(&mut canvas, &mut target);
 
             // Change scene if requested
-            if let ChangeScene(_scene) = draw {
+            if let ChangeScene(new_scene) = draw {
+                scene = new_scene;
                 scene.load(&mut canvas);
-                scene = _scene;
             }
 
             // Draw to window

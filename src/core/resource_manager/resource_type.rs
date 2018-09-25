@@ -13,7 +13,9 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#[derive(PartialEq, Eq, Hash)]
+use std::fmt;
+
+#[derive(PartialEq, Eq, Hash, Debug)]
 pub enum ResourceType {
     Language,
     Blockstate,
@@ -27,6 +29,29 @@ pub enum ResourceType {
     Text,
     FragmentShader,
     VertexShader,
+}
+
+impl fmt::Display for ResourceType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                ResourceType::Language => "lang",
+                ResourceType::Blockstate => "blockstate",
+                ResourceType::Model => "model",
+                ResourceType::Sound => "sound",
+                ResourceType::Font => "font",
+                ResourceType::Text => "text",
+                ResourceType::VertexShader => "shader",
+                ResourceType::FragmentShader => "shader",
+                ResourceType::Texture => "texture",
+                ResourceType::Animation => "texture",
+                ResourceType::Colormap => "colormap",
+                ResourceType::Property => "misc",
+            }
+        )
+    }
 }
 
 impl ResourceType {
