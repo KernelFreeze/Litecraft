@@ -15,16 +15,13 @@
 
 use core::resource_manager::resource::Resource;
 use core::settings::Settings;
-
-use image;
-use threadpool::ThreadPool;
-
 use glium::texture::{CompressedSrgbTexture2d, RawImage2d};
 use glium::Display;
-
+use image;
 use std::collections::HashMap;
 use std::io::Cursor;
 use std::sync::mpsc::{channel, Receiver, Sender};
+use threadpool::ThreadPool;
 
 /// RGBA image loaded async
 struct RGBAImageData {

@@ -14,13 +14,14 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::camera::Camera;
-
 use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
 
 use gfx::canvas::Canvas;
-use gfx::pencil::Geometry;
+use gfx::pencil::Pencil;
 use gfx::scene::{Scene, SceneAction};
+
+use scenes::main_menu::MainMenu;
 
 use glium::{Frame, Surface};
 
@@ -38,6 +39,7 @@ impl LoadingScene {
 }
 
 impl Scene for LoadingScene {
+    /// Do resource load
     fn load(&mut self, canvas: &mut Canvas) {
         canvas
             .resources_mut()
@@ -46,14 +48,14 @@ impl Scene for LoadingScene {
 
         let display = canvas.display().clone();
 
+        // Load shaders
         canvas.resources_mut().shaders_mut().load("noise", &display);
         canvas.resources_mut().shaders_mut().load("quad", &display);
         canvas.resources_mut().shaders_mut().load("logo", &display);
     }
 
+    /// Draw scene
     fn draw(&mut self, canvas: &mut Canvas, frame: &mut Frame) -> SceneAction {
-        use cgmath::Matrix4;
-
         // Update camera aspect ratio
         self.camera
             .aspect_ratio(canvas.settings().width(), canvas.settings().height());
@@ -62,7 +64,7 @@ impl Scene for LoadingScene {
         frame.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
         // Draw background
-        canvas.dummy_draw(frame, "noise");
+        Pencil::new(frame, "noise").draw(canvas);
 
         // Draw litecraft logo
         let logo = canvas
@@ -72,11 +74,16 @@ impl Scene for LoadingScene {
 
         // Check if logo is now loaded
         if let Some(logo) = logo {
-            let position = Matrix4::from_scale(1.0);
-
-            canvas.draw(frame, "logo", logo, &self.camera, Geometry::Quad, position);
+            Pencil::new(frame, "logo")
+                .camera(&self.camera)
+                .texture(logo)
+                .draw(canvas);
         }
 
-        SceneAction::None
+        if canvas.resources().loaded() {
+            SceneAction::ChangeScene(box MainMenu::new())
+        } else {
+            SceneAction::None
+        }
     }
 }

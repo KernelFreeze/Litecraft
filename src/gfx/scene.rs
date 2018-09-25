@@ -14,7 +14,6 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use gfx::canvas::Canvas;
-
 use glium::Frame;
 
 pub enum SceneAction {

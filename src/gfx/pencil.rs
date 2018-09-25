@@ -13,81 +13,123 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+use cgmath::Matrix4;
+
 use core::camera::Camera;
 use core::resource_manager::ResourceManager;
 
 use gfx::canvas::Canvas;
+use gfx::shapes::VertexData;
 
 use glium::draw_parameters::Blend;
 use glium::texture::CompressedSrgbTexture2d;
 use glium::{DrawParameters, Frame, Surface};
 
-use cgmath::Matrix4;
+/// Utility for drawing on screen
+pub struct Pencil<'a> {
+    // Required
+    program: String,
+    frame: &'a mut Frame,
 
-/// Geometry type
-pub enum Geometry {
-    /// 2D Quad
-    Quad,
+    // Optional
+    vertices: Option<&'a VertexData>,
+    texture: Option<&'a CompressedSrgbTexture2d>,
+    camera: Option<&'a Camera>,
+    transform: Option<Matrix4<f32>>,
 }
 
-impl Canvas {
-    /// Draw using program to fullscreen
-    pub fn dummy_draw(&self, frame: &mut Frame, program: &str) {
-        let uniforms = uniform! {
-            time: ResourceManager::time(),
-        };
+impl<'a> Pencil<'a> {
+    /// Create a new Pencil
+    pub fn new(frame: &'a mut Frame, program: &str) -> Pencil<'a> {
+        Pencil {
+            program: program.into(),
+            frame: frame,
 
-        let (vertex_buffer, index_buffer) = self.resources().shapes().quad();
-        let program = self
-            .resources()
-            .shaders()
-            .get(program)
-            .expect("Required shader not found");
+            vertices: None,
+            texture: None,
+            camera: None,
+            transform: None,
+        }
+    }
 
-        let parameters = DrawParameters {
-            blend: Blend::alpha_blending(),
-            ..Default::default()
-        };
+    /// Add vertices to draw
+    pub fn vertices(&'a mut self, vertices: &'a VertexData) -> &'a mut Pencil {
+        self.vertices = Some(vertices);
+        self
+    }
 
-        frame
-            .draw(vertex_buffer, index_buffer, program, &uniforms, &parameters)
-            .expect("Failed to draw geometry to screen");
+    /// Add texture to draw
+    pub fn texture(&'a mut self, texture: &'a CompressedSrgbTexture2d) -> &'a mut Pencil {
+        self.texture = Some(texture);
+        self
+    }
+
+    /// Add camera to draw
+    pub fn camera(&'a mut self, camera: &'a Camera) -> &'a mut Pencil {
+        self.camera = Some(camera);
+        self
+    }
+
+    /// Add transform to draw
+    pub fn transform(&'a mut self, transform: Matrix4<f32>) -> &'a mut Pencil {
+        self.transform = Some(transform);
+        self
     }
 
     /// Draw shape to 3D space
-    pub fn draw(
-        &self, frame: &mut Frame, program: &str, texture: &CompressedSrgbTexture2d, camera: &Camera,
-        geometry: Geometry, transform: Matrix4<f32>,
-    ) {
+    pub fn draw(&mut self, canvas: &Canvas) {
         use glium::draw_parameters::DepthTest;
         use glium::uniforms::{MagnifySamplerFilter, SamplerWrapFunction};
         use glium::Depth;
 
-        // Get updated camera matrices
-        let persp_matrix: [[f32; 4]; 4] = camera.perspective().into();
-        let view_matrix: [[f32; 4]; 4] = camera.view().into();
-        let transform: [[f32; 4]; 4] = transform.into();
-        let texture = texture
-            .sampled()
-            .wrap_function(SamplerWrapFunction::BorderClamp)
-            .magnify_filter(MagnifySamplerFilter::Nearest);
+        use cgmath::Matrix4;
+        use cgmath::One;
 
-        // Generate uniforms
+        // Check if camera is available or use default
+        let (persp_matrix, view_matrix) = if let Some(camera) = self.camera {
+            let persp_matrix: [[f32; 4]; 4] = camera.perspective().into();
+            let view_matrix: [[f32; 4]; 4] = camera.view().into();
+
+            (persp_matrix, view_matrix)
+        } else {
+            let matrix = Matrix4::one();
+
+            let persp_matrix: [[f32; 4]; 4] = matrix.into();
+            let view_matrix: [[f32; 4]; 4] = matrix.into();
+
+            (persp_matrix, view_matrix)
+        };
+
+        // Check if we need to transform or use default
+        let transform = if let Some(transform) = self.transform {
+            let transform: [[f32; 4]; 4] = transform.into();
+
+            transform
+        } else {
+            let transform: [[f32; 4]; 4] = Matrix4::one().into();
+
+            transform
+        };
+
         let uniforms = uniform! {
+            time: ResourceManager::time(),
             persp_matrix: persp_matrix,
             view_matrix: view_matrix,
-            time: ResourceManager::time(),
             transform: transform,
-            tex: texture,
         };
 
-        let (vertex_buffer, index_buffer) = match geometry {
-            Geometry::Quad => self.resources().shapes().quad(),
+        // Get vertices or use default quad
+        let (vertex_buffer, index_buffer) = if let Some(vertices) = self.vertices {
+            vertices
+        } else {
+            canvas.resources().shapes().quad()
         };
-        let program = self
+
+        // Get previously loaded shader program
+        let program = canvas
             .resources()
             .shaders()
-            .get(program)
+            .get(&self.program)
             .expect("Required shader not found");
 
         let parameters = DrawParameters {
@@ -100,8 +142,23 @@ impl Canvas {
             ..Default::default()
         };
 
-        frame
-            .draw(vertex_buffer, index_buffer, program, &uniforms, &parameters)
-            .expect("Failed to draw geometry to screen");
+        // Check if we need to attach a texture
+        if let Some(texture) = self.texture {
+            let uniforms = uniforms.add(
+                "tex",
+                texture
+                    .sampled()
+                    .wrap_function(SamplerWrapFunction::BorderClamp)
+                    .magnify_filter(MagnifySamplerFilter::Nearest),
+            );
+
+            self.frame
+                .draw(vertex_buffer, index_buffer, program, &uniforms, &parameters)
+                .expect("Failed to draw textured geometry to screen");
+        } else {
+            self.frame
+                .draw(vertex_buffer, index_buffer, program, &uniforms, &parameters)
+                .expect("Failed to draw geometry to screen");
+        };
     }
 }

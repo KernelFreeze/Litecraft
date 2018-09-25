@@ -14,7 +14,6 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use core::resource_manager::resource_type::ResourceType;
-
 use std::fmt;
 use std::fs::{create_dir_all, File};
 use std::io::Read;

@@ -13,5 +13,39 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub mod loading;
-pub mod main_menu;
+use core::camera::Camera;
+
+use gfx::canvas::Canvas;
+use gfx::scene::{Scene, SceneAction};
+
+use glium::{Frame, Surface};
+
+/// Show Litecraft logo and start resource loading
+pub struct MainMenu {
+    camera: Camera,
+}
+
+impl MainMenu {
+    pub fn new() -> MainMenu {
+        MainMenu {
+            camera: Camera::new(),
+        }
+    }
+}
+
+impl Scene for MainMenu {
+    /// Do resource load
+    fn load(&mut self, canvas: &mut Canvas) {}
+
+    /// Draw scene
+    fn draw(&mut self, canvas: &mut Canvas, frame: &mut Frame) -> SceneAction {
+        // Update camera aspect ratio
+        self.camera
+            .aspect_ratio(canvas.settings().width(), canvas.settings().height());
+
+        // Clear to black
+        frame.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
+
+        SceneAction::None
+    }
+}

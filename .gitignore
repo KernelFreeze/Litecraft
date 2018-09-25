@@ -7,3 +7,5 @@
 *.zip
 *.lock
 **/*.rs.bk
+*.iml
+.idea

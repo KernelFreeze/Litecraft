@@ -16,10 +16,8 @@
 use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
 use core::settings::Settings;
-
 use glium::Display;
 use glium::Program;
-
 use std::collections::HashMap;
 
 pub struct ShaderManager {

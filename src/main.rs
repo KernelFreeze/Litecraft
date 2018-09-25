@@ -13,28 +13,29 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#![feature(box_syntax)]
 #![deny(unused_must_use)]
 #![deny(unused_imports)]
 
+extern crate cgmath;
 #[macro_use]
 extern crate glium;
-
-#[macro_use]
-extern crate serde_derive;
-
-#[macro_use]
-extern crate log;
-
+extern crate image;
 #[macro_use]
 extern crate lazy_static;
-
-extern crate cgmath;
-extern crate image;
+#[macro_use]
+extern crate log;
 extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 extern crate serde_yaml;
 extern crate simple_logger;
 extern crate threadpool;
 extern crate zip;
+
+use core::constants::*;
+use gfx::canvas::Canvas;
+use std::path::Path;
 
 #[macro_use]
 mod core;
@@ -42,15 +43,10 @@ mod gfx;
 mod scenes;
 mod tests;
 
-use core::constants::*;
-use gfx::canvas::Canvas;
-
-use std::path::Path;
-
 fn main() {
     println!("{}", ASCII_ART);
 
-    simple_logger::init().unwrap();
+    simple_logger::init().expect("Failed to initialize logger!");
 
     info!(
         "Starting Litecraft {} for Minecraft {}...",

@@ -15,13 +15,10 @@
 
 use core::resource_manager::ResourceManager;
 use core::settings::Settings;
-
 use gfx::scene::{Scene, SceneAction::ChangeScene};
-use scenes::loading::LoadingScene;
-
-use glium::glutin::dpi::LogicalSize;
 use glium::glutin::{ContextBuilder, ControlFlow, Event, EventsLoop, WindowBuilder, WindowEvent};
 use glium::Display;
+use scenes::loading::LoadingScene;
 
 /// Main game struct, its role is draw and manage everything in existence
 pub struct Canvas {
@@ -36,6 +33,8 @@ impl Canvas {
         use core::settings_manager::load_config;
 
         let mut events_loop = EventsLoop::new();
+
+        // Default action: Keep running
         let mut status = ControlFlow::Continue;
 
         // Load settings file
@@ -58,13 +57,14 @@ impl Canvas {
         // Create default scene
         let mut scene: Box<Scene> = Box::new(LoadingScene::new());
 
+        // Create canvas manager
         let mut canvas = Canvas {
             resource_manager,
             display,
             settings,
         };
 
-        /// Load initial scene resources
+        // Load initial scene resources
         scene.load(&mut canvas);
 
         // Main game loop
@@ -103,17 +103,16 @@ impl Canvas {
     fn create_window(settings: &Settings, events_loop: &EventsLoop) -> WindowBuilder {
         use core::constants::{LITECRAFT_VERSION, MINECRAFT_VERSION};
 
-        // Get window size from user preferences
-        let window_size = LogicalSize::new(settings.width().into(), settings.height().into());
-
+        // If user wants fullscreen get primary monitor and attach Litecraft to it
         let screen = if settings.fullscreen() {
             Some(events_loop.get_primary_monitor())
         } else {
             None
         };
 
+        // Create or window
         WindowBuilder::new()
-            .with_min_dimensions(window_size)
+            .with_min_dimensions((settings.width(), settings.height()).into())
             .with_title(format!("Litecraft {} {}", MINECRAFT_VERSION, LITECRAFT_VERSION))
             .with_maximized(settings.maximized())
             .with_fullscreen(screen)

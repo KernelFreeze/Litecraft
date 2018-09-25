@@ -13,20 +13,17 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+use core::resource_manager::shader_manager::ShaderManager;
+use core::resource_manager::texture_manager::TextureManager;
+use core::settings::Settings;
+use gfx::shapes::Shapes;
+use glium::Display;
+use std::time::Instant;
+
 pub mod resource;
 pub mod resource_type;
 pub mod shader_manager;
 pub mod texture_manager;
-
-use glium::Display;
-
-use core::resource_manager::shader_manager::ShaderManager;
-use core::resource_manager::texture_manager::TextureManager;
-use core::settings::Settings;
-
-use gfx::shapes::Shapes;
-
-use std::time::Instant;
 
 lazy_static! {
     /// Time since client start
@@ -73,4 +70,7 @@ impl ResourceManager {
 
     /// Get shader manager
     pub fn shaders_mut(&mut self) -> &mut ShaderManager { &mut self.shader_manager }
+
+    /// Check if resource manager is loaded
+    pub fn loaded(&self) -> bool { self.texture_manager.loaded() }
 }

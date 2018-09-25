@@ -15,7 +15,6 @@
 
 use cgmath::prelude::*;
 use cgmath::{ortho, perspective, Deg, Euler, Matrix4, Point3, Quaternion, Vector3};
-
 use std::f32;
 
 const YAW: f32 = -90.0;
@@ -84,7 +83,15 @@ impl Camera {
         let zfar = 1024.0;
         let znear = 1.0;
 
-        let aspect_ratio = self.width as f32 / self.height as f32;
+        let width: f32 = if self.width <= 0 { 800.0 } else { self.width as f32 };
+
+        let height: f32 = if self.height <= 0 {
+            600.0
+        } else {
+            self.height as f32
+        };
+
+        let aspect_ratio = width / height;
 
         perspective(Deg(90.0), aspect_ratio, znear, zfar)
     }

@@ -13,11 +13,9 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use serde_yaml;
-
 use core::constants::CONFIG_FILE;
 use core::settings::Settings;
-
+use serde_yaml;
 use std::fs::File;
 use std::path::Path;
 
