@@ -17,7 +17,7 @@ use core::resource_manager::resource_type::ResourceType;
 use core::resource_manager::ResourceManager;
 
 use std::fmt;
-use std::fmt::{Formatter, Display};
+use std::fmt::{Display, Formatter};
 
 use std::fs::{create_dir_all, File};
 
