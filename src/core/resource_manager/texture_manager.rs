@@ -29,6 +29,13 @@ use image::{self, ImageBuffer};
 
 pub type UiTexture = (Id, (f64, f64));
 
+/// Transformations made when loading textures
+pub enum TextureOptions {
+    None,
+    Blur(f32),
+    Resize(u32, u32),
+}
+
 /// RGBA image loaded async
 struct RGBAImageData {
     resource: Resource,
@@ -84,11 +91,14 @@ impl TextureManager {
             if image.ui {
                 debug!("Loaded UI texture {}", &image.resource);
 
-                // Get conrod texture Id
-                let id = self.ui_images.insert(texture);
-                let dimensions = (f64::from(image.dimensions.0), f64::from(image.dimensions.1));
-
-                self.ui_textures.insert(image.resource, (id, dimensions));
+                self.ui_textures.insert(
+                    image.resource,
+                    (
+                        // Get conrod texture Id
+                        self.ui_images.insert(texture),
+                        (f64::from(image.dimensions.0), f64::from(image.dimensions.1)),
+                    ),
+                );
             } else {
                 debug!("Loaded texture {}", &image.resource);
 
@@ -109,10 +119,20 @@ impl TextureManager {
     pub fn get_ui(&self, name: &Resource) -> Option<UiTexture> { self.ui_textures.get(name).cloned() }
 
     /// Request texture load
-    pub fn load(&mut self, resource: Resource) { self.do_load(resource, false); }
+    pub fn load(&mut self, resource: Resource) { self.do_load(resource, false, TextureOptions::None); }
 
     /// Request texture load for use in user interface
-    pub fn load_ui(&mut self, resource: Resource) { self.do_load(resource, true); }
+    pub fn load_ui(&mut self, resource: Resource) { self.do_load(resource, true, TextureOptions::None); }
+
+    /// Request texture load
+    pub fn load_opt(&mut self, resource: Resource, options: TextureOptions) {
+        self.do_load(resource, false, options);
+    }
+
+    /// Request texture load for use in user interface
+    pub fn load_ui_opt(&mut self, resource: Resource, options: TextureOptions) {
+        self.do_load(resource, true, options);
+    }
 
     /// Get failback texture
     fn failback_texture() -> ImageBuffer<image::Rgba<u8>, Vec<u8>> {
@@ -126,7 +146,7 @@ impl TextureManager {
     }
 
     /// Load texture async
-    fn do_load(&mut self, resource: Resource, ui: bool) {
+    fn do_load(&mut self, resource: Resource, ui: bool, options: TextureOptions) {
         if !ui && self.get(&resource).is_some() {
             warn!("Texture {} is already loaded!", resource);
             return;
@@ -143,8 +163,10 @@ impl TextureManager {
 
         // Load image in other thread
         self.pool.execute(move || {
+            use image::imageops;
+
             // Try to load and decode texture or use failback
-            let image = if let Ok(data) = resource.load_binary() {
+            let mut image = if let Ok(data) = resource.load_binary() {
                 // Decode image data
                 if let Ok(data) = image::load(Cursor::new(data), image::PNG) {
                     data.to_rgba()
@@ -157,6 +179,17 @@ impl TextureManager {
                 info!("Failed to load texture '{}'. Using failback", resource);
 
                 TextureManager::failback_texture()
+            };
+
+            match options {
+                TextureOptions::Blur(sigma) => {
+                    image = imageops::blur(&image, sigma);
+                },
+                TextureOptions::Resize(w, h) => {
+                    use image::FilterType;
+                    image = imageops::resize(&image, w, h, FilterType::Gaussian);
+                },
+                _ => (),
             };
 
             let dimensions = image.dimensions();
