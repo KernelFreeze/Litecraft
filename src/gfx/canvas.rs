@@ -20,10 +20,11 @@ use core::settings::Settings;
 
 use scenes::loading::LoadingScene;
 
+use gfx::fxaa::{self, FxaaSystem};
 use gfx::scene::{Scene, SceneAction::ChangeScene};
 
 use glium::glutin::{ContextBuilder, ControlFlow, Event, EventsLoop, WindowBuilder, WindowEvent};
-use glium::Display;
+use glium::{Display, Surface};
 
 use conrod::backend::glium::Renderer;
 use conrod::{Ui, UiBuilder};
@@ -58,6 +59,7 @@ impl Canvas {
         // Create OpenGL context
         let context = ContextBuilder::new()
             .with_vsync(settings.vsync())
+            .with_multisampling(settings.multisampling())
             .with_depth_buffer(24);
 
         // Create glium display
@@ -89,7 +91,11 @@ impl Canvas {
 
         info!("Starting script engine!");
 
+        // Rhai engine
         let engine = Engine::new();
+
+        // FXAA
+        let fxaa = FxaaSystem::new(&display);
 
         // Create canvas manager
         let mut canvas = Canvas {
@@ -123,9 +129,6 @@ impl Canvas {
             // Tick resource manager
             canvas.resource_manager.tick(&canvas.display);
 
-            // Draw current scene
-            let draw = scene.draw(&mut canvas, &mut target);
-
             // Draw user interface
             if let Some(primitives) = canvas.ui.draw_if_changed() {
                 renderer.fill(
@@ -135,19 +138,29 @@ impl Canvas {
                 );
             }
 
+            // Anti-aliasing
+            fxaa::draw(&fxaa, &mut target, canvas.settings.anti_aliasing(), |target| {
+                // Clear buffers
+                target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
+
+                // Draw current scene
+                let draw = scene.draw(&mut canvas, target);
+
+                // Change scene if requested
+                if let ChangeScene(new_scene) = draw {
+                    scene = new_scene;
+                    scene.load(&mut canvas);
+                }
+            });
+
             // Render user interface surface
+            // We don't use FXAA here because it looks ugly
             renderer
                 .draw(
                     &canvas.display,
                     &mut target,
                     &canvas.resources().textures().image_map(),
                 ).expect("Couldn't draw UI");
-
-            // Change scene if requested
-            if let ChangeScene(new_scene) = draw {
-                scene = new_scene;
-                scene.load(&mut canvas);
-            }
 
             // Draw to window
             target.finish().expect("Couldn't render scene");

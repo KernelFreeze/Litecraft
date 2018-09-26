@@ -14,7 +14,7 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use gfx::canvas::Canvas;
-use glium::Frame;
+use glium::framebuffer::SimpleFrameBuffer;
 
 pub enum SceneAction {
     None,
@@ -23,5 +23,5 @@ pub enum SceneAction {
 
 pub trait Scene {
     fn load(&mut self, &mut Canvas);
-    fn draw(&mut self, &mut Canvas, &mut Frame) -> SceneAction;
+    fn draw(&mut self, &mut Canvas, &mut SimpleFrameBuffer) -> SceneAction;
 }

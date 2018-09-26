@@ -14,6 +14,7 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pub mod canvas;
+pub mod fxaa;
 pub mod pencil;
 pub mod scene;
 pub mod shapes;

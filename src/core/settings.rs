@@ -19,6 +19,8 @@ pub struct WindowSettings {
     height: u32,
     fullscreen: bool,
     maximized: bool,
+    anti_aliasing: bool,
+    multisampling: u16,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -46,6 +48,8 @@ impl Settings {
                 height,
                 fullscreen: false,
                 maximized: true,
+                anti_aliasing: true,
+                multisampling: 0,
             },
             gameplay: GameplaySettings { fov: 90, vsync: true },
             resourcepacks: Vec::new(),
@@ -69,6 +73,12 @@ impl Settings {
 
     /// Get if user wants maximized
     pub fn maximized(&self) -> bool { self.window.maximized }
+
+    /// Get if user wants anti-aliasing FXAA
+    pub fn anti_aliasing(&self) -> bool { self.window.anti_aliasing }
+
+    /// Get if user wants MSAA anti-aliasing
+    pub fn multisampling(&self) -> u16 { self.window.multisampling }
 
     /// Get if user wants vsync
     pub fn vsync(&self) -> bool { self.gameplay.vsync }

@@ -23,7 +23,8 @@ use gfx::scene::{Scene, SceneAction};
 
 use scenes::main_menu::MainMenu;
 
-use glium::{Frame, Surface};
+use glium::framebuffer::SimpleFrameBuffer;
+use glium::Surface;
 
 /// Show Litecraft logo and start resource loading
 pub struct LoadingScene {
@@ -37,7 +38,7 @@ impl LoadingScene {
         }
     }
 
-    pub fn draw_logo(&mut self, canvas: &mut Canvas, frame: &mut Frame) {
+    pub fn draw_logo(&mut self, canvas: &mut Canvas, frame: &mut SimpleFrameBuffer) {
         let logo = canvas
             .resources()
             .textures()
@@ -84,7 +85,7 @@ impl Scene for LoadingScene {
     }
 
     /// Draw scene
-    fn draw(&mut self, canvas: &mut Canvas, frame: &mut Frame) -> SceneAction {
+    fn draw(&mut self, canvas: &mut Canvas, frame: &mut SimpleFrameBuffer) -> SceneAction {
         // Update camera aspect ratio
         self.camera
             .aspect_ratio(canvas.settings().width(), canvas.settings().height());

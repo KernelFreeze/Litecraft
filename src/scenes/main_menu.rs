@@ -24,7 +24,7 @@ use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
 use core::resource_manager::ResourceManager;
 
-use glium::{Frame, Surface};
+use glium::framebuffer::SimpleFrameBuffer;
 
 /// How many time we should wait before changing our wallpaper
 const WALLPAPER_DELAY: u32 = 15;
@@ -72,7 +72,7 @@ impl MainMenu {
         }
     }
 
-    fn draw_wallpaper(&mut self, canvas: &mut Canvas, frame: &mut Frame) {
+    fn draw_wallpaper(&mut self, canvas: &mut Canvas, frame: &mut SimpleFrameBuffer) {
         let i = ResourceManager::time() as u32 / WALLPAPER_DELAY % 12 + 1;
 
         let wallpaper = canvas.resources().textures().get(&Resource::litecraft_path(
@@ -106,11 +106,8 @@ impl Scene for MainMenu {
     }
 
     /// Draw scene
-    fn draw(&mut self, canvas: &mut Canvas, frame: &mut Frame) -> SceneAction {
+    fn draw(&mut self, canvas: &mut Canvas, frame: &mut SimpleFrameBuffer) -> SceneAction {
         use conrod::{color, widget, Borderable, Colorable, Positionable, Sizeable, Widget};
-
-        // Clear to black
-        frame.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
         let logo = canvas.resources().textures().get_ui(&Resource::minecrafty_path(
             "minecraft",
@@ -197,6 +194,7 @@ impl Scene for MainMenu {
                     ],
                 ));
 
+            // Draw logo second part
             let logo_2 = widget::Image::new(logo.0)
                 .bottom_left_of(self.ids.header_right_column)
                 .h_of(self.ids.header_right_column)
@@ -212,14 +210,18 @@ impl Scene for MainMenu {
                     ],
                 ));
 
-            let w = 124.0 * w / base;
-
+            // Resize width according to height
             if let Some(xh) = logo_1.get_h(&ui) {
-                logo_1.w(xh * h / w).set(self.ids.logo_left, &mut ui);
+                logo_1
+                    .w(xh * h / 100.0 * w / base)
+                    .set(self.ids.logo_left, &mut ui);
             }
 
+            // Resize width according to height
             if let Some(xh) = logo_2.get_h(&ui) {
-                logo_2.w(xh * h / w).set(self.ids.logo_right, &mut ui);
+                logo_2
+                    .w(xh * h / 100.0 * w / base)
+                    .set(self.ids.logo_right, &mut ui);
             }
         }
 

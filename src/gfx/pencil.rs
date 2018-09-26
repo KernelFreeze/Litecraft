@@ -23,14 +23,14 @@ use gfx::shapes::VertexData;
 
 use glium::draw_parameters::Blend;
 use glium::texture::CompressedSrgbTexture2d;
-use glium::{DrawParameters, Frame, Surface};
+use glium::{DrawParameters, Surface};
 
 /// Utility for drawing on screen
-pub struct Pencil<'a> {
+pub struct Pencil<'a, S> {
     program: String,
     linear: bool,
 
-    frame: &'a mut Frame,
+    frame: &'a mut S,
 
     persp_matrix: [[f32; 4]; 4],
     view_matrix: [[f32; 4]; 4],
@@ -43,9 +43,12 @@ pub struct Pencil<'a> {
     canvas: &'a Canvas,
 }
 
-impl<'a> Pencil<'a> {
+impl<'a, S> Pencil<'a, S> {
     /// Create a new Pencil
-    pub fn new(frame: &'a mut Frame, program: &str, canvas: &'a Canvas) -> Pencil<'a> {
+    pub fn new(frame: &'a mut S, program: &str, canvas: &'a Canvas) -> Pencil<'a, S>
+    where
+        S: Surface,
+    {
         Pencil {
             program: program.into(),
             linear: false,
@@ -64,38 +67,56 @@ impl<'a> Pencil<'a> {
     }
 
     /// Add vertices to draw
-    pub fn vertices(&'a mut self, vertices: &'a VertexData) -> &'a mut Pencil {
+    pub fn vertices(&'a mut self, vertices: &'a VertexData) -> &'a mut Pencil<S>
+    where
+        S: Surface,
+    {
         self.vertices = vertices;
         self
     }
 
     /// Set if rendering should be linear
-    pub fn linear(&'a mut self, linear: bool) -> &'a mut Pencil {
+    pub fn linear(&'a mut self, linear: bool) -> &'a mut Pencil<S>
+    where
+        S: Surface,
+    {
         self.linear = linear;
         self
     }
 
     /// Add texture to draw
-    pub fn texture(&'a mut self, texture: &'a CompressedSrgbTexture2d) -> &'a mut Pencil {
+    pub fn texture(&'a mut self, texture: &'a CompressedSrgbTexture2d) -> &'a mut Pencil<S>
+    where
+        S: Surface,
+    {
         self.texture = Some(texture);
         self
     }
 
     /// Add camera to draw
-    pub fn camera(&'a mut self, camera: &'a Camera) -> &'a mut Pencil {
+    pub fn camera(&'a mut self, camera: &'a Camera) -> &'a mut Pencil<S>
+    where
+        S: Surface,
+    {
         self.persp_matrix = camera.perspective().into();
         self.view_matrix = camera.view().into();
         self
     }
 
     /// Add transform to draw
-    pub fn transform(&'a mut self, transform: Matrix4<f32>) -> &'a mut Pencil {
+    pub fn transform(&'a mut self, transform: Matrix4<f32>) -> &'a mut Pencil<S>
+    where
+        S: Surface,
+    {
         self.transform = transform.into();
         self
     }
 
     /// Draw shape to 3D space
-    pub fn draw(&mut self) {
+    pub fn draw(&mut self)
+    where
+        S: Surface,
+    {
         use glium::draw_parameters::DepthTest;
         use glium::uniforms::{MagnifySamplerFilter, SamplerWrapFunction};
         use glium::Depth;
@@ -122,6 +143,7 @@ impl<'a> Pencil<'a> {
                 ..Default::default()
             },
             blend: Blend::alpha_blending(),
+            multisampling: true,
             ..Default::default()
         };
 
