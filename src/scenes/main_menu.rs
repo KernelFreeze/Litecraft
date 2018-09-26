@@ -89,7 +89,23 @@ impl Scene for MainMenu {
         // Clear to black
         frame.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
-        Pencil::new(frame, "noise").draw(canvas);
+        // Draw wallpaper
+        {
+            let wallpaper = canvas.resources().textures().get(&Resource::litecrafty_path(
+                "menu_1",
+                "wallpapers",
+                ResourceType::Texture,
+            ));
+
+            if let Some(wallpaper) = wallpaper {
+                Pencil::new(frame, "blur", &canvas)
+                    .texture(wallpaper)
+                    .camera(&self.camera)
+                    .vertices(canvas.resources().shapes().rectangle())
+                    .linear(true)
+                    .draw();
+            }
+        }
 
         let logo = canvas
             .resources()

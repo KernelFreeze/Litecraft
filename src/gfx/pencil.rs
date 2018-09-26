@@ -13,7 +13,7 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-use cgmath::Matrix4;
+use cgmath::{Matrix4, One};
 
 use core::camera::Camera;
 use core::resource_manager::ResourceManager;
@@ -27,34 +27,51 @@ use glium::{DrawParameters, Frame, Surface};
 
 /// Utility for drawing on screen
 pub struct Pencil<'a> {
-    // Required
     program: String,
+    linear: bool,
+
     frame: &'a mut Frame,
 
-    // Optional
-    vertices: Option<&'a VertexData>,
+    persp_matrix: [[f32; 4]; 4],
+    view_matrix: [[f32; 4]; 4],
+
+    vertices: &'a VertexData,
+    transform: [[f32; 4]; 4],
+
     texture: Option<&'a CompressedSrgbTexture2d>,
-    camera: Option<&'a Camera>,
-    transform: Option<Matrix4<f32>>,
+
+    canvas: &'a Canvas,
 }
 
 impl<'a> Pencil<'a> {
     /// Create a new Pencil
-    pub fn new(frame: &'a mut Frame, program: &str) -> Pencil<'a> {
+    pub fn new(frame: &'a mut Frame, program: &str, canvas: &'a Canvas) -> Pencil<'a> {
         Pencil {
             program: program.into(),
-            frame,
+            linear: false,
 
-            vertices: None,
+            view_matrix: Matrix4::one().into(),
+            persp_matrix: Matrix4::one().into(),
+
+            vertices: canvas.resources().shapes().quad(),
+            transform: Matrix4::one().into(),
+
             texture: None,
-            camera: None,
-            transform: None,
+
+            canvas,
+            frame,
         }
     }
 
     /// Add vertices to draw
     pub fn vertices(&'a mut self, vertices: &'a VertexData) -> &'a mut Pencil {
-        self.vertices = Some(vertices);
+        self.vertices = vertices;
+        self
+    }
+
+    /// Set if rendering should be linear
+    pub fn linear(&'a mut self, linear: bool) -> &'a mut Pencil {
+        self.linear = linear;
         self
     }
 
@@ -66,67 +83,33 @@ impl<'a> Pencil<'a> {
 
     /// Add camera to draw
     pub fn camera(&'a mut self, camera: &'a Camera) -> &'a mut Pencil {
-        self.camera = Some(camera);
+        self.persp_matrix = camera.perspective().into();
+        self.view_matrix = camera.view().into();
         self
     }
 
     /// Add transform to draw
     pub fn transform(&'a mut self, transform: Matrix4<f32>) -> &'a mut Pencil {
-        self.transform = Some(transform);
+        self.transform = transform.into();
         self
     }
 
     /// Draw shape to 3D space
-    pub fn draw(&mut self, canvas: &Canvas) {
+    pub fn draw(&mut self) {
         use glium::draw_parameters::DepthTest;
         use glium::uniforms::{MagnifySamplerFilter, SamplerWrapFunction};
         use glium::Depth;
 
-        use cgmath::Matrix4;
-        use cgmath::One;
-
-        // Check if camera is available or use default
-        let (persp_matrix, view_matrix) = if let Some(camera) = self.camera {
-            let persp_matrix: [[f32; 4]; 4] = camera.perspective().into();
-            let view_matrix: [[f32; 4]; 4] = camera.view().into();
-
-            (persp_matrix, view_matrix)
-        } else {
-            let matrix = Matrix4::one();
-
-            let persp_matrix: [[f32; 4]; 4] = matrix.into();
-            let view_matrix: [[f32; 4]; 4] = matrix.into();
-
-            (persp_matrix, view_matrix)
-        };
-
-        // Check if we need to transform or use default
-        let transform = if let Some(transform) = self.transform {
-            let transform: [[f32; 4]; 4] = transform.into();
-
-            transform
-        } else {
-            let transform: [[f32; 4]; 4] = Matrix4::one().into();
-
-            transform
-        };
-
         let uniforms = uniform! {
             time: ResourceManager::time(),
-            persp_matrix: persp_matrix,
-            view_matrix: view_matrix,
-            transform: transform,
-        };
-
-        // Get vertices or use default quad
-        let (vertex_buffer, index_buffer) = if let Some(vertices) = self.vertices {
-            vertices
-        } else {
-            canvas.resources().shapes().quad()
+            persp_matrix: self.persp_matrix,
+            view_matrix: self.view_matrix,
+            transform: self.transform,
         };
 
         // Get previously loaded shader program
-        let program = canvas
+        let program = self
+            .canvas
             .resources()
             .shaders()
             .get(&self.program)
@@ -142,15 +125,24 @@ impl<'a> Pencil<'a> {
             ..Default::default()
         };
 
+        let (vertex_buffer, index_buffer) = self.vertices;
+
+        let magnify_filter = if self.linear {
+            MagnifySamplerFilter::Linear
+        } else {
+            MagnifySamplerFilter::Nearest
+        };
+
         // Check if we need to attach a texture
         if let Some(texture) = self.texture {
-            let uniforms = uniforms.add(
-                "tex",
-                texture
-                    .sampled()
-                    .wrap_function(SamplerWrapFunction::BorderClamp)
-                    .magnify_filter(MagnifySamplerFilter::Nearest),
-            );
+            let uniforms = uniforms
+                .add(
+                    "tex",
+                    texture
+                        .sampled()
+                        .wrap_function(SamplerWrapFunction::BorderClamp)
+                        .magnify_filter(magnify_filter),
+                ).add("resolution", [texture.width() as f32, texture.height() as f32]);
 
             self.frame
                 .draw(vertex_buffer, index_buffer, program, &uniforms, &parameters)

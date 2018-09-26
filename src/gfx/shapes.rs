@@ -35,42 +35,74 @@ pub type VertexData = (VertexBuffer<Vertex2D>, IndexBuffer<u16>);
 
 pub struct Shapes {
     quad: VertexData,
+    rectangle: VertexData,
 }
 
 impl Shapes {
     pub fn new(display: &Display) -> Shapes {
-        let quad = {
-            let vertex = VertexBuffer::new(
-                display,
-                &[
-                    Vertex2D {
-                        position: [-1.0, -1.0],
-                        tex_coords: [0.0, 0.0],
-                    },
-                    Vertex2D {
-                        position: [-1.0, 1.0],
-                        tex_coords: [0.0, 1.0],
-                    },
-                    Vertex2D {
-                        position: [1.0, 1.0],
-                        tex_coords: [1.0, 1.0],
-                    },
-                    Vertex2D {
-                        position: [1.0, -1.0],
-                        tex_coords: [1.0, 0.0],
-                    },
-                ],
-            ).expect("Failed to generate VertexBuffer for quad");
+        Shapes {
+            quad: {
+                let vertex = VertexBuffer::new(
+                    display,
+                    &[
+                        Vertex2D {
+                            position: [-1.0, -1.0],
+                            tex_coords: [0.0, 0.0],
+                        },
+                        Vertex2D {
+                            position: [-1.0, 1.0],
+                            tex_coords: [0.0, 1.0],
+                        },
+                        Vertex2D {
+                            position: [1.0, 1.0],
+                            tex_coords: [1.0, 1.0],
+                        },
+                        Vertex2D {
+                            position: [1.0, -1.0],
+                            tex_coords: [1.0, 0.0],
+                        },
+                    ],
+                ).expect("Failed to generate VertexBuffer for quad");
 
-            let index = IndexBuffer::new(display, PrimitiveType::TriangleStrip, &[1u16, 2, 0, 3])
-                .expect("Failed to generate IndexBuffer for quad");
+                let index = IndexBuffer::new(display, PrimitiveType::TriangleStrip, &[1u16, 2, 0, 3])
+                    .expect("Failed to generate IndexBuffer for quad");
 
-            (vertex, index)
-        };
+                (vertex, index)
+            },
+            rectangle: {
+                let vertex = VertexBuffer::new(
+                    display,
+                    &[
+                        Vertex2D {
+                            position: [-2.0, -1.0],
+                            tex_coords: [0.0, 0.0],
+                        },
+                        Vertex2D {
+                            position: [-2.0, 1.0],
+                            tex_coords: [0.0, 1.0],
+                        },
+                        Vertex2D {
+                            position: [2.0, 1.0],
+                            tex_coords: [1.0, 1.0],
+                        },
+                        Vertex2D {
+                            position: [2.0, -1.0],
+                            tex_coords: [1.0, 0.0],
+                        },
+                    ],
+                ).expect("Failed to generate VertexBuffer for quad");
 
-        Shapes { quad }
+                let index = IndexBuffer::new(display, PrimitiveType::TriangleStrip, &[1u16, 2, 0, 3])
+                    .expect("Failed to generate IndexBuffer for quad");
+
+                (vertex, index)
+            },
+        }
     }
 
     /// Get quad VAO and VBO
     pub fn quad(&self) -> &VertexData { &self.quad }
+
+    /// Get rectangle VAO and VBO
+    pub fn rectangle(&self) -> &VertexData { &self.rectangle }
 }

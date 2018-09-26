@@ -51,6 +51,7 @@ impl Scene for LoadingScene {
         // Load shaders
         canvas.resources_mut().shaders_mut().load("noise", &display);
         canvas.resources_mut().shaders_mut().load("quad", &display);
+        canvas.resources_mut().shaders_mut().load("blur", &display);
         canvas.resources_mut().shaders_mut().load("logo", &display);
     }
 
@@ -64,7 +65,7 @@ impl Scene for LoadingScene {
         frame.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
         // Draw background
-        Pencil::new(frame, "noise").draw(canvas);
+        Pencil::new(frame, "noise", &canvas).draw();
 
         // Draw litecraft logo
         {
@@ -75,10 +76,11 @@ impl Scene for LoadingScene {
 
             // Check if logo is now loaded
             if let Some(logo) = logo {
-                Pencil::new(frame, "logo")
+                Pencil::new(frame, "logo", &canvas)
                     .camera(&self.camera)
                     .texture(logo)
-                    .draw(canvas);
+                    .linear(true)
+                    .draw();
             }
         }
 
