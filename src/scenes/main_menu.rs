@@ -19,10 +19,15 @@ use gfx::scene::{Scene, SceneAction};
 
 use core::camera::Camera;
 use core::constants::*;
+
 use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
+use core::resource_manager::ResourceManager;
 
 use glium::{Frame, Surface};
+
+/// How many time we should wait before changing our wallpaper
+const WALLPAPER_DELAY: u32 = 15;
 
 widget_ids! {
     struct Ids {
@@ -91,9 +96,10 @@ impl Scene for MainMenu {
 
         // Draw wallpaper
         {
-            let wallpaper = canvas.resources().textures().get(&Resource::litecrafty_path(
-                "menu_1",
-                "wallpapers",
+            let i = ResourceManager::time() as u32 / WALLPAPER_DELAY % 12 + 1;
+            let wallpaper = canvas.resources().textures().get(&Resource::litecraft_path(
+                format!("menu_{}", i),
+                "wallpapers".to_string(),
                 ResourceType::Texture,
             ));
 

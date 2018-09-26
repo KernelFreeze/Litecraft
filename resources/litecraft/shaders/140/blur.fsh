@@ -25,5 +25,5 @@ vec4 blur(sampler2D image, vec2 uv, vec2 resolution, vec2 direction) {
 }
 
 void main() {
-    f_color = blur(tex, v_tex_coords, resolution, vec2(0, 1));
+    f_color = blur(tex, v_tex_coords, resolution, vec2(0, 1)) + blur(tex, v_tex_coords, resolution, vec2(0.5, 0));
 }
