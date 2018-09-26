@@ -69,12 +69,12 @@ impl Canvas {
 
         // Load default fonts
         ui.fonts.insert(
-            ResourceManager::font(&Resource::litecraft("unicode", ResourceType::Font))
+            ResourceManager::font(&Resource::litecrafty("unicode", ResourceType::Font))
                 .expect("Failed to load default font file"),
         );
 
         ui.fonts.insert(
-            ResourceManager::font(&Resource::litecraft("default", ResourceType::Font))
+            ResourceManager::font(&Resource::litecrafty("default", ResourceType::Font))
                 .expect("Failed to load default font file"),
         );
 

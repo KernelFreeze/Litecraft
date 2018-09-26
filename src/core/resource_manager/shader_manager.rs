@@ -43,11 +43,11 @@ impl ShaderManager {
             return;
         }
 
-        let v_140 = Resource::litecraft_path(name, "140", ResourceType::VertexShader);
-        let f_140 = Resource::litecraft_path(name, "140", ResourceType::FragmentShader);
+        let v_140 = Resource::litecrafty_path(name, "140", ResourceType::VertexShader);
+        let f_140 = Resource::litecrafty_path(name, "140", ResourceType::FragmentShader);
 
-        let v_100 = Resource::litecraft_path(name, "100", ResourceType::VertexShader);
-        let f_100 = Resource::litecraft_path(name, "100", ResourceType::FragmentShader);
+        let v_100 = Resource::litecrafty_path(name, "100", ResourceType::VertexShader);
+        let f_100 = Resource::litecrafty_path(name, "100", ResourceType::FragmentShader);
 
         let program = program!(display,
         140 => {

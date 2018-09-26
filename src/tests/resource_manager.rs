@@ -18,7 +18,7 @@ use core::resource_manager::resource_type::ResourceType;
 
 #[test]
 fn resource_path_litecraft() {
-    let resource = Resource::litecraft("logo", ResourceType::Texture);
+    let resource = Resource::litecrafty("logo", ResourceType::Texture);
 
     assert_eq!(
         resource.folder("resources"),
@@ -28,7 +28,7 @@ fn resource_path_litecraft() {
 
 #[test]
 fn resource_load_logo() {
-    let resource = Resource::litecraft("logo", ResourceType::Texture);
+    let resource = Resource::litecrafty("logo", ResourceType::Texture);
     resource.load_binary();
 
     assert_eq!(
@@ -40,7 +40,7 @@ fn resource_load_logo() {
 #[test]
 #[should_panic]
 fn resource_load_as_text_logo() {
-    let resource = Resource::litecraft("logo", ResourceType::Texture);
+    let resource = Resource::litecrafty("logo", ResourceType::Texture);
     resource.load();
 
     assert_eq!(
@@ -51,7 +51,7 @@ fn resource_load_as_text_logo() {
 
 #[test]
 fn resource_path_minecraft() {
-    let resource = Resource::minecraft_path("creeper", "entity", ResourceType::Texture);
+    let resource = Resource::minecrafty_path("creeper", "entity", ResourceType::Texture);
 
     assert_eq!(
         resource.folder("assets"),
@@ -62,13 +62,13 @@ fn resource_path_minecraft() {
 #[test]
 #[should_panic]
 fn resource_not_found() {
-    let resource = Resource::litecraft("panic", ResourceType::Text);
+    let resource = Resource::litecrafty("panic", ResourceType::Text);
     resource.load();
 }
 
 #[test]
 #[should_panic]
 fn resource_binary_not_found() {
-    let resource = Resource::litecraft("panic", ResourceType::Text);
+    let resource = Resource::litecrafty("panic", ResourceType::Text);
     resource.load_binary();
 }

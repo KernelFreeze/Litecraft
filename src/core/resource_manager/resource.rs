@@ -28,11 +28,12 @@ use std::path::{Path, PathBuf};
 use zip::read::ZipArchive;
 
 #[derive(PartialEq, Eq, Hash)]
+/// Represents a resource URI and allows loading resource data
 pub struct Resource {
-    namespace: &'static str,
+    namespace: String,
     resource_type: ResourceType,
-    resource_path: Option<&'static str>,
-    name: &'static str,
+    resource_path: Option<String>,
+    name: String,
 }
 
 impl Display for Resource {
@@ -42,7 +43,8 @@ impl Display for Resource {
 }
 
 impl Resource {
-    pub fn new(namespace: &'static str, name: &'static str, resource_type: ResourceType) -> Resource {
+    /// Create a resource with full URI
+    pub fn new(namespace: String, name: String, resource_type: ResourceType) -> Resource {
         Resource {
             namespace,
             resource_type,
@@ -51,37 +53,71 @@ impl Resource {
         }
     }
 
-    pub fn litecraft(name: &'static str, resource_type: ResourceType) -> Resource {
-        Resource::new("litecraft", name, resource_type)
+    /// Create new resource URI using Litecraft's namespace
+    pub fn litecraft(name: String, resource_type: ResourceType) -> Resource {
+        Resource::new("litecraft".to_string(), name, resource_type)
     }
 
-    pub fn minecraft(name: &'static str, resource_type: ResourceType) -> Resource {
-        Resource::new("minecraft", name, resource_type)
+    /// Create new resource URI using Minecraft's namespace
+    pub fn minecraft(name: String, resource_type: ResourceType) -> Resource {
+        Resource::new("minecraft".to_string(), name, resource_type)
     }
 
-    pub fn new_path(
-        namespace: &'static str, name: &'static str, path: &'static str, r_type: ResourceType,
-    ) -> Resource {
+    /// Create new resource URI using Litecraft's namespace and using a string slice
+    pub fn litecrafty(name: &'static str, resource_type: ResourceType) -> Resource {
+        Resource::new("litecraft".to_string(), name.to_string(), resource_type)
+    }
+
+    /// Create new resource URI using Minecraft's namespace and using a string slice
+    pub fn minecrafty(name: &'static str, resource_type: ResourceType) -> Resource {
+        Resource::new("minecraft".to_string(), name.to_string(), resource_type)
+    }
+
+    /// Create new resource URI and set a custom path
+    pub fn path(namespace: String, name: String, path: String, kind: ResourceType) -> Resource {
         Resource {
             namespace,
-            resource_type: r_type,
+            resource_type: kind,
             resource_path: Some(path),
             name,
         }
     }
 
-    pub fn litecraft_path(
-        name: &'static str, path: &'static str, resource_type: ResourceType,
-    ) -> Resource {
-        Resource::new_path("litecraft", name, path, resource_type)
+    /// Create new resource URI using Litecraft's namespace and set a custom path
+    pub fn litecraft_path(name: String, path: String, resource_type: ResourceType) -> Resource {
+        Resource::path("litecraft".to_string(), name, path, resource_type)
     }
 
-    pub fn minecraft_path(
-        name: &'static str, path: &'static str, resource_type: ResourceType,
-    ) -> Resource {
-        Resource::new_path("minecraft", name, path, resource_type)
+    /// Create new resource URI using Minecraft's namespace and set a custom path
+    pub fn minecraft_path(name: String, path: String, resource_type: ResourceType) -> Resource {
+        Resource::path("minecraft".to_string(), name, path, resource_type)
     }
 
+    /// Create new resource URI using Litecraft's namespace and set a custom path using a string slice
+    pub fn litecrafty_path(
+        name: &'static str, path: &'static str, resource_type: ResourceType,
+    ) -> Resource {
+        Resource::path(
+            "litecraft".to_string(),
+            name.to_string(),
+            path.to_string(),
+            resource_type,
+        )
+    }
+
+    /// Create new resource URI using Minecraft's namespace and set a custom path using a string slice
+    pub fn minecrafty_path(
+        name: &'static str, path: &'static str, resource_type: ResourceType,
+    ) -> Resource {
+        Resource::path(
+            "minecraft".to_string(),
+            name.to_string(),
+            path.to_string(),
+            resource_type,
+        )
+    }
+
+    /// Get asset folder
     pub fn folder(&self, parent: &str) -> String {
         if let Some(ref resource_path) = self.resource_path {
             format!(

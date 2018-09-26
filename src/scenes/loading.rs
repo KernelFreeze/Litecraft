@@ -44,7 +44,7 @@ impl Scene for LoadingScene {
         canvas
             .resources_mut()
             .textures_mut()
-            .load(Resource::litecraft("logo", ResourceType::Texture));
+            .load(Resource::litecrafty("logo", ResourceType::Texture));
 
         let display = canvas.display().clone();
 
@@ -71,7 +71,7 @@ impl Scene for LoadingScene {
             let logo = canvas
                 .resources()
                 .textures()
-                .get(&Resource::litecraft("logo", ResourceType::Texture));
+                .get(&Resource::litecrafty("logo", ResourceType::Texture));
 
             // Check if logo is now loaded
             if let Some(logo) = logo {
