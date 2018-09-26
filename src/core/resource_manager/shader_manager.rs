@@ -15,9 +15,14 @@
 
 use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
+
 use glium::Display;
 use glium::Program;
+
 use std::collections::HashMap;
+use std::error::Error;
+
+type Result<T> = std::result::Result<T, Box<Error>>;
 
 pub struct ShaderManager {
     shaders: HashMap<&'static str, Program>,
@@ -37,10 +42,10 @@ impl ShaderManager {
     pub fn get(&self, name: &str) -> Option<&Program> { self.shaders.get(name) }
 
     /// Load and build a shader
-    pub fn load(&mut self, name: &'static str, display: &Display) {
+    pub fn load(&mut self, name: &'static str, display: &Display) -> Result<()> {
         if self.get(name).is_some() {
             warn!("Shader '{}' is already loaded!", name);
-            return;
+            return Ok(());
         }
 
         let v_140 = Resource::litecrafty_path(name, "140", ResourceType::VertexShader);
@@ -51,17 +56,18 @@ impl ShaderManager {
 
         let program = program!(display,
         140 => {
-            vertex: &v_140.load(),
-            fragment: &f_140.load()
+            vertex: &(v_140.load()?),
+            fragment: &(f_140.load()?)
         },
 
         100 => {
-            vertex: &v_100.load(),
-            fragment: &f_100.load()
-        }).expect("Failed to build a required shader program. Do you have updated GPU drivers?");
+            vertex: &(v_100.load()?),
+            fragment: &(f_100.load()?)
+        })?;
 
         info!("Loaded shader '{}'", name);
-
         self.shaders.insert(name, program);
+
+        Ok(())
     }
 }

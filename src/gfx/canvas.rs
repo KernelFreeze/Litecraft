@@ -81,7 +81,7 @@ impl Canvas {
         );
 
         // Conrod surface renderer
-        let mut renderer = Renderer::new(&display).unwrap();
+        let mut renderer = Renderer::new(&display).expect("Failed to initialize user interface manager");
 
         // Assets and resources manager
         let resource_manager = ResourceManager::new(&display, &settings);

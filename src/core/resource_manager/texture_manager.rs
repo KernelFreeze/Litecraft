@@ -23,8 +23,9 @@ use std::io::Cursor;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
 use conrod::image::{Id, Map};
-use image;
 use threadpool::ThreadPool;
+
+use image::{self, ImageBuffer};
 
 pub type UiTexture = (Id, (f64, f64));
 
@@ -109,6 +110,17 @@ impl TextureManager {
     /// Request texture load for use in user interface
     pub fn load_ui(&mut self, resource: Resource) { self.do_load(resource, true); }
 
+    /// Get failback texture
+    fn failback_texture() -> ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+        ImageBuffer::from_fn(16, 16, |x, y| {
+            if x % 2 == 0 && y % 2 == 0 {
+                image::Rgba([0u8, 0, 0, 255])
+            } else {
+                image::Rgba([158u8, 0, 123, 255])
+            }
+        })
+    }
+
     /// Load texture async
     fn do_load(&mut self, resource: Resource, ui: bool) {
         if !ui && self.get(&resource).is_some() {
@@ -126,15 +138,24 @@ impl TextureManager {
         self.pending += 1;
 
         self.pool.execute(move || {
-            let data = resource.load_binary();
-            let image = image::load(Cursor::new(data), image::PNG).expect("Failed to decode a texture");
-            let image = image.to_rgba();
+            // Try to load and decode texture or use failback
+            let image = if let Ok(data) = resource.load_binary() {
+                if let Ok(data) = image::load(Cursor::new(data), image::PNG) {
+                    data.to_rgba()
+                } else {
+                    info!("Failed to decode texture '{}'. Using failback", resource);
+                    TextureManager::failback_texture()
+                }
+            } else {
+                info!("Failed to load texture '{}'. Using failback", resource);
+                TextureManager::failback_texture()
+            };
 
             let dimensions = image.dimensions();
-            let data = image.into_raw();
 
             // Reverse texture
-            let data = data
+            let data = image
+                .into_raw()
                 .chunks(dimensions.0 as usize * 4)
                 .rev()
                 .flat_map(|row| row.iter())

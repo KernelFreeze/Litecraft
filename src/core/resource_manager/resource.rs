@@ -16,16 +16,19 @@
 use core::resource_manager::resource_type::ResourceType;
 use core::resource_manager::ResourceManager;
 
+use std::error;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 
 use std::fs::{create_dir_all, File};
 
 use std::io::Read;
-use std::io::{Error, ErrorKind, Result};
+use std::io::{Error, ErrorKind};
 
 use std::path::{Path, PathBuf};
 use zip::read::ZipArchive;
+
+type Result<T> = std::result::Result<T, Box<error::Error>>;
 
 #[derive(PartialEq, Eq, Hash)]
 /// Represents a resource URI and allows loading resource data
@@ -141,8 +144,8 @@ impl Resource {
         }
     }
 
-    /// Get most priority file to load
-    fn find(&self) -> Result<Vec<u8>> {
+    /// Get a resource as binary
+    pub fn load_binary(&self) -> Result<Vec<u8>> {
         if !Path::new("resourcepacks").exists() {
             create_dir_all("resourcepacks")?;
         }
@@ -189,19 +192,12 @@ impl Resource {
             return Ok(buffer);
         }
 
-        Err(Error::new(
+        Err(box Error::new(
             ErrorKind::Other,
             format!("Resource {} does not exist on any resource pack", self),
         ))
     }
 
     /// Get a resource as plain test
-    pub fn load(&self) -> String {
-        String::from_utf8(self.load_binary()).expect("Failed to decode required resource as UTF-8 text")
-    }
-
-    /// Get a resource as binary
-    pub fn load_binary(&self) -> Vec<u8> {
-        self.find().expect("Failed to load required binary resource")
-    }
+    pub fn load(&self) -> Result<String> { String::from_utf8(self.load_binary()?).map_err(|e| e.into()) }
 }

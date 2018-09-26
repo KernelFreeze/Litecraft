@@ -66,10 +66,29 @@ impl Scene for LoadingScene {
         let display = canvas.display().clone();
 
         // Load shaders
-        canvas.resources_mut().shaders_mut().load("noise", &display);
-        canvas.resources_mut().shaders_mut().load("quad", &display);
-        canvas.resources_mut().shaders_mut().load("blur", &display);
-        canvas.resources_mut().shaders_mut().load("logo", &display);
+        canvas
+            .resources_mut()
+            .shaders_mut()
+            .load("noise", &display)
+            .expect("Failed to load required shader program");
+
+        canvas
+            .resources_mut()
+            .shaders_mut()
+            .load("quad", &display)
+            .expect("Failed to load required shader program");
+
+        canvas
+            .resources_mut()
+            .shaders_mut()
+            .load("blur", &display)
+            .expect("Failed to load required shader program");
+
+        canvas
+            .resources_mut()
+            .shaders_mut()
+            .load("logo", &display)
+            .expect("Failed to load required shader program");
 
         // Load wallpapers from 1 to 12
         for i in 1..13 {

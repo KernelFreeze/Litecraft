@@ -87,7 +87,7 @@ impl ResourceManager {
 
         info!("Loading font file '{}'", resource);
 
-        let data = resource.load_binary();
+        let data = resource.load_binary()?;
         let collection = FontCollection::from_bytes(data)?;
 
         collection.into_font().or_else(|_| {
