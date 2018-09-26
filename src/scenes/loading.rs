@@ -81,12 +81,6 @@ impl Scene for LoadingScene {
         canvas
             .resources_mut()
             .shaders_mut()
-            .load("blur", &display)
-            .expect("Failed to load required shader program");
-
-        canvas
-            .resources_mut()
-            .shaders_mut()
             .load("logo", &display)
             .expect("Failed to load required shader program");
 

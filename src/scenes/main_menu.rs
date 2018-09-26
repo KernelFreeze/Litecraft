@@ -82,7 +82,7 @@ impl MainMenu {
         ));
 
         if let Some(wallpaper) = wallpaper {
-            Pencil::new(frame, "blur", &canvas)
+            Pencil::new(frame, "quad", &canvas)
                 .texture(wallpaper)
                 .camera(&self.camera)
                 .vertices(canvas.resources().shapes().rectangle())

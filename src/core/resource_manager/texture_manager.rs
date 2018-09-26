@@ -58,9 +58,13 @@ impl TextureManager {
         TextureManager {
             textures: HashMap::new(),
             ui_textures: HashMap::new(),
+
             pool: ThreadPool::new(6),
+
             ui_images: Map::<CompressedSrgbTexture2d>::new(),
+
             pending: 0,
+
             sender,
             receiver,
         }
@@ -137,17 +141,21 @@ impl TextureManager {
 
         self.pending += 1;
 
+        // Load image in other thread
         self.pool.execute(move || {
             // Try to load and decode texture or use failback
             let image = if let Ok(data) = resource.load_binary() {
+                // Decode image data
                 if let Ok(data) = image::load(Cursor::new(data), image::PNG) {
                     data.to_rgba()
                 } else {
                     info!("Failed to decode texture '{}'. Using failback", resource);
+
                     TextureManager::failback_texture()
                 }
             } else {
                 info!("Failed to load texture '{}'. Using failback", resource);
+
                 TextureManager::failback_texture()
             };
 
