@@ -107,7 +107,7 @@ impl Scene for MainMenu {
 
     /// Draw scene
     fn draw(&mut self, canvas: &mut Canvas, frame: &mut SimpleFrameBuffer) -> SceneAction {
-        use conrod::{color, widget, Borderable, Colorable, Positionable, Sizeable, Widget};
+        use conrod::{color, widget, Borderable, Colorable, Labelable, Positionable, Sizeable, Widget};
 
         let logo = canvas.resources().textures().get_ui(&Resource::minecrafty_path(
             "minecraft",
@@ -171,6 +171,8 @@ impl Scene for MainMenu {
                 ),
             ]).set(self.ids.master, &mut ui);
 
+        // Header //
+
         // Draw the beloved Minecraft logo
         if let Some(logo) = logo {
             use conrod::position::rect::Rect;
@@ -179,9 +181,9 @@ impl Scene for MainMenu {
             let (w, h) = logo.1;
 
             // Draw logo first part
-            let logo_1 = widget::Image::new(logo.0)
+            widget::Image::new(logo.0)
                 .bottom_right_of(self.ids.header_left_column)
-                .h_of(self.ids.header_left_column)
+                .w_h(220.0, 85.0)
                 .source_rectangle(Rect::from_corners(
                     // Use only part of our texture
                     [
@@ -192,12 +194,12 @@ impl Scene for MainMenu {
                         156.0 * w / base, // x to
                         256.0 * h / base, // y to
                     ],
-                ));
+                )).set(self.ids.logo_left, &mut ui);
 
             // Draw logo second part
-            let logo_2 = widget::Image::new(logo.0)
+            widget::Image::new(logo.0)
                 .bottom_left_of(self.ids.header_right_column)
-                .h_of(self.ids.header_right_column)
+                .w_h(220.0, 85.0)
                 .source_rectangle(Rect::from_corners(
                     // Use only part of our texture
                     [
@@ -208,24 +210,30 @@ impl Scene for MainMenu {
                         156.0 * w / base, // x to
                         211.0 * h / base, // y to
                     ],
-                ));
-
-            // Resize width according to height
-            if let Some(xh) = logo_1.get_h(&ui) {
-                logo_1
-                    .w(xh * h / 100.0 * w / base)
-                    .set(self.ids.logo_left, &mut ui);
-            }
-
-            // Resize width according to height
-            if let Some(xh) = logo_2.get_h(&ui) {
-                logo_2
-                    .w(xh * h / 100.0 * w / base)
-                    .set(self.ids.logo_right, &mut ui);
-            }
+                )).set(self.ids.logo_right, &mut ui);
         }
 
-        // Footer
+        // Body //
+
+        widget::Button::new()
+            .color(color::WHITE)
+            .up_from(self.ids.multiplayer, 20.0)
+            .label("Singleplayer")
+            .center_justify_label()
+            .h(45.0)
+            .padded_w_of(self.ids.body_middle_column, 40.0)
+            .set(self.ids.singleplayer, &mut ui);
+
+        widget::Button::new()
+            .color(color::WHITE)
+            .middle_of(self.ids.body_middle_column)
+            .label("Multiplayer")
+            .center_justify_label()
+            .h(45.0)
+            .padded_w_of(self.ids.body_middle_column, 40.0)
+            .set(self.ids.multiplayer, &mut ui);
+
+        // Footer //
 
         // Litecraft and Minecraft version
         widget::Text::new(&format!(
