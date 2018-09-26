@@ -34,17 +34,24 @@ widget_ids! {
         master,
 
         header,
-        body,
-        footer,
 
-        left_column,
-        middle_column,
-        right_column,
+        header_left_column,
+        header_right_column,
 
         title,
-        logo,
+        logo_left,
+        logo_right,
+
+        body,
+
+        body_left_column,
+        body_middle_column,
+        body_right_column,
+
         singleplayer,
         multiplayer,
+
+        footer,
 
         version,
         copyright,
@@ -64,6 +71,25 @@ impl MainMenu {
             camera: Camera::new(),
         }
     }
+
+    fn draw_wallpaper(&mut self, canvas: &mut Canvas, frame: &mut Frame) {
+        let i = ResourceManager::time() as u32 / WALLPAPER_DELAY % 12 + 1;
+
+        let wallpaper = canvas.resources().textures().get(&Resource::litecraft_path(
+            format!("menu_{}", i),
+            "wallpapers".to_string(),
+            ResourceType::Texture,
+        ));
+
+        if let Some(wallpaper) = wallpaper {
+            Pencil::new(frame, "blur", &canvas)
+                .texture(wallpaper)
+                .camera(&self.camera)
+                .vertices(canvas.resources().shapes().rectangle())
+                .linear(true)
+                .draw();
+        }
+    }
 }
 
 impl Scene for MainMenu {
@@ -72,51 +98,27 @@ impl Scene for MainMenu {
         canvas
             .resources_mut()
             .textures_mut()
-            .load_ui(Resource::litecrafty("logo", ResourceType::Texture));
-
-        // Load wallpapers from 1 to 12
-        for i in 1..12 {
-            canvas
-                .resources_mut()
-                .textures_mut()
-                .load(Resource::litecraft_path(
-                    format!("menu_{}", i),
-                    "wallpapers".to_string(),
-                    ResourceType::Texture,
-                ));
-        }
+            .load_ui(Resource::minecrafty_path(
+                "minecraft",
+                "gui/title",
+                ResourceType::Texture,
+            ));
     }
 
     /// Draw scene
     fn draw(&mut self, canvas: &mut Canvas, frame: &mut Frame) -> SceneAction {
-        use conrod::{color, widget, Borderable, Colorable, Positionable, Widget};
+        use conrod::{color, widget, Borderable, Colorable, Positionable, Sizeable, Widget};
 
         // Clear to black
         frame.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
-        // Draw wallpaper
-        {
-            let i = ResourceManager::time() as u32 / WALLPAPER_DELAY % 12 + 1;
-            let wallpaper = canvas.resources().textures().get(&Resource::litecraft_path(
-                format!("menu_{}", i),
-                "wallpapers".to_string(),
-                ResourceType::Texture,
-            ));
+        let logo = canvas.resources().textures().get_ui(&Resource::minecrafty_path(
+            "minecraft",
+            "gui/title",
+            ResourceType::Texture,
+        ));
 
-            if let Some(wallpaper) = wallpaper {
-                Pencil::new(frame, "blur", &canvas)
-                    .texture(wallpaper)
-                    .camera(&self.camera)
-                    .vertices(canvas.resources().shapes().rectangle())
-                    .linear(true)
-                    .draw();
-            }
-        }
-
-        let logo = canvas
-            .resources()
-            .textures()
-            .get_ui(&Resource::litecrafty("logo", ResourceType::Texture));
+        self.draw_wallpaper(canvas, frame);
 
         let mut ui = canvas.ui_mut().set_widgets();
 
@@ -129,7 +131,17 @@ impl Scene for MainMenu {
                     widget::Canvas::new()
                         .color(color::TRANSPARENT)
                         .border(0.0)
-                        .pad_bottom(20.0),
+                        .pad(85.0)
+                        .flow_right(&[
+                            (
+                                self.ids.header_left_column,
+                                widget::Canvas::new().color(color::TRANSPARENT).border(0.0),
+                            ),
+                            (
+                                self.ids.header_right_column,
+                                widget::Canvas::new().color(color::TRANSPARENT).border(0.0),
+                            ),
+                        ]),
                 ),
                 (
                     self.ids.body,
@@ -139,15 +151,15 @@ impl Scene for MainMenu {
                         .length(300.0)
                         .flow_right(&[
                             (
-                                self.ids.left_column,
+                                self.ids.body_left_column,
                                 widget::Canvas::new().color(color::TRANSPARENT).border(0.0),
                             ),
                             (
-                                self.ids.middle_column,
+                                self.ids.body_middle_column,
                                 widget::Canvas::new().color(color::TRANSPARENT).border(0.0),
                             ),
                             (
-                                self.ids.right_column,
+                                self.ids.body_right_column,
                                 widget::Canvas::new().color(color::TRANSPARENT).border(0.0),
                             ),
                         ]),
@@ -162,18 +174,58 @@ impl Scene for MainMenu {
                 ),
             ]).set(self.ids.master, &mut ui);
 
-        // if let Some(logo) = logo {
-        // widget::Image::new(logo)
-        // .middle_of(self.ids.header)
-        // .set(self.ids.logo, &mut ui);
-        // }
+        // Draw the beloved Minecraft logo
+        if let Some(logo) = logo {
+            use conrod::position::rect::Rect;
 
-        widget::Text::new("Litecraft")
-            .color(color::WHITE)
-            .font_size(64)
-            .middle_of(self.ids.header)
-            .set(self.ids.title, &mut ui);
+            let base = 256.0;
+            let (w, h) = logo.1;
 
+            // Draw logo first part
+            let logo_1 = widget::Image::new(logo.0)
+                .bottom_right_of(self.ids.header_left_column)
+                .h_of(self.ids.header_left_column)
+                .source_rectangle(Rect::from_corners(
+                    // Use only part of our texture
+                    [
+                        0.0,              // x from
+                        212.0 * h / base, // y from
+                    ],
+                    [
+                        156.0 * w / base, // x to
+                        256.0 * h / base, // y to
+                    ],
+                ));
+
+            let logo_2 = widget::Image::new(logo.0)
+                .bottom_left_of(self.ids.header_right_column)
+                .h_of(self.ids.header_right_column)
+                .source_rectangle(Rect::from_corners(
+                    // Use only part of our texture
+                    [
+                        0.0,              // x from
+                        168.0 * h / base, // y from
+                    ],
+                    [
+                        156.0 * w / base, // x to
+                        211.0 * h / base, // y to
+                    ],
+                ));
+
+            let w = 124.0 * w / base;
+
+            if let Some(xh) = logo_1.get_h(&ui) {
+                logo_1.w(xh * h / w).set(self.ids.logo_left, &mut ui);
+            }
+
+            if let Some(xh) = logo_2.get_h(&ui) {
+                logo_2.w(xh * h / w).set(self.ids.logo_right, &mut ui);
+            }
+        }
+
+        // Footer
+
+        // Litecraft and Minecraft version
         widget::Text::new(&format!(
             "Litecraft {}\nMinecraft {}",
             LITECRAFT_VERSION, MINECRAFT_VERSION
@@ -182,7 +234,8 @@ impl Scene for MainMenu {
         .bottom_left_of(self.ids.footer)
         .set(self.ids.version, &mut ui);
 
-        widget::Text::new("Open source client")
+        // Credits
+        widget::Text::new("Made with love by the community")
             .color(color::WHITE)
             .font_size(16)
             .bottom_right_of(self.ids.footer)

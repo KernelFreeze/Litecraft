@@ -36,6 +36,22 @@ impl LoadingScene {
             camera: Camera::new(),
         }
     }
+
+    pub fn draw_logo(&mut self, canvas: &mut Canvas, frame: &mut Frame) {
+        let logo = canvas
+            .resources()
+            .textures()
+            .get(&Resource::litecrafty("logo", ResourceType::Texture));
+
+        // Check if logo is now loaded
+        if let Some(logo) = logo {
+            Pencil::new(frame, "logo", &canvas)
+                .camera(&self.camera)
+                .texture(logo)
+                .linear(true)
+                .draw();
+        }
+    }
 }
 
 impl Scene for LoadingScene {
@@ -53,6 +69,18 @@ impl Scene for LoadingScene {
         canvas.resources_mut().shaders_mut().load("quad", &display);
         canvas.resources_mut().shaders_mut().load("blur", &display);
         canvas.resources_mut().shaders_mut().load("logo", &display);
+
+        // Load wallpapers from 1 to 12
+        for i in 1..13 {
+            canvas
+                .resources_mut()
+                .textures_mut()
+                .load(Resource::litecraft_path(
+                    format!("menu_{}", i),
+                    "wallpapers".to_string(),
+                    ResourceType::Texture,
+                ));
+        }
     }
 
     /// Draw scene
@@ -68,21 +96,7 @@ impl Scene for LoadingScene {
         Pencil::new(frame, "noise", &canvas).draw();
 
         // Draw litecraft logo
-        {
-            let logo = canvas
-                .resources()
-                .textures()
-                .get(&Resource::litecrafty("logo", ResourceType::Texture));
-
-            // Check if logo is now loaded
-            if let Some(logo) = logo {
-                Pencil::new(frame, "logo", &canvas)
-                    .camera(&self.camera)
-                    .texture(logo)
-                    .linear(true)
-                    .draw();
-            }
-        }
+        self.draw_logo(canvas, frame);
 
         if canvas.resources().loaded() {
             info!("All resources are now loaded, opening main menu");

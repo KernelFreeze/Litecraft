@@ -26,6 +26,8 @@ use conrod::image::{Id, Map};
 use image;
 use threadpool::ThreadPool;
 
+pub type UiTexture = (Id, (f64, f64));
+
 /// RGBA image loaded async
 struct RGBAImageData {
     resource: Resource,
@@ -38,7 +40,7 @@ struct RGBAImageData {
 pub struct TextureManager {
     pending: u16,
     ui_images: Map<CompressedSrgbTexture2d>,
-    ui_textures: HashMap<Resource, Id>,
+    ui_textures: HashMap<Resource, UiTexture>,
     textures: HashMap<Resource, CompressedSrgbTexture2d>,
     sender: Sender<RGBAImageData>,
     receiver: Receiver<RGBAImageData>,
@@ -55,7 +57,7 @@ impl TextureManager {
         TextureManager {
             textures: HashMap::new(),
             ui_textures: HashMap::new(),
-            pool: ThreadPool::new(4),
+            pool: ThreadPool::new(6),
             ui_images: Map::<CompressedSrgbTexture2d>::new(),
             pending: 0,
             sender,
@@ -66,6 +68,8 @@ impl TextureManager {
     /// Upload pending textures to OpenGL
     pub fn tick(&mut self, display: &Display) {
         if let Ok(image) = self.receiver.try_recv() {
+            debug!("Uploading texture {} to GPU", &image.resource);
+
             // Parse texture from raw data
             let texture = RawImage2d::from_raw_rgba(image.data, image.dimensions);
             let texture = CompressedSrgbTexture2d::new(display, texture);
@@ -77,8 +81,9 @@ impl TextureManager {
 
                 // Get conrod texture Id
                 let id = self.ui_images.insert(texture);
+                let dimensions = (f64::from(image.dimensions.0), f64::from(image.dimensions.1));
 
-                self.ui_textures.insert(image.resource, id);
+                self.ui_textures.insert(image.resource, (id, dimensions));
             } else {
                 debug!("Loaded texture {}", &image.resource);
 
@@ -96,7 +101,7 @@ impl TextureManager {
     pub fn get(&self, name: &Resource) -> Option<&CompressedSrgbTexture2d> { self.textures.get(name) }
 
     /// Get a UI texture
-    pub fn get_ui(&self, name: &Resource) -> Option<Id> { self.ui_textures.get(name).map(|s| s.clone()) }
+    pub fn get_ui(&self, name: &Resource) -> Option<UiTexture> { self.ui_textures.get(name).cloned() }
 
     /// Request texture load
     pub fn load(&mut self, resource: Resource) { self.do_load(resource, false); }
@@ -110,6 +115,7 @@ impl TextureManager {
             warn!("Texture {} is already loaded!", resource);
             return;
         }
+
         if ui && self.get_ui(&resource).is_some() {
             warn!("UI texture {} is already loaded!", resource);
             return;
