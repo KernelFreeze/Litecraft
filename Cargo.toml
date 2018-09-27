@@ -3,6 +3,8 @@ name = "litecraft"
 version = "0.1.0"
 authors = ["Miguel Peláez <kernelfreeze@protonmail.com>"]
 
+build = "src/build.rs"
+
 [dependencies]
 image = "0.20"
 zip = "0.4"
@@ -24,3 +26,6 @@ features = ["glium", "winit"]
 
 [dependencies.glium]
 git = "https://github.com/Litecrafty/glium"
+
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1"

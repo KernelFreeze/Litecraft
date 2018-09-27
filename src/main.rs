@@ -14,6 +14,7 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #![feature(box_syntax)]
+#![windows_subsystem = "windows"]
 #![deny(unused_must_use)]
 #![deny(unused_imports)]
 #![allow(dead_code)]
@@ -39,8 +40,6 @@ extern crate threadpool;
 extern crate zip;
 
 use core::constants::*;
-use gfx::canvas::Canvas;
-use std::path::Path;
 
 #[macro_use]
 mod core;
@@ -58,12 +57,16 @@ fn main() {
         LITECRAFT_VERSION, MINECRAFT_VERSION
     );
 
+    use std::path::Path;
+
     if !Path::new("resources").exists() {
         panic!(
             "Resources path doesn't exist, please check that you have all required resources. Check \
              Litecraft's README.md for more details."
         );
     }
+
+    use gfx::canvas::Canvas;
 
     Canvas::start();
 }

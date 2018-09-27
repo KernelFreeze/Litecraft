@@ -96,12 +96,14 @@ impl TextureManager {
                     (
                         // Get conrod texture Id
                         self.ui_images.insert(texture),
+                        // Get image size
                         (f64::from(image.dimensions.0), f64::from(image.dimensions.1)),
                     ),
                 );
             } else {
                 debug!("Loaded texture {}", &image.resource);
 
+                // Add to texture map
                 self.textures.insert(image.resource, texture);
             }
 
@@ -137,7 +139,7 @@ impl TextureManager {
     /// Get failback texture
     fn failback_texture() -> ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         ImageBuffer::from_fn(16, 16, |x, y| {
-            if x % 2 == 0 && y % 2 == 0 {
+            if x % 2 == y % 2 {
                 image::Rgba([0u8, 0, 0, 255])
             } else {
                 image::Rgba([158u8, 0, 123, 255])
@@ -147,11 +149,13 @@ impl TextureManager {
 
     /// Load texture async
     fn do_load(&mut self, resource: Resource, ui: bool, options: TextureOptions) {
+        // Prevent load twice a texture
         if !ui && self.get(&resource).is_some() {
             warn!("Texture {} is already loaded!", resource);
             return;
         }
 
+        // Prevent load twice an UI texture
         if ui && self.get_ui(&resource).is_some() {
             warn!("UI texture {} is already loaded!", resource);
             return;
@@ -164,6 +168,8 @@ impl TextureManager {
         // Load image in other thread
         self.pool.execute(move || {
             use image::imageops;
+
+            info!("Loading and processing texture '{}'.", resource);
 
             // Try to load and decode texture or use failback
             let mut image = if let Ok(data) = resource.load_binary() {
@@ -181,6 +187,7 @@ impl TextureManager {
                 TextureManager::failback_texture()
             };
 
+            // Apply image transformations
             match options {
                 TextureOptions::Blur(sigma) => {
                     image = imageops::blur(&image, sigma);

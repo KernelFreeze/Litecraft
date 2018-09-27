@@ -94,7 +94,7 @@ impl Scene for LoadingScene {
                     "wallpapers".to_string(),
                     ResourceType::Texture,
                 ),
-                TextureOptions::Blur(0.7),
+                TextureOptions::Blur(0.5),
             );
         }
     }

@@ -41,4 +41,4 @@ Although we have thousands of hours of work, we probably have many thousands mor
 [Bug reports](https://github.com/Litecrafty/Litecraft/issues) and [pull requests](https://github.com/Litecrafty/Litecraft/pulls) are welcome on our GitHub. This project is intended to be a safe, welcoming space for collaboration and discussion, and contributors are expected to adhere to the [Contributor Covenant code of conduct](https://github.com/Litecrafty/Litecraft/blob/master/CONTRIBUTING.md), you can read it on your Language [here](https://www.contributor-covenant.org/translations.html).
 
 # 🕵 License
-[Apache License 2.0](https://github.com/Litecrafty/Litecraft/blob/master/LICENSE)
+[MIT License](https://github.com/Litecrafty/Litecraft/blob/master/LICENSE)

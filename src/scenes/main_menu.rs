@@ -26,6 +26,8 @@ use core::resource_manager::ResourceManager;
 
 use glium::framebuffer::SimpleFrameBuffer;
 
+use conrod::position::rect::Rect;
+
 /// How many time we should wait before changing our wallpaper
 const WALLPAPER_DELAY: u32 = 15;
 
@@ -72,6 +74,7 @@ impl MainMenu {
         }
     }
 
+    /// Main menu's background
     fn draw_wallpaper(&mut self, canvas: &mut Canvas, frame: &mut SimpleFrameBuffer) {
         let i = ResourceManager::time() as u32 / WALLPAPER_DELAY % 12 + 1;
 
@@ -103,6 +106,11 @@ impl Scene for MainMenu {
                 "gui/title",
                 ResourceType::Texture,
             ));
+
+        canvas
+            .resources_mut()
+            .textures_mut()
+            .load_ui(Resource::minecrafty_path("widgets", "gui", ResourceType::Texture));
     }
 
     /// Draw scene
@@ -112,6 +120,12 @@ impl Scene for MainMenu {
         let logo = canvas.resources().textures().get_ui(&Resource::minecrafty_path(
             "minecraft",
             "gui/title",
+            ResourceType::Texture,
+        ));
+
+        let widgets = canvas.resources().textures().get_ui(&Resource::minecrafty_path(
+            "widgets",
+            "gui",
             ResourceType::Texture,
         ));
 
@@ -175,63 +189,57 @@ impl Scene for MainMenu {
 
         // Draw the beloved Minecraft logo
         if let Some(logo) = logo {
-            use conrod::position::rect::Rect;
-
             let base = 256.0;
+            let size = [280.0, 85.0];
             let (w, h) = logo.1;
 
             // Draw logo first part
             widget::Image::new(logo.0)
                 .bottom_right_of(self.ids.header_left_column)
-                .w_h(220.0, 85.0)
+                .wh(size)
                 .source_rectangle(Rect::from_corners(
-                    // Use only part of our texture
-                    [
-                        0.0,              // x from
-                        212.0 * h / base, // y from
-                    ],
-                    [
-                        156.0 * w / base, // x to
-                        256.0 * h / base, // y to
-                    ],
+                    [0.0, 212.0 * h / base],
+                    [156.0 * w / base, 256.0 * h / base],
                 )).set(self.ids.logo_left, &mut ui);
 
             // Draw logo second part
             widget::Image::new(logo.0)
                 .bottom_left_of(self.ids.header_right_column)
-                .w_h(220.0, 85.0)
+                .wh(size)
                 .source_rectangle(Rect::from_corners(
-                    // Use only part of our texture
-                    [
-                        0.0,              // x from
-                        168.0 * h / base, // y from
-                    ],
-                    [
-                        156.0 * w / base, // x to
-                        211.0 * h / base, // y to
-                    ],
+                    [0.0, 168.0 * h / base],
+                    [156.0 * w / base, 211.0 * h / base],
                 )).set(self.ids.logo_right, &mut ui);
         }
 
         // Body //
 
-        widget::Button::new()
-            .color(color::WHITE)
-            .up_from(self.ids.multiplayer, 20.0)
-            .label("Singleplayer")
-            .center_justify_label()
-            .h(45.0)
-            .padded_w_of(self.ids.body_middle_column, 40.0)
-            .set(self.ids.singleplayer, &mut ui);
+        if let Some(widgets) = widgets {
+            let base = 256.0;
+            let (w, h) = widgets.1;
 
-        widget::Button::new()
-            .color(color::WHITE)
-            .middle_of(self.ids.body_middle_column)
-            .label("Multiplayer")
-            .center_justify_label()
-            .h(45.0)
-            .padded_w_of(self.ids.body_middle_column, 40.0)
-            .set(self.ids.multiplayer, &mut ui);
+            let rect = Rect::from_corners([0.0, 170.0 * h / base], [200.0 * w / base, 190.0 * h / base]);
+
+            widget::Button::image(widgets.0)
+                .h(45.0)
+                .up_from(self.ids.multiplayer, 20.0)
+                .label("Singleplayer")
+                .label_color(color::WHITE)
+                .center_justify_label()
+                .padded_w_of(self.ids.body_middle_column, 40.0)
+                .source_rectangle(rect)
+                .set(self.ids.singleplayer, &mut ui);
+
+            widget::Button::image(widgets.0)
+                .h(45.0)
+                .middle_of(self.ids.body_middle_column)
+                .label("Multiplayer")
+                .label_color(color::WHITE)
+                .center_justify_label()
+                .padded_w_of(self.ids.body_middle_column, 40.0)
+                .source_rectangle(rect)
+                .set(self.ids.multiplayer, &mut ui);
+        }
 
         // Footer //
 
