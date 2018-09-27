@@ -175,7 +175,8 @@ where
             &system.context,
             target_dimensions.0 as u32,
             target_dimensions.1 as u32,
-        ).unwrap();
+        )
+        .unwrap();
 
         *target_color = Some(texture);
     }
@@ -188,7 +189,8 @@ where
             glium::texture::DepthFormat::I24,
             target_dimensions.0 as u32,
             target_dimensions.1 as u32,
-        ).unwrap();
+        )
+        .unwrap();
         *target_depth = Some(texture);
     }
     let target_depth = target_depth.as_ref().unwrap();
@@ -210,7 +212,8 @@ where
             &system.program,
             &uniforms,
             &Default::default(),
-        ).unwrap();
+        )
+        .unwrap();
 
     output
 }

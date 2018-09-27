@@ -164,7 +164,8 @@ impl<'a, S> Pencil<'a, S> {
                         .sampled()
                         .wrap_function(SamplerWrapFunction::BorderClamp)
                         .magnify_filter(magnify_filter),
-                ).add("resolution", [texture.width() as f32, texture.height() as f32]);
+                )
+                .add("resolution", [texture.width() as f32, texture.height() as f32]);
 
             self.frame
                 .draw(vertex_buffer, index_buffer, program, &uniforms, &parameters)

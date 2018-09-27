@@ -62,7 +62,8 @@ impl Shapes {
                             tex_coords: [1.0, 0.0],
                         },
                     ],
-                ).expect("Failed to generate VertexBuffer for quad");
+                )
+                .expect("Failed to generate VertexBuffer for quad");
 
                 let index = IndexBuffer::new(display, PrimitiveType::TriangleStrip, &[1u16, 2, 0, 3])
                     .expect("Failed to generate IndexBuffer for quad");
@@ -90,7 +91,8 @@ impl Shapes {
                             tex_coords: [1.0, 0.0],
                         },
                     ],
-                ).expect("Failed to generate VertexBuffer for quad");
+                )
+                .expect("Failed to generate VertexBuffer for quad");
 
                 let index = IndexBuffer::new(display, PrimitiveType::TriangleStrip, &[1u16, 2, 0, 3])
                     .expect("Failed to generate IndexBuffer for quad");

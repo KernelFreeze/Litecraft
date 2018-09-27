@@ -183,7 +183,8 @@ impl Scene for MainMenu {
                         .border(0.0)
                         .color(color::TRANSPARENT),
                 ),
-            ]).set(self.ids.master, &mut ui);
+            ])
+            .set(self.ids.master, &mut ui);
 
         // Header //
 
@@ -200,7 +201,8 @@ impl Scene for MainMenu {
                 .source_rectangle(Rect::from_corners(
                     [0.0, 212.0 * h / base],
                     [156.0 * w / base, 256.0 * h / base],
-                )).set(self.ids.logo_left, &mut ui);
+                ))
+                .set(self.ids.logo_left, &mut ui);
 
             // Draw logo second part
             widget::Image::new(logo.0)
@@ -209,7 +211,8 @@ impl Scene for MainMenu {
                 .source_rectangle(Rect::from_corners(
                     [0.0, 168.0 * h / base],
                     [156.0 * w / base, 211.0 * h / base],
-                )).set(self.ids.logo_right, &mut ui);
+                ))
+                .set(self.ids.logo_right, &mut ui);
         }
 
         // Body //
@@ -219,6 +222,10 @@ impl Scene for MainMenu {
             let (w, h) = widgets.1;
 
             let rect = Rect::from_corners([0.0, 170.0 * h / base], [200.0 * w / base, 190.0 * h / base]);
+            let hover_rect =
+                Rect::from_corners([0.0, 150.0 * h / base], [200.0 * w / base, 170.0 * h / base]);
+            let press_rect =
+                Rect::from_corners([0.0, 190.0 * h / base], [200.0 * w / base, 210.0 * h / base]);
 
             widget::Button::image(widgets.0)
                 .h(45.0)
@@ -228,6 +235,8 @@ impl Scene for MainMenu {
                 .center_justify_label()
                 .padded_w_of(self.ids.body_middle_column, 40.0)
                 .source_rectangle(rect)
+                .hover_source_rectangle(hover_rect)
+                .press_source_rectangle(press_rect)
                 .set(self.ids.singleplayer, &mut ui);
 
             widget::Button::image(widgets.0)
@@ -238,6 +247,8 @@ impl Scene for MainMenu {
                 .center_justify_label()
                 .padded_w_of(self.ids.body_middle_column, 40.0)
                 .source_rectangle(rect)
+                .hover_source_rectangle(hover_rect)
+                .press_source_rectangle(press_rect)
                 .set(self.ids.multiplayer, &mut ui);
         }
 
@@ -247,7 +258,8 @@ impl Scene for MainMenu {
         widget::Text::new(&format!(
             "Litecraft {}\nMinecraft {}",
             LITECRAFT_VERSION, MINECRAFT_VERSION
-        )).color(color::WHITE)
+        ))
+        .color(color::WHITE)
         .font_size(16)
         .bottom_left_of(self.ids.footer)
         .set(self.ids.version, &mut ui);

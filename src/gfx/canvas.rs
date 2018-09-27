@@ -160,7 +160,8 @@ impl Canvas {
                     &canvas.display,
                     &mut target,
                     &canvas.resources().textures().image_map(),
-                ).expect("Couldn't draw UI");
+                )
+                .expect("Couldn't draw UI");
 
             // Draw to window
             target.finish().expect("Couldn't render scene");
