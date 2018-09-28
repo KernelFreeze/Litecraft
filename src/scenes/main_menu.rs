@@ -80,7 +80,7 @@ impl MainMenu {
 
         let wallpaper = canvas.resources().textures().get(&Resource::litecraft_path(
             format!("menu_{}", i),
-            "wallpapers".to_string(),
+            "wallpapers",
             ResourceType::Texture,
         ));
 
@@ -101,7 +101,7 @@ impl Scene for MainMenu {
         canvas
             .resources_mut()
             .textures_mut()
-            .load_ui(Resource::minecrafty_path(
+            .load_ui(Resource::minecraft_path(
                 "minecraft",
                 "gui/title",
                 ResourceType::Texture,
@@ -110,20 +110,20 @@ impl Scene for MainMenu {
         canvas
             .resources_mut()
             .textures_mut()
-            .load_ui(Resource::minecrafty_path("widgets", "gui", ResourceType::Texture));
+            .load_ui(Resource::minecraft_path("widgets", "gui", ResourceType::Texture));
     }
 
     /// Draw scene
     fn draw(&mut self, canvas: &mut Canvas, frame: &mut SimpleFrameBuffer) -> SceneAction {
         use conrod::{color, widget, Borderable, Colorable, Labelable, Positionable, Sizeable, Widget};
 
-        let logo = canvas.resources().textures().get_ui(&Resource::minecrafty_path(
+        let logo = canvas.resources().textures().get_ui(&Resource::minecraft_path(
             "minecraft",
             "gui/title",
             ResourceType::Texture,
         ));
 
-        let widgets = canvas.resources().textures().get_ui(&Resource::minecrafty_path(
+        let widgets = canvas.resources().textures().get_ui(&Resource::minecraft_path(
             "widgets",
             "gui",
             ResourceType::Texture,
@@ -221,7 +221,8 @@ impl Scene for MainMenu {
             let base = 256.0;
             let (w, h) = widgets.1;
 
-            let rect = Rect::from_corners([0.0, 170.0 * h / base], [200.0 * w / base, 190.0 * h / base]);
+            let base_rect =
+                Rect::from_corners([0.0, 170.0 * h / base], [200.0 * w / base, 190.0 * h / base]);
             let hover_rect =
                 Rect::from_corners([0.0, 150.0 * h / base], [200.0 * w / base, 170.0 * h / base]);
             let press_rect =
@@ -234,7 +235,7 @@ impl Scene for MainMenu {
                 .label_color(color::WHITE)
                 .center_justify_label()
                 .padded_w_of(self.ids.body_middle_column, 40.0)
-                .source_rectangle(rect)
+                .source_rectangle(base_rect)
                 .hover_source_rectangle(hover_rect)
                 .press_source_rectangle(press_rect)
                 .set(self.ids.singleplayer, &mut ui);
@@ -246,7 +247,7 @@ impl Scene for MainMenu {
                 .label_color(color::WHITE)
                 .center_justify_label()
                 .padded_w_of(self.ids.body_middle_column, 40.0)
-                .source_rectangle(rect)
+                .source_rectangle(base_rect)
                 .hover_source_rectangle(hover_rect)
                 .press_source_rectangle(press_rect)
                 .set(self.ids.multiplayer, &mut ui);
@@ -265,7 +266,7 @@ impl Scene for MainMenu {
         .set(self.ids.version, &mut ui);
 
         // Credits
-        widget::Text::new("Made with love by the community")
+        widget::Text::new("Litecraft Team")
             .color(color::WHITE)
             .font_size(16)
             .bottom_right_of(self.ids.footer)

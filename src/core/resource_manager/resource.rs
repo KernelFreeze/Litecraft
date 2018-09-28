@@ -47,77 +47,66 @@ impl Display for Resource {
 
 impl Resource {
     /// Create a resource with full URI
-    pub fn new(namespace: String, name: String, resource_type: ResourceType) -> Resource {
+    pub fn new<S, T>(namespace: S, name: T, resource_type: ResourceType) -> Resource
+    where
+        S: Into<String>,
+        T: Into<String>,
+    {
         Resource {
-            namespace,
+            namespace: namespace.into(),
             resource_type,
             resource_path: None,
-            name,
+            name: name.into(),
         }
     }
 
     /// Create new resource URI using Litecraft's namespace
-    pub fn litecraft(name: String, resource_type: ResourceType) -> Resource {
-        Resource::new("litecraft".to_string(), name, resource_type)
+    pub fn litecraft<S>(name: S, resource_type: ResourceType) -> Resource
+    where
+        S: Into<String>,
+    {
+        Resource::new("litecraft", name, resource_type)
     }
 
     /// Create new resource URI using Minecraft's namespace
-    pub fn minecraft(name: String, resource_type: ResourceType) -> Resource {
-        Resource::new("minecraft".to_string(), name, resource_type)
-    }
-
-    /// Create new resource URI using Litecraft's namespace and using a string slice
-    pub fn litecrafty(name: &'static str, resource_type: ResourceType) -> Resource {
-        Resource::new("litecraft".to_string(), name.to_string(), resource_type)
-    }
-
-    /// Create new resource URI using Minecraft's namespace and using a string slice
-    pub fn minecrafty(name: &'static str, resource_type: ResourceType) -> Resource {
-        Resource::new("minecraft".to_string(), name.to_string(), resource_type)
+    pub fn minecraft<S>(name: S, resource_type: ResourceType) -> Resource
+    where
+        S: Into<String>,
+    {
+        Resource::new("minecraft", name, resource_type)
     }
 
     /// Create new resource URI and set a custom path
-    pub fn path(namespace: String, name: String, path: String, kind: ResourceType) -> Resource {
+    pub fn path<S, T, U>(namespace: S, name: T, path: U, kind: ResourceType) -> Resource
+    where
+        S: Into<String>,
+        T: Into<String>,
+        U: Into<String>,
+    {
         Resource {
-            namespace,
+            namespace: namespace.into(),
             resource_type: kind,
-            resource_path: Some(path),
-            name,
+            resource_path: Some(path.into()),
+            name: name.into(),
         }
     }
 
     /// Create new resource URI using Litecraft's namespace and set a custom path
-    pub fn litecraft_path(name: String, path: String, resource_type: ResourceType) -> Resource {
-        Resource::path("litecraft".to_string(), name, path, resource_type)
+    pub fn litecraft_path<S, T>(name: S, path: T, resource_type: ResourceType) -> Resource
+    where
+        S: Into<String>,
+        T: Into<String>,
+    {
+        Resource::path("litecraft", name, path, resource_type)
     }
 
     /// Create new resource URI using Minecraft's namespace and set a custom path
-    pub fn minecraft_path(name: String, path: String, resource_type: ResourceType) -> Resource {
-        Resource::path("minecraft".to_string(), name, path, resource_type)
-    }
-
-    /// Create new resource URI using Litecraft's namespace and set a custom path using a string slice
-    pub fn litecrafty_path(
-        name: &'static str, path: &'static str, resource_type: ResourceType,
-    ) -> Resource {
-        Resource::path(
-            "litecraft".to_string(),
-            name.to_string(),
-            path.to_string(),
-            resource_type,
-        )
-    }
-
-    /// Create new resource URI using Minecraft's namespace and set a custom path using a string slice
-    pub fn minecrafty_path(
-        name: &'static str, path: &'static str, resource_type: ResourceType,
-    ) -> Resource {
-        Resource::path(
-            "minecraft".to_string(),
-            name.to_string(),
-            path.to_string(),
-            resource_type,
-        )
+    pub fn minecraft_path<S, T>(name: S, path: T, resource_type: ResourceType) -> Resource
+    where
+        S: Into<String>,
+        T: Into<String>,
+    {
+        Resource::path("minecraft", name, path, resource_type)
     }
 
     /// Get asset folder

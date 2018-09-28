@@ -23,7 +23,7 @@ use gfx::shapes::VertexData;
 
 use glium::draw_parameters::Blend;
 use glium::texture::CompressedSrgbTexture2d;
-use glium::{DrawParameters, Surface};
+use glium::{BackfaceCullingMode, DrawParameters, Surface};
 
 /// Utility for drawing on screen
 pub struct Pencil<'a, S> {
@@ -45,9 +45,10 @@ pub struct Pencil<'a, S> {
 
 impl<'a, S> Pencil<'a, S> {
     /// Create a new Pencil
-    pub fn new(frame: &'a mut S, program: &str, canvas: &'a Canvas) -> Pencil<'a, S>
+    pub fn new<T>(frame: &'a mut S, program: T, canvas: &'a Canvas) -> Pencil<'a, S>
     where
         S: Surface,
+        T: Into<String>,
     {
         Pencil {
             program: program.into(),
@@ -144,6 +145,7 @@ impl<'a, S> Pencil<'a, S> {
             },
             blend: Blend::alpha_blending(),
             multisampling: true,
+            backface_culling: BackfaceCullingMode::CullCounterClockwise,
             ..Default::default()
         };
 

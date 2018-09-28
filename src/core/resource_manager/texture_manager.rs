@@ -66,7 +66,7 @@ impl TextureManager {
             textures: HashMap::new(),
             ui_textures: HashMap::new(),
 
-            pool: ThreadPool::new(6),
+            pool: ThreadPool::new(8),
 
             ui_images: Map::<CompressedSrgbTexture2d>::new(),
 
@@ -74,40 +74,6 @@ impl TextureManager {
 
             sender,
             receiver,
-        }
-    }
-
-    /// Upload pending textures to OpenGL
-    pub fn tick(&mut self, display: &Display) {
-        if let Ok(image) = self.receiver.try_recv() {
-            debug!("Uploading texture {} to GPU", &image.resource);
-
-            // Parse texture from raw data
-            let texture = RawImage2d::from_raw_rgba(image.data, image.dimensions);
-            let texture = CompressedSrgbTexture2d::new(display, texture);
-            let texture = texture.expect("Failed to send texture to GPU.");
-
-            // Check if texture is needed for 3D or for user interface
-            if image.ui {
-                debug!("Loaded UI texture {}", &image.resource);
-
-                self.ui_textures.insert(
-                    image.resource,
-                    (
-                        // Get conrod texture Id
-                        self.ui_images.insert(texture),
-                        // Get image size
-                        (f64::from(image.dimensions.0), f64::from(image.dimensions.1)),
-                    ),
-                );
-            } else {
-                debug!("Loaded texture {}", &image.resource);
-
-                // Add to texture map
-                self.textures.insert(image.resource, texture);
-            }
-
-            self.pending -= 1;
         }
     }
 
@@ -136,15 +102,39 @@ impl TextureManager {
         self.do_load(resource, true, options);
     }
 
-    /// Get failback texture
-    fn failback_texture() -> ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        ImageBuffer::from_fn(16, 16, |x, y| {
-            if x % 2 == y % 2 {
-                image::Rgba([0u8, 0, 0, 255])
+    /// Upload pending textures to OpenGL
+    pub fn tick(&mut self, display: &Display) {
+        if let Ok(image) = self.receiver.try_recv() {
+            debug!("Uploading texture {} to GPU", &image.resource);
+
+            // Parse texture from raw data
+            let texture = RawImage2d::from_raw_rgba(image.data, image.dimensions);
+            let texture = CompressedSrgbTexture2d::new(display, texture);
+            let texture = texture.expect("Failed to send texture to GPU.");
+
+            // Check if texture is needed for 3D or for user interface
+            if image.ui {
+                debug!("Loaded UI texture {}", &image.resource);
+
+                // Add size and id to texture map
+                self.ui_textures.insert(
+                    image.resource,
+                    (
+                        // Get conrod texture Id
+                        self.ui_images.insert(texture),
+                        // Get image size
+                        (f64::from(image.dimensions.0), f64::from(image.dimensions.1)),
+                    ),
+                );
             } else {
-                image::Rgba([158u8, 0, 123, 255])
+                debug!("Loaded texture {}", &image.resource);
+
+                // Add to texture map
+                self.textures.insert(image.resource, texture);
             }
-        })
+
+            self.pending -= 1;
+        }
     }
 
     /// Load texture async
@@ -171,6 +161,17 @@ impl TextureManager {
 
             info!("Loading and processing texture '{}'.", resource);
 
+            /// Get failback texture
+            fn failback_texture() -> ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+                ImageBuffer::from_fn(16, 16, |x, y| {
+                    if x % 2 == y % 2 {
+                        image::Rgba([0u8, 0, 0, 255])
+                    } else {
+                        image::Rgba([158u8, 0, 123, 255])
+                    }
+                })
+            }
+
             // Try to load and decode texture or use failback
             let mut image = if let Ok(data) = resource.load_binary() {
                 // Decode image data
@@ -179,22 +180,23 @@ impl TextureManager {
                 } else {
                     info!("Failed to decode texture '{}'. Using failback", resource);
 
-                    TextureManager::failback_texture()
+                    failback_texture()
                 }
             } else {
                 info!("Failed to load texture '{}'. Using failback", resource);
 
-                TextureManager::failback_texture()
+                failback_texture()
             };
 
             // Apply image transformations
             match options {
+                // Blur texture
                 TextureOptions::Blur(sigma) => {
                     image = imageops::blur(&image, sigma);
                 },
+                // Resize texture
                 TextureOptions::Resize(w, h) => {
-                    use image::FilterType;
-                    image = imageops::resize(&image, w, h, FilterType::Gaussian);
+                    image = imageops::resize(&image, w, h, image::FilterType::Gaussian);
                 },
                 _ => (),
             };
