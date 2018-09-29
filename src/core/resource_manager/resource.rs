@@ -20,6 +20,7 @@ use std::error;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 
+use std::borrow::Cow;
 use std::fs::{create_dir_all, File};
 
 use std::io::Read;
@@ -33,10 +34,10 @@ type Result<T> = std::result::Result<T, Box<error::Error>>;
 #[derive(PartialEq, Eq, Hash)]
 /// Represents a resource URI and allows loading resource data
 pub struct Resource {
-    namespace: String,
+    namespace: Cow<'static, str>,
     resource_type: ResourceType,
-    resource_path: Option<String>,
-    name: String,
+    resource_path: Option<Cow<'static, str>>,
+    name: Cow<'static, str>,
 }
 
 impl Display for Resource {
@@ -49,8 +50,8 @@ impl Resource {
     /// Create a resource with full URI
     pub fn new<S, T>(namespace: S, name: T, resource_type: ResourceType) -> Resource
     where
-        S: Into<String>,
-        T: Into<String>,
+        S: Into<Cow<'static, str>>,
+        T: Into<Cow<'static, str>>,
     {
         Resource {
             namespace: namespace.into(),
@@ -63,7 +64,7 @@ impl Resource {
     /// Create new resource URI using Litecraft's namespace
     pub fn litecraft<S>(name: S, resource_type: ResourceType) -> Resource
     where
-        S: Into<String>,
+        S: Into<Cow<'static, str>>,
     {
         Resource::new("litecraft", name, resource_type)
     }
@@ -71,7 +72,7 @@ impl Resource {
     /// Create new resource URI using Minecraft's namespace
     pub fn minecraft<S>(name: S, resource_type: ResourceType) -> Resource
     where
-        S: Into<String>,
+        S: Into<Cow<'static, str>>,
     {
         Resource::new("minecraft", name, resource_type)
     }
@@ -79,9 +80,9 @@ impl Resource {
     /// Create new resource URI and set a custom path
     pub fn path<S, T, U>(namespace: S, name: T, path: U, kind: ResourceType) -> Resource
     where
-        S: Into<String>,
-        T: Into<String>,
-        U: Into<String>,
+        S: Into<Cow<'static, str>>,
+        T: Into<Cow<'static, str>>,
+        U: Into<Cow<'static, str>>,
     {
         Resource {
             namespace: namespace.into(),
@@ -94,8 +95,8 @@ impl Resource {
     /// Create new resource URI using Litecraft's namespace and set a custom path
     pub fn litecraft_path<S, T>(name: S, path: T, resource_type: ResourceType) -> Resource
     where
-        S: Into<String>,
-        T: Into<String>,
+        S: Into<Cow<'static, str>>,
+        T: Into<Cow<'static, str>>,
     {
         Resource::path("litecraft", name, path, resource_type)
     }
@@ -103,8 +104,8 @@ impl Resource {
     /// Create new resource URI using Minecraft's namespace and set a custom path
     pub fn minecraft_path<S, T>(name: S, path: T, resource_type: ResourceType) -> Resource
     where
-        S: Into<String>,
-        T: Into<String>,
+        S: Into<Cow<'static, str>>,
+        T: Into<Cow<'static, str>>,
     {
         Resource::path("minecraft", name, path, resource_type)
     }

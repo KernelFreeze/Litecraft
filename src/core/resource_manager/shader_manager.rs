@@ -48,21 +48,15 @@ impl ShaderManager {
             return Ok(());
         }
 
-        let v_140 = Resource::litecraft_path(name, "140", ResourceType::VertexShader);
-        let f_140 = Resource::litecraft_path(name, "140", ResourceType::FragmentShader);
-
-        let v_100 = Resource::litecraft_path(name, "100", ResourceType::VertexShader);
-        let f_100 = Resource::litecraft_path(name, "100", ResourceType::FragmentShader);
-
         let program = program!(display,
         140 => {
-            vertex: &(v_140.load()?),
-            fragment: &(f_140.load()?)
+            vertex: &(Resource::litecraft_path(name, "140", ResourceType::VertexShader).load()?),
+            fragment: &(Resource::litecraft_path(name, "140", ResourceType::FragmentShader).load()?)
         },
 
         100 => {
-            vertex: &(v_100.load()?),
-            fragment: &(f_100.load()?)
+            vertex: &(Resource::litecraft_path(name, "100", ResourceType::VertexShader).load()?),
+            fragment: &(Resource::litecraft_path(name, "100", ResourceType::FragmentShader).load()?)
         })?;
 
         info!("Loaded shader '{}'", name);

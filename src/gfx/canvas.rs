@@ -174,6 +174,7 @@ impl Canvas {
     /// Create a custom Window
     fn create_window(settings: &Settings, events_loop: &EventsLoop) -> WindowBuilder {
         use core::constants::{LITECRAFT_VERSION, MINECRAFT_VERSION};
+        use glium::glutin::Icon;
 
         // If user wants fullscreen get primary monitor and attach Litecraft to it
         let screen = if settings.fullscreen() {
@@ -182,10 +183,16 @@ impl Canvas {
             None
         };
 
+        let icon = Resource::litecraft("logo", ResourceType::Texture)
+            .load_binary()
+            .ok()
+            .and_then(|logo| Icon::from_bytes(&logo).ok());
+
         // Create or window
         WindowBuilder::new()
             .with_min_dimensions((settings.width(), settings.height()).into())
             .with_title(format!("Litecraft {} {}", MINECRAFT_VERSION, LITECRAFT_VERSION))
+            .with_window_icon(icon)
             .with_maximized(settings.maximized())
             .with_fullscreen(screen)
     }

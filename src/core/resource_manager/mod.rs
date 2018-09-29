@@ -83,7 +83,6 @@ impl ResourceManager {
     /// Get and load a font file
     pub fn font(resource: &Resource) -> Result<Font, Box<Error>> {
         use conrod::text::FontCollection;
-        use std::io::{Error, ErrorKind};
 
         info!("Loading font file '{}'", resource);
 
@@ -91,6 +90,8 @@ impl ResourceManager {
         let collection = FontCollection::from_bytes(data)?;
 
         collection.into_font().or_else(|_| {
+            use std::io::{Error, ErrorKind};
+
             Err(From::from(Error::new(
                 ErrorKind::Other,
                 "Failed to decode font file",
