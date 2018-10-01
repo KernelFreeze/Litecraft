@@ -229,11 +229,15 @@ impl Scene for MainMenu {
                 .padded_w_of(self.ids.body_footer_left, 5.0)
                 .set(self.ids.options, &mut ui);
 
-            ui_helper::button(&widgets)
+            if ui_helper::button(&widgets)
                 .label("Quit Game")
                 .top_right_of(self.ids.body_footer_right)
                 .padded_w_of(self.ids.body_footer_right, 5.0)
-                .set(self.ids.quit, &mut ui);
+                .set(self.ids.quit, &mut ui)
+                .was_clicked()
+            {
+                return SceneAction::Quit;
+            }
         }
 
         // Litecraft and Minecraft version

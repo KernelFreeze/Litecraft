@@ -19,6 +19,7 @@ use glium::framebuffer::SimpleFrameBuffer;
 pub enum SceneAction {
     None,
     ChangeScene(Box<Scene>),
+    Quit,
 }
 
 pub trait Scene {

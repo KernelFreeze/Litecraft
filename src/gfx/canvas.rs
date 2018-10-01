@@ -21,7 +21,7 @@ use core::settings::Settings;
 use scenes::loading::LoadingScene;
 
 use gfx::fxaa::{self, FxaaSystem};
-use gfx::scene::{Scene, SceneAction::ChangeScene};
+use gfx::scene::Scene;
 
 use glium::glutin::{ContextBuilder, ControlFlow, Event, EventsLoop, WindowBuilder, WindowEvent};
 use glium::{Display, Surface};
@@ -135,16 +135,22 @@ impl Canvas {
 
             // Anti-aliasing
             fxaa::draw(&fxaa, &mut target, canvas.settings.anti_aliasing(), |target| {
+                use gfx::scene::SceneAction::*;
+
                 // Clear buffers
                 target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
 
                 // Draw current scene
                 let draw = scene.draw(&mut canvas, target);
 
-                // Change scene if requested
-                if let ChangeScene(new_scene) = draw {
-                    scene = new_scene;
-                    scene.load(&mut canvas);
+                // Get scene action
+                match draw {
+                    ChangeScene(new_scene) => {
+                        scene = new_scene;
+                        scene.load(&mut canvas);
+                    },
+                    Quit => status = ControlFlow::Break,
+                    _ => (),
                 }
             });
 
@@ -195,10 +201,8 @@ impl Canvas {
     /// Window events handler
     fn event_handler(&mut self, event: &WindowEvent) -> ControlFlow {
         match event {
-            // Window close
             WindowEvent::CloseRequested => ControlFlow::Break,
 
-            // Window resize
             WindowEvent::Resized(size) => {
                 self.settings.set_width(size.width as u32);
                 self.settings.set_height(size.height as u32);
@@ -206,7 +210,6 @@ impl Canvas {
                 ControlFlow::Continue
             },
 
-            // Dropped file
             // TODO: Allow drop resourcepacks
             WindowEvent::DroppedFile(_) => ControlFlow::Continue,
 
