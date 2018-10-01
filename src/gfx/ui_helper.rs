@@ -20,10 +20,12 @@ use conrod::widget::button::Image;
 use conrod::widget::Button;
 use conrod::{color, widget, Labelable, Sizeable};
 
+/// Draw Litecraft button widget
 pub fn button<'a>(widgets: &UiTexture) -> Button<'a, Image> {
     let base = 256.0;
     let (w, h) = widgets.1;
 
+    // Texture coordinates
     let base_rect = Rect::from_corners([0.0, 170.0 * h / base], [200.0 * w / base, 190.0 * h / base]);
     let hover_rect = Rect::from_corners([0.0, 150.0 * h / base], [200.0 * w / base, 170.0 * h / base]);
     let press_rect = Rect::from_corners([0.0, 190.0 * h / base], [200.0 * w / base, 210.0 * h / base]);

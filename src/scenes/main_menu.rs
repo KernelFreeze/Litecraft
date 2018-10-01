@@ -51,8 +51,15 @@ widget_ids! {
         body_middle_column,
         body_right_column,
 
+        body_footer,
+        body_footer_left,
+        body_footer_right,
+
         singleplayer,
         multiplayer,
+        realms,
+        options,
+        quit,
 
         footer,
 
@@ -116,7 +123,7 @@ impl Scene for MainMenu {
 
     /// Draw scene
     fn draw(&mut self, canvas: &mut Canvas, frame: &mut SimpleFrameBuffer) -> SceneAction {
-        use conrod::{color, widget, Borderable, Colorable, Labelable, Positionable, Sizeable, Widget};
+        use conrod::{color, widget, Colorable, Labelable, Positionable, Sizeable, Widget};
 
         let logo = canvas.resources().textures().get_ui(&Resource::minecraft_path(
             "minecraft",
@@ -136,53 +143,25 @@ impl Scene for MainMenu {
 
         // Construct our main `Canvas` tree.
         widget::Canvas::new()
-            .color(color::TRANSPARENT)
             .flow_down(&[
                 (
                     self.ids.header,
-                    widget::Canvas::new()
-                        .color(color::TRANSPARENT)
-                        .border(0.0)
-                        .pad(85.0)
-                        .flow_right(&[
-                            (
-                                self.ids.header_left_column,
-                                widget::Canvas::new().color(color::TRANSPARENT).border(0.0),
-                            ),
-                            (
-                                self.ids.header_right_column,
-                                widget::Canvas::new().color(color::TRANSPARENT).border(0.0),
-                            ),
-                        ]),
+                    widget::Canvas::new().pad(85.0).flow_right(&[
+                        (self.ids.header_left_column, widget::Canvas::new()),
+                        (self.ids.header_right_column, widget::Canvas::new()),
+                    ]),
                 ),
                 (
                     self.ids.body,
-                    widget::Canvas::new()
-                        .color(color::TRANSPARENT)
-                        .border(0.0)
-                        .length(300.0)
-                        .flow_right(&[
-                            (
-                                self.ids.body_left_column,
-                                widget::Canvas::new().color(color::TRANSPARENT).border(0.0),
-                            ),
-                            (
-                                self.ids.body_middle_column,
-                                widget::Canvas::new().color(color::TRANSPARENT).border(0.0),
-                            ),
-                            (
-                                self.ids.body_right_column,
-                                widget::Canvas::new().color(color::TRANSPARENT).border(0.0),
-                            ),
-                        ]),
+                    widget::Canvas::new().length(300.0).flow_right(&[
+                        (self.ids.body_left_column, widget::Canvas::new()),
+                        (self.ids.body_middle_column, widget::Canvas::new()),
+                        (self.ids.body_right_column, widget::Canvas::new()),
+                    ]),
                 ),
                 (
                     self.ids.footer,
-                    widget::Canvas::new()
-                        .pad(20.0)
-                        .scroll_kids_vertically()
-                        .border(0.0)
-                        .color(color::TRANSPARENT),
+                    widget::Canvas::new().pad(20.0).scroll_kids_vertically(),
                 ),
             ])
             .set(self.ids.master, &mut ui);
@@ -217,7 +196,7 @@ impl Scene for MainMenu {
         if let Some(widgets) = widgets {
             ui_helper::button(&widgets)
                 .label("Singleplayer")
-                .up_from(self.ids.multiplayer, 20.0)
+                .up_from(self.ids.multiplayer, 15.0)
                 .padded_w_of(self.ids.body_middle_column, 40.0)
                 .set(self.ids.singleplayer, &mut ui);
 
@@ -226,17 +205,41 @@ impl Scene for MainMenu {
                 .middle_of(self.ids.body_middle_column)
                 .padded_w_of(self.ids.body_middle_column, 40.0)
                 .set(self.ids.multiplayer, &mut ui);
+
+            ui_helper::button(&widgets)
+                .label("Minecraft Realms")
+                .down_from(self.ids.multiplayer, 15.0)
+                .padded_w_of(self.ids.body_middle_column, 40.0)
+                .set(self.ids.realms, &mut ui);
+
+            widget::Canvas::new()
+                .flow_right(&[
+                    (self.ids.body_footer_left, widget::Canvas::new()),
+                    (self.ids.body_footer_right, widget::Canvas::new()),
+                ])
+                .down_from(self.ids.realms, 30.0)
+                .padded_w_of(self.ids.body_middle_column, 40.0)
+                .set(self.ids.body_footer, &mut ui);
+
+            ui_helper::button(&widgets)
+                .label("Options")
+                .top_left_of(self.ids.body_footer_left)
+                .padded_w_of(self.ids.body_footer_left, 5.0)
+                .set(self.ids.options, &mut ui);
+
+            ui_helper::button(&widgets)
+                .label("Quit Game")
+                .top_right_of(self.ids.body_footer_right)
+                .padded_w_of(self.ids.body_footer_right, 5.0)
+                .set(self.ids.quit, &mut ui);
         }
 
         // Litecraft and Minecraft version
-        widget::Text::new(&format!(
-            "Litecraft {}\nMinecraft {}",
-            LITECRAFT_VERSION, MINECRAFT_VERSION
-        ))
-        .color(color::WHITE)
-        .font_size(16)
-        .bottom_left_of(self.ids.footer)
-        .set(self.ids.version, &mut ui);
+        widget::Text::new(VERSION_TEXT)
+            .color(color::WHITE)
+            .font_size(16)
+            .bottom_left_of(self.ids.footer)
+            .set(self.ids.version, &mut ui);
 
         // Credits
         widget::Text::new("© Litecraft Team")

@@ -29,3 +29,6 @@ pub const LITECRAFT_VERSION: &str = "A1";
 
 /// Compatible Minecraft server version
 pub const MINECRAFT_VERSION: &str = "1.13.1";
+
+/// Debug version string
+pub const VERSION_TEXT: &str = "Litecraft A1\nMinecraft 1.13.1";
