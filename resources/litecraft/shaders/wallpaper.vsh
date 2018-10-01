@@ -1,13 +1,13 @@
-#version 100
+#version 140
 
 uniform mat4 persp_matrix;
 uniform mat4 view_matrix;
 uniform mat4 transform;
 
-attribute vec2 position;
-attribute vec2 tex_coords;
+in vec2 position;
+in vec2 tex_coords;
 
-varying vec2 v_tex_coords;
+out vec2 v_tex_coords;
 
 void main() {
     v_tex_coords = tex_coords;

@@ -32,8 +32,11 @@ enum Movement {
 pub struct Camera {
     // Camera Attributes
     position: Point3<f32>,
+
     yaw: f32,
     pitch: f32,
+
+    fov: f32,
 
     // Window size
     width: u32,
@@ -42,12 +45,20 @@ pub struct Camera {
 
 impl Camera {
     /// Create new camera
-    pub fn new() -> Camera {
+    pub fn new() -> Camera { Camera::with_position(Point3::new(0.0, 0.0, 1.0)) }
+
+    /// Create new camera with position
+    pub fn with_position<P>(position: P) -> Camera
+    where
+        P: Into<Point3<f32>>,
+    {
         Camera {
-            position: Point3::new(0.0, 0.0, 1.0),
+            position: position.into(),
 
             yaw: YAW,
             pitch: PITCH,
+
+            fov: 60.0,
 
             width: 800,
             height: 600,
@@ -70,13 +81,28 @@ impl Camera {
     pub fn pitch(&self) -> f32 { self.pitch }
 
     /// Set camera position
-    pub fn set_position(&mut self, pos: Point3<f32>) { self.position = pos; }
+    pub fn set_position(&mut self, pos: Point3<f32>) -> &Camera {
+        self.position = pos;
+        self
+    }
 
     /// Set camera yaw
-    pub fn set_yaw(&mut self, value: f32) { self.yaw = value; }
+    pub fn set_yaw(&mut self, value: f32) -> &Camera {
+        self.yaw = value;
+        self
+    }
 
     /// Set camera pitch
-    pub fn set_pitch(&mut self, value: f32) { self.pitch = value; }
+    pub fn set_pitch(&mut self, value: f32) -> &Camera {
+        self.pitch = value;
+        self
+    }
+
+    /// Set camera fov
+    pub fn set_fov(&mut self, value: f32) -> &Camera {
+        self.fov = value;
+        self
+    }
 
     /// Get perspective matrix
     pub fn perspective(&self) -> Matrix4<f32> {
@@ -90,7 +116,7 @@ impl Camera {
 
         let aspect_ratio = (width / height).max(0.5);
 
-        perspective(Deg(90.0), aspect_ratio, znear, zfar)
+        perspective(Deg(self.fov), aspect_ratio, znear, zfar)
     }
 
     /// Get orthographic matrix

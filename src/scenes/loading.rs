@@ -81,17 +81,23 @@ impl Scene for LoadingScene {
         canvas
             .resources_mut()
             .shaders_mut()
+            .load("wallpaper", &display)
+            .expect("Failed to load required shader program");
+
+        canvas
+            .resources_mut()
+            .shaders_mut()
             .load("logo", &display)
             .expect("Failed to load required shader program");
 
         // Load wallpapers from 1 to 12
-        for i in 1..13 {
+        for i in 0..6 {
             canvas
                 .resources_mut()
                 .textures_mut()
-                .load(Resource::litecraft_path(
-                    format!("menu_{}", i),
-                    "wallpapers",
+                .load(Resource::minecraft_path(
+                    format!("panorama_{}", i),
+                    "gui/title/background",
                     ResourceType::Texture,
                 ));
         }

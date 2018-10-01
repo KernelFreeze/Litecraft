@@ -100,23 +100,30 @@ impl ResourceManager {
     }
 
     /// Tick all resource managers
+    #[inline]
     pub fn tick(&mut self, display: &Display) { self.texture_manager.tick(display); }
 
     /// Get VAOs and VBOs
+    #[inline]
     pub fn shapes(&self) -> &Shapes { &self.shapes }
 
     /// Get texture manager
+    #[inline]
     pub fn textures(&self) -> &TextureManager { &self.texture_manager }
 
     /// Get shader manager
+    #[inline]
     pub fn shaders(&self) -> &ShaderManager { &self.shader_manager }
 
     /// Get texture manager
+    #[inline]
     pub fn textures_mut(&mut self) -> &mut TextureManager { &mut self.texture_manager }
 
     /// Get shader manager
+    #[inline]
     pub fn shaders_mut(&mut self) -> &mut ShaderManager { &mut self.shader_manager }
 
     /// Check if resource manager is loaded
+    #[inline]
     pub fn loaded(&self) -> bool { self.texture_manager.loaded() }
 }

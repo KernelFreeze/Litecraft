@@ -50,13 +50,8 @@ impl ShaderManager {
 
         let program = program!(display,
         140 => {
-            vertex: &(Resource::litecraft_path(name, "140", ResourceType::VertexShader).load()?),
-            fragment: &(Resource::litecraft_path(name, "140", ResourceType::FragmentShader).load()?)
-        },
-
-        100 => {
-            vertex: &(Resource::litecraft_path(name, "100", ResourceType::VertexShader).load()?),
-            fragment: &(Resource::litecraft_path(name, "100", ResourceType::FragmentShader).load()?)
+            vertex: &(Resource::litecraft(name, ResourceType::VertexShader).load()?),
+            fragment: &(Resource::litecraft(name, ResourceType::FragmentShader).load()?)
         })?;
 
         info!("Loaded shader '{}'", name);

@@ -30,7 +30,7 @@ use glium::framebuffer::SimpleFrameBuffer;
 use conrod::position::rect::Rect;
 
 /// How many time we should wait before changing our wallpaper
-const WALLPAPER_DELAY: u32 = 15;
+const WALLPAPER_DELAY: u32 = 40;
 
 widget_ids! {
     struct Ids {
@@ -76,27 +76,28 @@ pub struct MainMenu {
 
 impl MainMenu {
     pub fn new(canvas: &mut Canvas) -> MainMenu {
-        MainMenu {
-            ids: Ids::new(canvas.ui_mut().widget_id_generator()),
-            camera: Camera::new(),
-        }
+        let ids = Ids::new(canvas.ui_mut().widget_id_generator());
+        let mut camera = Camera::new();
+
+        camera.set_fov(55.0);
+
+        MainMenu { ids, camera }
     }
 
     /// Main menu's background
     fn draw_wallpaper(&mut self, canvas: &mut Canvas, frame: &mut SimpleFrameBuffer) {
-        let i = ResourceManager::time() as u32 / WALLPAPER_DELAY % 12 + 1;
+        let i = ResourceManager::time() as u32 / WALLPAPER_DELAY % 5;
 
-        let wallpaper = canvas.resources().textures().get(&Resource::litecraft_path(
-            format!("menu_{}", i),
-            "wallpapers",
+        let wallpaper = canvas.resources().textures().get(&Resource::minecraft_path(
+            format!("panorama_{}", i),
+            "gui/title/background",
             ResourceType::Texture,
         ));
 
         if let Some(wallpaper) = wallpaper {
-            Pencil::new(frame, "quad", &canvas)
+            Pencil::new(frame, "wallpaper", &canvas)
                 .texture(wallpaper)
                 .camera(&self.camera)
-                .vertices(canvas.resources().shapes().rectangle())
                 .linear(true)
                 .draw();
         }
@@ -168,6 +169,7 @@ impl Scene for MainMenu {
 
         // Draw the beloved Minecraft logo
         if let Some(logo) = logo {
+            // Texture coordinates
             let base = 256.0;
             let size = [280.0, 85.0];
             let (w, h) = logo.1;
