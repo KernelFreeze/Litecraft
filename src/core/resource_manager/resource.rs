@@ -136,6 +136,7 @@ impl Resource {
 
     /// Get a resource as binary
     pub fn load_binary(&self) -> Result<Vec<u8>> {
+        // Create resourcepacks folder if not exists
         if !Path::new("resourcepacks").exists() {
             create_dir_all("resourcepacks")?;
         }

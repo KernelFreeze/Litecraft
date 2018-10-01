@@ -16,6 +16,7 @@
 use gfx::canvas::Canvas;
 use gfx::pencil::Pencil;
 use gfx::scene::{Scene, SceneAction};
+use gfx::ui_helper;
 
 use core::camera::Camera;
 use core::constants::*;
@@ -218,38 +219,16 @@ impl Scene for MainMenu {
         // Body //
 
         if let Some(widgets) = widgets {
-            let base = 256.0;
-            let (w, h) = widgets.1;
-
-            let base_rect =
-                Rect::from_corners([0.0, 170.0 * h / base], [200.0 * w / base, 190.0 * h / base]);
-            let hover_rect =
-                Rect::from_corners([0.0, 150.0 * h / base], [200.0 * w / base, 170.0 * h / base]);
-            let press_rect =
-                Rect::from_corners([0.0, 190.0 * h / base], [200.0 * w / base, 210.0 * h / base]);
-
-            widget::Button::image(widgets.0)
-                .h(45.0)
-                .up_from(self.ids.multiplayer, 20.0)
+            ui_helper::button(&widgets)
                 .label("Singleplayer")
-                .label_color(color::WHITE)
-                .center_justify_label()
+                .up_from(self.ids.multiplayer, 20.0)
                 .padded_w_of(self.ids.body_middle_column, 40.0)
-                .source_rectangle(base_rect)
-                .hover_source_rectangle(hover_rect)
-                .press_source_rectangle(press_rect)
                 .set(self.ids.singleplayer, &mut ui);
 
-            widget::Button::image(widgets.0)
-                .h(45.0)
-                .middle_of(self.ids.body_middle_column)
+            ui_helper::button(&widgets)
                 .label("Multiplayer")
-                .label_color(color::WHITE)
-                .center_justify_label()
+                .middle_of(self.ids.body_middle_column)
                 .padded_w_of(self.ids.body_middle_column, 40.0)
-                .source_rectangle(base_rect)
-                .hover_source_rectangle(hover_rect)
-                .press_source_rectangle(press_rect)
                 .set(self.ids.multiplayer, &mut ui);
         }
 

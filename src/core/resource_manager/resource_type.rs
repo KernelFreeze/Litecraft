@@ -16,6 +16,7 @@
 use std::fmt;
 
 #[derive(PartialEq, Eq, Hash, Debug)]
+/// Type of resource
 pub enum ResourceType {
     Language,
     Blockstate,
@@ -36,6 +37,7 @@ impl fmt::Display for ResourceType {
 }
 
 impl ResourceType {
+    /// Get resource folder
     pub fn folder(&self) -> &str {
         match self {
             ResourceType::Language => "lang",
@@ -53,6 +55,7 @@ impl ResourceType {
         }
     }
 
+    /// Get resource extension
     pub fn extension(&self) -> &str {
         match self {
             ResourceType::Language => "lang",

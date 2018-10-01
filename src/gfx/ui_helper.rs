@@ -13,9 +13,26 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pub mod canvas;
-pub mod fxaa;
-pub mod pencil;
-pub mod scene;
-pub mod shapes;
-pub mod ui_helper;
+use core::resource_manager::texture_manager::UiTexture;
+
+use conrod::position::rect::Rect;
+use conrod::widget::button::Image;
+use conrod::widget::Button;
+use conrod::{color, widget, Labelable, Sizeable};
+
+pub fn button<'a>(widgets: &UiTexture) -> Button<'a, Image> {
+    let base = 256.0;
+    let (w, h) = widgets.1;
+
+    let base_rect = Rect::from_corners([0.0, 170.0 * h / base], [200.0 * w / base, 190.0 * h / base]);
+    let hover_rect = Rect::from_corners([0.0, 150.0 * h / base], [200.0 * w / base, 170.0 * h / base]);
+    let press_rect = Rect::from_corners([0.0, 190.0 * h / base], [200.0 * w / base, 210.0 * h / base]);
+
+    widget::Button::image(widgets.0)
+        .h(45.0)
+        .label_color(color::WHITE)
+        .center_justify_label()
+        .source_rectangle(base_rect)
+        .hover_source_rectangle(hover_rect)
+        .press_source_rectangle(press_rect)
+}
