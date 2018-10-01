@@ -187,8 +187,6 @@ impl Scene for MainMenu {
             ])
             .set(self.ids.master, &mut ui);
 
-        // Header //
-
         // Draw the beloved Minecraft logo
         if let Some(logo) = logo {
             let base = 256.0;
@@ -216,8 +214,6 @@ impl Scene for MainMenu {
                 .set(self.ids.logo_right, &mut ui);
         }
 
-        // Body //
-
         if let Some(widgets) = widgets {
             ui_helper::button(&widgets)
                 .label("Singleplayer")
@@ -232,8 +228,6 @@ impl Scene for MainMenu {
                 .set(self.ids.multiplayer, &mut ui);
         }
 
-        // Footer //
-
         // Litecraft and Minecraft version
         widget::Text::new(&format!(
             "Litecraft {}\nMinecraft {}",
@@ -245,7 +239,7 @@ impl Scene for MainMenu {
         .set(self.ids.version, &mut ui);
 
         // Credits
-        widget::Text::new("Litecraft Team")
+        widget::Text::new("© Litecraft Team")
             .color(color::WHITE)
             .font_size(16)
             .bottom_right_of(self.ids.footer)

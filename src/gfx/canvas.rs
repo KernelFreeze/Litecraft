@@ -69,12 +69,7 @@ impl Canvas {
         // Create UI Manager
         let mut ui = UiBuilder::new([settings.width().into(), settings.height().into()]).build();
 
-        // Load default fonts
-        ui.fonts.insert(
-            ResourceManager::font(&Resource::litecraft("unicode", ResourceType::Font))
-                .expect("Failed to load default font file"),
-        );
-
+        // Load default font
         ui.fonts.insert(
             ResourceManager::font(&Resource::litecraft("default", ResourceType::Font))
                 .expect("Failed to load default font file"),
