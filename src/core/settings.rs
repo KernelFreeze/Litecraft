@@ -19,8 +19,8 @@ pub struct WindowSettings {
     height: u32,
     fullscreen: bool,
     maximized: bool,
-    anti_aliasing: bool,
     multisampling: u16,
+    gui_scale: f64,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -48,8 +48,8 @@ impl Settings {
                 height,
                 fullscreen: false,
                 maximized: true,
-                anti_aliasing: true,
                 multisampling: 0,
+                gui_scale: 1.0,
             },
             gameplay: GameplaySettings { fov: 90, vsync: true },
             resourcepacks: Vec::new(),
@@ -74,9 +74,6 @@ impl Settings {
     /// Get if user wants maximized
     pub fn maximized(&self) -> bool { self.window.maximized }
 
-    /// Get if user wants anti-aliasing FXAA
-    pub fn anti_aliasing(&self) -> bool { self.window.anti_aliasing }
-
     /// Get if user wants MSAA anti-aliasing
     pub fn multisampling(&self) -> u16 { self.window.multisampling }
 
@@ -85,6 +82,9 @@ impl Settings {
 
     /// Get user FOV
     pub fn fov(&self) -> u8 { self.gameplay.fov }
+
+    /// Get user GUI scale
+    pub fn scale(&self) -> f64 { self.window.gui_scale }
 
     /// Get enabled resourcepacks by filename
     pub fn resourcepacks(&self) -> &Vec<String> { &self.resourcepacks }

@@ -20,8 +20,7 @@ use core::settings::Settings;
 
 use scenes::loading::LoadingScene;
 
-use gfx::fxaa::{self, FxaaSystem};
-use gfx::scene::Scene;
+use gfx::scene::{Scene, SceneAction};
 
 use glium::glutin::{ContextBuilder, ControlFlow, Event, EventsLoop, WindowBuilder, WindowEvent};
 use glium::{Display, Surface};
@@ -89,9 +88,6 @@ impl Canvas {
         // Rhai engine
         let engine = Engine::new();
 
-        // FXAA
-        let fxaa = FxaaSystem::new(&display);
-
         // Create canvas manager
         let mut canvas = Canvas {
             resource_manager,
@@ -133,29 +129,23 @@ impl Canvas {
                 );
             }
 
-            // Anti-aliasing
-            fxaa::draw(&fxaa, &mut target, canvas.settings.anti_aliasing(), |target| {
-                use gfx::scene::SceneAction::*;
+            // Clear buffers
+            target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
 
-                // Clear buffers
-                target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
+            // Draw current scene
+            let draw = scene.draw(&mut canvas, &mut target);
 
-                // Draw current scene
-                let draw = scene.draw(&mut canvas, target);
-
-                // Get scene action
-                match draw {
-                    ChangeScene(new_scene) => {
-                        scene = new_scene;
-                        scene.load(&mut canvas);
-                    },
-                    Quit => status = ControlFlow::Break,
-                    _ => (),
-                }
-            });
+            // Get scene action
+            match draw {
+                SceneAction::ChangeScene(new_scene) => {
+                    scene = new_scene;
+                    scene.load(&mut canvas);
+                },
+                SceneAction::Quit => status = ControlFlow::Break,
+                _ => (),
+            }
 
             // Render user interface surface
-            // We don't use FXAA here because it looks ugly
             renderer
                 .draw(
                     &canvas.display,

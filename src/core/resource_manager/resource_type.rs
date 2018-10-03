@@ -33,7 +33,22 @@ pub enum ResourceType {
 }
 
 impl fmt::Display for ResourceType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{:?}", self) }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ResourceType::Language => write!(f, "language"),
+            ResourceType::Blockstate => write!(f, "blockstate"),
+            ResourceType::Model => write!(f, "model"),
+            ResourceType::Sound => write!(f, "sound"),
+            ResourceType::Font => write!(f, "font"),
+            ResourceType::Text => write!(f, "text"),
+            ResourceType::VertexShader => write!(f, "vertex_shader"),
+            ResourceType::FragmentShader => write!(f, "fragment_shader"),
+            ResourceType::Texture => write!(f, "texture"),
+            ResourceType::Animation => write!(f, "animation"),
+            ResourceType::Colormap => write!(f, "colormap"),
+            ResourceType::Property => write!(f, "property"),
+        }
+    }
 }
 
 impl ResourceType {

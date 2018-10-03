@@ -21,7 +21,7 @@ use conrod::widget::Button;
 use conrod::{color, widget, Labelable, Sizeable};
 
 /// Draw Litecraft button widget
-pub fn button<'a>(widgets: &UiTexture) -> Button<'a, Image> {
+pub fn button<'a>(widgets: &UiTexture, scale: f64) -> Button<'a, Image> {
     let base = 256.0;
     let (w, h) = widgets.1;
 
@@ -31,7 +31,9 @@ pub fn button<'a>(widgets: &UiTexture) -> Button<'a, Image> {
     let press_rect = Rect::from_corners([0.0, 190.0 * h / base], [200.0 * w / base, 210.0 * h / base]);
 
     widget::Button::image(widgets.0)
-        .h(45.0)
+        .h(45.0 * scale)
+        .w(480.0 * scale)
+        .label_font_size((12.0 * scale) as u32)
         .label_color(color::WHITE)
         .center_justify_label()
         .source_rectangle(base_rect)

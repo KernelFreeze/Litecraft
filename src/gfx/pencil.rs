@@ -15,11 +15,13 @@
 
 use cgmath::{Matrix4, One};
 
+use std::borrow::Cow;
+
 use core::camera::Camera;
 use core::resource_manager::ResourceManager;
 
 use gfx::canvas::Canvas;
-use gfx::shapes::VertexData;
+use gfx::shapes::VertexData2D;
 
 use glium::draw_parameters::Blend;
 use glium::texture::CompressedSrgbTexture2d;
@@ -27,38 +29,43 @@ use glium::{BackfaceCullingMode, DrawParameters, Surface};
 
 /// Utility for drawing on screen
 pub struct Pencil<'a, S> {
-    program: String,
+    // Shader program
+    program: Cow<'a, str>,
     linear: bool,
 
     frame: &'a mut S,
 
-    persp_matrix: [[f32; 4]; 4],
-    view_matrix: [[f32; 4]; 4],
+    // Uniforms
+    persp_matrix: Option<[[f32; 4]; 4]>,
+    view_matrix: Option<[[f32; 4]; 4]>,
+    transform: Option<[[f32; 4]; 4]>,
 
-    vertices: &'a VertexData,
-    transform: [[f32; 4]; 4],
+    // Shape vertices
+    vertices: &'a VertexData2D,
 
     texture: Option<&'a CompressedSrgbTexture2d>,
 
     canvas: &'a Canvas,
 }
 
-impl<'a, S> Pencil<'a, S> {
+impl<'a, S> Pencil<'a, S>
+where
+    S: Surface,
+{
     /// Create a new Pencil
     pub fn new<T>(frame: &'a mut S, program: T, canvas: &'a Canvas) -> Pencil<'a, S>
     where
-        S: Surface,
-        T: Into<String>,
+        T: Into<Cow<'a, str>>,
     {
         Pencil {
             program: program.into(),
+            vertices: canvas.resources().shapes().quad(),
+
             linear: false,
 
-            view_matrix: Matrix4::one().into(),
-            persp_matrix: Matrix4::one().into(),
-
-            vertices: canvas.resources().shapes().quad(),
-            transform: Matrix4::one().into(),
+            view_matrix: None,
+            persp_matrix: None,
+            transform: None,
 
             texture: None,
 
@@ -68,65 +75,47 @@ impl<'a, S> Pencil<'a, S> {
     }
 
     /// Add vertices to draw
-    pub fn vertices(&'a mut self, vertices: &'a VertexData) -> &'a mut Pencil<S>
-    where
-        S: Surface,
-    {
+    pub fn vertices(&'a mut self, vertices: &'a VertexData2D) -> &'a mut Pencil<S> {
         self.vertices = vertices;
         self
     }
 
     /// Set if rendering should be linear
-    pub fn linear(&'a mut self, linear: bool) -> &'a mut Pencil<S>
-    where
-        S: Surface,
-    {
+    pub fn linear(&'a mut self, linear: bool) -> &'a mut Pencil<S> {
         self.linear = linear;
         self
     }
 
     /// Add texture to draw
-    pub fn texture(&'a mut self, texture: &'a CompressedSrgbTexture2d) -> &'a mut Pencil<S>
-    where
-        S: Surface,
-    {
+    pub fn texture(&'a mut self, texture: &'a CompressedSrgbTexture2d) -> &'a mut Pencil<S> {
         self.texture = Some(texture);
         self
     }
 
     /// Add camera to draw
-    pub fn camera(&'a mut self, camera: &'a Camera) -> &'a mut Pencil<S>
-    where
-        S: Surface,
-    {
-        self.persp_matrix = camera.perspective().into();
-        self.view_matrix = camera.view().into();
+    pub fn camera(&'a mut self, camera: &'a Camera) -> &'a mut Pencil<S> {
+        self.persp_matrix = Some(camera.perspective().into());
+        self.view_matrix = Some(camera.view().into());
         self
     }
 
     /// Add transform to draw
-    pub fn transform(&'a mut self, transform: Matrix4<f32>) -> &'a mut Pencil<S>
-    where
-        S: Surface,
-    {
-        self.transform = transform.into();
+    pub fn transform(&'a mut self, transform: Matrix4<f32>) -> &'a mut Pencil<S> {
+        self.transform = Some(transform.into());
         self
     }
 
     /// Draw shape to 3D space
-    pub fn draw(&mut self)
-    where
-        S: Surface,
-    {
+    pub fn draw(&mut self) {
         use glium::draw_parameters::DepthTest;
         use glium::uniforms::{MagnifySamplerFilter, SamplerWrapFunction};
         use glium::Depth;
 
         let uniforms = uniform! {
             time: ResourceManager::time(),
-            persp_matrix: self.persp_matrix,
-            view_matrix: self.view_matrix,
-            transform: self.transform,
+            persp_matrix: self.persp_matrix.unwrap_or_else(|| Matrix4::one().into()),
+            view_matrix: self.view_matrix.unwrap_or_else(|| Matrix4::one().into()),
+            transform: self.transform.unwrap_or_else(|| Matrix4::one().into()),
         };
 
         // Get previously loaded shader program
@@ -151,14 +140,14 @@ impl<'a, S> Pencil<'a, S> {
 
         let (vertex_buffer, index_buffer) = self.vertices;
 
-        let magnify_filter = if self.linear {
-            MagnifySamplerFilter::Linear
-        } else {
-            MagnifySamplerFilter::Nearest
-        };
-
         // Check if we need to attach a texture
         if let Some(texture) = self.texture {
+            let magnify_filter = if self.linear {
+                MagnifySamplerFilter::Linear
+            } else {
+                MagnifySamplerFilter::Nearest
+            };
+
             let uniforms = uniforms
                 .add(
                     "tex",

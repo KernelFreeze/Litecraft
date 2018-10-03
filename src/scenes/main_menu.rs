@@ -25,7 +25,7 @@ use core::resource_manager::resource::Resource;
 use core::resource_manager::resource_type::ResourceType;
 use core::resource_manager::ResourceManager;
 
-use glium::framebuffer::SimpleFrameBuffer;
+use glium::Frame;
 
 use conrod::position::rect::Rect;
 
@@ -46,10 +46,6 @@ widget_ids! {
         logo_right,
 
         body,
-
-        body_left_column,
-        body_middle_column,
-        body_right_column,
 
         body_footer,
         body_footer_left,
@@ -85,7 +81,7 @@ impl MainMenu {
     }
 
     /// Main menu's background
-    fn draw_wallpaper(&mut self, canvas: &mut Canvas, frame: &mut SimpleFrameBuffer) {
+    fn draw_wallpaper(&mut self, canvas: &mut Canvas, frame: &mut Frame) {
         let i = ResourceManager::time() as u32 / WALLPAPER_DELAY % 5;
 
         let wallpaper = canvas.resources().textures().get(&Resource::minecraft_path(
@@ -123,7 +119,7 @@ impl Scene for MainMenu {
     }
 
     /// Draw scene
-    fn draw(&mut self, canvas: &mut Canvas, frame: &mut SimpleFrameBuffer) -> SceneAction {
+    fn draw(&mut self, canvas: &mut Canvas, frame: &mut Frame) -> SceneAction {
         use conrod::{color, widget, Colorable, Labelable, Positionable, Sizeable, Widget};
 
         let logo = canvas.resources().textures().get_ui(&Resource::minecraft_path(
@@ -140,6 +136,7 @@ impl Scene for MainMenu {
 
         self.draw_wallpaper(canvas, frame);
 
+        let scale = canvas.settings().scale();
         let mut ui = canvas.ui_mut().set_widgets();
 
         // Construct our main `Canvas` tree.
@@ -152,14 +149,7 @@ impl Scene for MainMenu {
                         (self.ids.header_right_column, widget::Canvas::new()),
                     ]),
                 ),
-                (
-                    self.ids.body,
-                    widget::Canvas::new().length(300.0).flow_right(&[
-                        (self.ids.body_left_column, widget::Canvas::new()),
-                        (self.ids.body_middle_column, widget::Canvas::new()),
-                        (self.ids.body_right_column, widget::Canvas::new()),
-                    ]),
-                ),
+                (self.ids.body, widget::Canvas::new().length(300.0)),
                 (
                     self.ids.footer,
                     widget::Canvas::new().pad(20.0).scroll_kids_vertically(),
@@ -171,7 +161,7 @@ impl Scene for MainMenu {
         if let Some(logo) = logo {
             // Texture coordinates
             let base = 256.0;
-            let size = [280.0, 85.0];
+            let size = [280.0 * scale, 85.0 * scale];
             let (w, h) = logo.1;
 
             // Draw logo first part
@@ -196,22 +186,19 @@ impl Scene for MainMenu {
         }
 
         if let Some(widgets) = widgets {
-            ui_helper::button(&widgets)
+            ui_helper::button(&widgets, scale)
                 .label("Singleplayer")
-                .up_from(self.ids.multiplayer, 15.0)
-                .padded_w_of(self.ids.body_middle_column, 40.0)
+                .up_from(self.ids.multiplayer, 15.0 * scale)
                 .set(self.ids.singleplayer, &mut ui);
 
-            ui_helper::button(&widgets)
+            ui_helper::button(&widgets, scale)
                 .label("Multiplayer")
-                .middle_of(self.ids.body_middle_column)
-                .padded_w_of(self.ids.body_middle_column, 40.0)
+                .middle_of(self.ids.body)
                 .set(self.ids.multiplayer, &mut ui);
 
-            ui_helper::button(&widgets)
+            ui_helper::button(&widgets, scale)
                 .label("Minecraft Realms")
-                .down_from(self.ids.multiplayer, 15.0)
-                .padded_w_of(self.ids.body_middle_column, 40.0)
+                .down_from(self.ids.multiplayer, 15.0 * scale)
                 .set(self.ids.realms, &mut ui);
 
             widget::Canvas::new()
@@ -219,17 +206,17 @@ impl Scene for MainMenu {
                     (self.ids.body_footer_left, widget::Canvas::new()),
                     (self.ids.body_footer_right, widget::Canvas::new()),
                 ])
-                .down_from(self.ids.realms, 30.0)
-                .padded_w_of(self.ids.body_middle_column, 40.0)
+                .w(480.0 * scale)
+                .down_from(self.ids.realms, 50.0 * scale)
                 .set(self.ids.body_footer, &mut ui);
 
-            ui_helper::button(&widgets)
+            ui_helper::button(&widgets, scale)
                 .label("Options")
                 .top_left_of(self.ids.body_footer_left)
                 .padded_w_of(self.ids.body_footer_left, 5.0)
                 .set(self.ids.options, &mut ui);
 
-            if ui_helper::button(&widgets)
+            if ui_helper::button(&widgets, scale)
                 .label("Quit Game")
                 .top_right_of(self.ids.body_footer_right)
                 .padded_w_of(self.ids.body_footer_right, 5.0)

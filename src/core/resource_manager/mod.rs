@@ -57,10 +57,14 @@ impl ResourceManager {
             .lock()
             .expect("Failed to lock resourcepacks manager!");
 
+        // Get enabled resourcepacks from config
         *resourcepacks = SmallVec::from_vec(settings.resourcepacks().clone());
 
+        // Bind vertex data
+        let shapes = Shapes::new(display).expect("Failed to create required vertex data");
+
         ResourceManager {
-            shapes: Shapes::new(display),
+            shapes,
             texture_manager: TextureManager::new(),
             shader_manager: ShaderManager::new(),
         }
@@ -103,7 +107,7 @@ impl ResourceManager {
     #[inline]
     pub fn tick(&mut self, display: &Display) { self.texture_manager.tick(display); }
 
-    /// Get VAOs and VBOs
+    /// Get vertex data
     #[inline]
     pub fn shapes(&self) -> &Shapes { &self.shapes }
 

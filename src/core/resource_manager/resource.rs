@@ -146,17 +146,13 @@ impl Resource {
         // Get all enabled resource packs
         let resourcepacks = resourcepacks
             .into_iter()
-            .map(|entry| {
-                let mut path = PathBuf::from("resourcepacks");
-                path.push(entry);
-                path
-            })
+            .map(|entry| PathBuf::from(format!("resourcepacks/{}.zip", entry)))
             .filter(|entry| entry.exists())
             .filter(|entry| entry.is_file());
 
-        // Check every resourcepack
+        // Check every resource-pack
         for entry in resourcepacks {
-            // Read resourcepack ZIP file
+            // Read ZIP file
             let zipfile = File::open(entry)?;
             let mut zipfile = ZipArchive::new(zipfile)?;
 
