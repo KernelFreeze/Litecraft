@@ -22,7 +22,7 @@ use glium::Program;
 use std::collections::HashMap;
 use std::error::Error;
 
-type Result<T> = std::result::Result<T, Box<Error>>;
+type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 pub struct ShaderManager {
     shaders: HashMap<&'static str, Program>,

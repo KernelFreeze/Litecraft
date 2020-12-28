@@ -18,7 +18,7 @@ use glium::Frame;
 
 pub enum SceneAction {
     None,
-    ChangeScene(Box<Scene>),
+    ChangeScene(Box<dyn Scene>),
     Quit,
 }
 
