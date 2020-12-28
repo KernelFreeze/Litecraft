@@ -15,7 +15,7 @@ cgmath = "0.17.0"
 lazy_static = "1.1"
 simple_logger = "1.0.1"
 threadpool = "1.0"
-rhai = "0.9.0"
+rhai = "0.19.8"
 smallvec = "0.6.5"
 conrod = { git = "https://github.com/Litecrafty/conrod", features = ["glium", "winit"] }
 glium = { git = "https://github.com/Litecrafty/glium", features = ["icon_loading"] }
