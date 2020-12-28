@@ -157,7 +157,7 @@ impl Resource {
             let mut zipfile = ZipArchive::new(zipfile)?;
 
             // Read resource from ZIP
-            let mut file = zipfile.by_name(&self.folder("assets"));
+            let file = zipfile.by_name(&self.folder("assets"));
 
             // If file exist in zip
             if let Ok(mut file) = file {
