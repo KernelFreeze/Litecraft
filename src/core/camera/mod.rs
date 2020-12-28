@@ -15,7 +15,6 @@
 
 use cgmath::prelude::*;
 use cgmath::{ortho, perspective, Deg, Euler, Matrix4, Point3, Quaternion, Vector3};
-use std::f32;
 
 const YAW: f32 = -90.0;
 const PITCH: f32 = 0.0;
@@ -106,8 +105,6 @@ impl Camera {
 
     /// Get perspective matrix
     pub fn perspective(&self) -> Matrix4<f32> {
-        use std::f32;
-
         let zfar = 1024.0;
         let znear = 1.0;
 
