@@ -85,7 +85,7 @@ impl ResourceManager {
     }
 
     /// Get and load a font file
-    pub fn font(resource: &Resource) -> Result<Font, Box<Error>> {
+    pub fn font(resource: &Resource) -> Result<Font, Box<dyn Error>> {
         use conrod::text::FontCollection;
 
         info!("Loading font file '{}'", resource);

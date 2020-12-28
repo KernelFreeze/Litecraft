@@ -81,7 +81,7 @@ impl Canvas {
         let resource_manager = ResourceManager::new(&display, &settings);
 
         // Create default scene
-        let mut scene: Box<Scene> = Box::new(LoadingScene::new());
+        let mut scene: Box<dyn Scene> = Box::new(LoadingScene::new());
 
         info!("Starting script engine!");
 

@@ -29,7 +29,7 @@ use std::io::{Error, ErrorKind};
 use std::path::{Path, PathBuf};
 use zip::read::ZipArchive;
 
-type Result<T> = std::result::Result<T, Box<error::Error>>;
+type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 #[derive(PartialEq, Eq, Hash)]
 /// Represents a resource URI and allows loading resource data

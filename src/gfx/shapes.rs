@@ -42,7 +42,7 @@ pub struct Shapes {
 }
 
 impl Shapes {
-    pub fn new(display: &Display) -> Result<Shapes, Box<Error>> {
+    pub fn new(display: &Display) -> Result<Shapes, Box<dyn Error>> {
         Ok(Shapes {
             quad: {
                 (
